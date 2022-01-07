@@ -1,21 +1,71 @@
-# Custom Express Server example
 
-Most of the time the default Next.js server will be enough but there are times you'll want to run your own server to integrate into an existing application. Next.js provides [a custom server api](https://nextjs.org/docs/advanced-features/custom-server).
+# Zappit.gg
 
-Because the Next.js server is a Node.js module you can combine it with any other part of the Node.js ecosystem. In this case we are using express.
 
-## Preview
+## Roadmap
 
-Preview the example live on [StackBlitz](http://stackblitz.com/):
+- Lots of things
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/custom-server-express?runScript=dev)
+<br />
 
-## How to use
+## Features
+- A lot of things
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+<br />
+
+
+## Run Locally
+
+Clone the project
 
 ```bash
-npx create-next-app --example custom-server-express custom-server-express-app
-# or
-yarn create next-app --example custom-server-express custom-server-express-app
+  git clone https://github.com/Asterki/zappit.git zappit
 ```
+
+Go to the project directory
+
+```bash
+  cd zappit
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Build and start the server
+
+```bash
+  npm run start
+```
+Remember you have to configure all the enviroment variables needed
+
+<br />
+
+## Enviroment Variables
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `HOST` | `string` | **Required**. Used for requests to the server |
+| `PORT` | `string` | The port the server will listen to |
+| `SESSION_SECRET` | `string` | **Required**. The secret for the admin session |
+
+
+<br /><br />
+
+## Feedback
+
+If you have any feedback or question, you can reach me at asterki.dev@gmail.com or on Discord as Asterki#1765
+
+
+
+## Authors
+
+- [@SuperFutureNoob](https://www.github.com/SuperFutureNoob)
+- [@Asterki](https://www.github.com/Asterki)
+
+
+
+
+
