@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap");
+
+.page {
+    // * General Styles
+    @media screen {
+        height: 100vh;
+        color: white;
+        font-family: "Comfortaa", cursive;
+
+        main {
+            .title {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -50%);
+
+                user-select: none;
+                text-align: center;
+            }
+
+            form {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -50%);
+
+                label {
+                    margin-bottom: 5px;
+                    font-size: 19px;
+                    margin-left: 5px;
+                }
+
+                p {
+                    margin-bottom: 40px;
+                    font-size: 14px;
+                    margin-top: -10px;
+                    color: #c0c0c0;
+
+                    a {
+                        color: #8c77fa;
+                        text-decoration: none;
+                    }
+                }
+
+                .input-group {
+                    input {
+                        padding: 10px;
+
+                        transition: all 0.15s ease-in-out;
+                        border-radius: 10px;
+                        background-color: #171717 !important;
+                        border: 1px solid #343434;
+
+                        color: #cecece;
+                        font-weight: 500;
+
+                        &:focus {
+                            outline: none;
+                            border: 1px solid #8c77fa;
+                        }
+                    }
+
+                    span {
+                        transition: all 0.15s ease-in-out;
+                        background-color: #171717 !important;
+                        border: 1px solid #343434;
+                        border-radius: 10px;
+                    }
+
+                    input:focus + span {
+                        border: 1px solid #8c77fa;
+                    }
+                }
+
+                button[type="submit"] {
+                    width: 100%;
+                    margin-top: 40px;
+                    padding: 10px;
+
+                    transition: all 0.2s ease-in-out !important;
+                    background-image: linear-gradient(130deg, #8c78fa 50%, #9a51f8 100%);
+                    box-shadow: -2px 0px 50px 14px rgba(140, 119, 250, 0.42);
+                    cursor: pointer;
+                    border: none;
+                    border-radius: 10px;
+
+                    color: white;
+                    font-size: 19px;
+
+                    &:hover {
+                        box-shadow: -2px 0px 50px 20px rgba(140, 119, 250, 0.42);
+                        filter: contrast(150%);
+                        background-position: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    // * Desktop View
+    @media screen and (min-width: 785px) {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 40, 106, 1) 0%,
+            rgba(0, 0, 0, 1) 30%,
+            rgba(0, 0, 0, 1) 60%,
+            rgba(69, 0, 66, 1) 100%
+        );
+
+        main {
+            .title {
+                top: 20%;
+            }
+
+            form {
+                top: 56%;
+                width: 500px;
+            }
+        }
+    }
+
+    // * Mobile View
+    @media screen and (max-width: 785px) {
+        background: linear-gradient(
+            180deg,
+            rgba(0, 40, 106, 1) 0%,
+            rgba(0, 0, 0, 1) 30%,
+            rgba(0, 0, 0, 1) 60%,
+            rgba(69, 0, 66, 1) 100%
+        );
+
+        main {
+            .title {
+                top: 13%;
+            }
+
+            form {
+                top: 60%;
+                width: 90%;
+            }
+        }
+    }
+}

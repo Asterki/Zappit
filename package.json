@@ -1,15 +1,55 @@
 {
-  "private": true,
-  "scripts": {
-    "dev": "node server.js",
-    "build": "next build",
-    "start": "cross-env NODE_ENV=production node server.js"
-  },
-  "dependencies": {
-    "cross-env": "^7.0.2",
-    "express": "^4.17.1",
-    "next": "latest",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  }
+    "private": true,
+    "scripts": {
+        "dev": "nodemon ./server/index.js --config nodemon.json",
+        "build": "next build",
+        "start": "cross-env NODE_ENV=production node server.js",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "axios": "^0.24.0",
+        "body-parser": "^1.19.1",
+        "bootstrap": "^5.1.3",
+        "chalk": "^4.1.2",
+        "compression": "^1.7.4",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "cross-env": "^7.0.2",
+        "express": "^4.17.1",
+        "express-rate-limit": "^6.0.4",
+        "framer-motion": "^5.5.5",
+        "http": "^0.0.1-security",
+        "jquery": "^3.6.0",
+        "locale": "^0.1.0",
+        "mongoose": "^6.1.5",
+        "next": "latest",
+        "next-images": "^1.8.4",
+        "path": "^0.12.7",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.1.0",
+        "react-dom": "^17.0.2",
+        "react-tsparticles": "^1.38.0",
+        "redis": "^4.0.1",
+        "sass": "^1.46.0"
+    },
+    "devDependencies": {
+        "eslint": "8.6.0",
+        "eslint-config-next": "12.0.7",
+        "morgan": "^1.10.0",
+        "nodemon": "^2.0.15"
+    },
+    "name": "zappit",
+    "description": "Most of the time the default Next.js server will be enough but there are times you'll want to run your own server to integrate into an existing application. Next.js provides [a custom server api](https://nextjs.org/docs/advanced-features/custom-server).",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Asterki/zappit.git"
+    },
+    "author": "Asterki",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Asterki/zappit/issues"
+    },
+    "homepage": "https://github.com/Asterki/zappit#readme"
 }
