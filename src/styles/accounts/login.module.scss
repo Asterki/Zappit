@@ -105,6 +105,10 @@
             rgba(69, 0, 66, 1) 100%
         );
 
+        .return-button {
+            display: none;
+        }
+
         main {
             .title {
                 top: 20%;
@@ -119,17 +123,25 @@
 
     // * Mobile View
     @media screen and (max-width: 785px) {
-        background: linear-gradient(
-            180deg,
-            rgba(0, 40, 106, 1) 0%,
-            rgba(0, 0, 0, 1) 30%,
-            rgba(0, 0, 0, 1) 60%,
-            rgba(69, 0, 66, 1) 100%
-        );
+        background: #111315;
+
+        .particles {
+            display: none;
+        }
+        
+        .return-button {
+            cursor: pointer;
+            padding: 10px 0px 0px 10px;
+        }
 
         main {
             .title {
                 top: 13%;
+
+                svg {
+                    width: 30px;
+                    height: 30px;
+                }
             }
 
             form {

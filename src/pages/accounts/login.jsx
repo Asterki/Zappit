@@ -13,6 +13,7 @@ import Particles from '../../components/elements/particles';
 
 import Eye from '../../components/icons/eye';
 import Logo from '../../components/icons/logo';
+import ReturnButton from '../../components/icons/return-button';
 
 export async function getServerSideProps({ req, res }) {
     const response = await axios({
@@ -53,10 +54,15 @@ export default function LoginPage(props) {
                 <title>{props.lang.pageTitle}</title>
             </Head>
 
-            <Particles />
+            <div className={styles.particles}>
+                <Particles />
+            </div>
 
             <main>
                 <div className={styles['return-button']}>
+                    <Link href="/" passHref>
+                        <ReturnButton width="38" height="38" />
+                    </Link>
                 </div>
 
                 <div className={styles['title']}>

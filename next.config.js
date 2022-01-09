@@ -1,13 +1,14 @@
-const path = require("path")
-const withImages = require('next-images')
+const rewritesFile = require('./config/rewrites.js');
 
 module.exports = {
-  reactStrictMode: false,
-  webpack5: false,
-  
-  resolve: {
-    extensions: ['.js', '.jsx']
-  }
-}
+    reactStrictMode: false,
+    webpack5: true,
 
-module.exports = withImages()
+    async rewrites() {
+        return rewritesFile();
+    },
+
+    resolve: {
+        extensions: ['.js', '.jsx'],
+    },
+};
