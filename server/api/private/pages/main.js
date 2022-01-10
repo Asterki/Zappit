@@ -22,7 +22,7 @@ router.use(
 );
 
 router.get('/index', (req, res) => {
-    let lang = getLang(req.headers['accept-language'])["main"]["index"];
+    let lang = getLang(req.headers['accept-language'])['main']['index'];
     return res.status(200).send({ lang: lang });
 });
 

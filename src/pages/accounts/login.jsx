@@ -5,7 +5,7 @@ import $ from 'jquery';
 import Link from 'next/link';
 
 import * as utils from '../../utils';
-import styles from '../../styles/accounts/login.module.scss';
+import styles from '../../assets/styles/accounts/login.module.scss';
 
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
@@ -46,6 +46,10 @@ export default function LoginPage(props) {
         $('#show-password-button').on('click', () => {
             setShowingPassword(!showingPassword);
         });
+
+        $("#return-button").on('click', () => {
+            window.location.href = '/';
+        });
     });
 
     return (
@@ -55,14 +59,12 @@ export default function LoginPage(props) {
             </Head>
 
             <div className={styles.particles}>
-                <Particles />
+                {/* <Particles /> */}
             </div>
 
             <main>
                 <div className={styles['return-button']}>
-                    <Link href="/" passHref>
-                        <ReturnButton width="38" height="38" />
-                    </Link>
+                    <ReturnButton id="return-button" width="50" height="50" />
                 </div>
 
                 <div className={styles['title']}>

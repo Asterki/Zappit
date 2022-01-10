@@ -3,20 +3,14 @@
 .page {
     // * General Styles
     @media screen {
-        height: 100vh;
         color: white;
         font-family: "Comfortaa", cursive;
 
+        .title {
+            user-select: none;
+        }
+
         main {
-            .title {
-                position: absolute;
-                left: 50%;
-                transform: translate(-50%, -50%);
-
-                user-select: none;
-                text-align: center;
-            }
-
             form {
                 position: absolute;
                 left: 50%;
@@ -31,7 +25,7 @@
                 p {
                     margin-bottom: 40px;
                     font-size: 14px;
-                    margin-top: -10px;
+                    // margin-top: -10px;
                     color: #c0c0c0;
 
                     a {
@@ -47,26 +41,26 @@
                         transition: all 0.15s ease-in-out;
                         border-radius: 10px;
                         background-color: #171717 !important;
-                        border: 1px solid #343434;
+                        border: 2px solid #343434;
 
                         color: #cecece;
                         font-weight: 500;
 
                         &:focus {
                             outline: none;
-                            border: 1px solid #8c77fa;
+                            border: 2px solid #8c77fa;
                         }
                     }
 
                     span {
                         transition: all 0.15s ease-in-out;
                         background-color: #171717 !important;
-                        border: 1px solid #343434;
+                        border: 2px solid #343434;
                         border-radius: 10px;
                     }
 
                     input:focus + span {
-                        border: 1px solid #8c77fa;
+                        border: 2px solid #8c77fa;
                     }
                 }
 
@@ -77,7 +71,7 @@
 
                     transition: all 0.2s ease-in-out !important;
                     background-image: linear-gradient(130deg, #8c78fa 50%, #9a51f8 100%);
-                    box-shadow: -2px 0px 50px 14px rgba(140, 119, 250, 0.42);
+                    box-shadow: 0px 0px 30px 2px rgba(140, 119, 250, 0.6);
                     cursor: pointer;
                     border: none;
                     border-radius: 10px;
@@ -86,9 +80,22 @@
                     font-size: 19px;
 
                     &:hover {
-                        box-shadow: -2px 0px 50px 20px rgba(140, 119, 250, 0.42);
+                        box-shadow: 0px 0px 30px 6px rgba(140, 119, 250, 0.6);
                         filter: contrast(150%);
                         background-position: 0;
+                    }
+                }
+                
+                .login-alternatives {
+                    position: absolute;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    margin-top: 40px;
+
+                    svg {
+                        margin: 20px;
+                        padding: 20px;
+                        background-color: #171717;
                     }
                 }
             }
@@ -97,13 +104,8 @@
 
     // * Desktop View
     @media screen and (min-width: 785px) {
-        background: linear-gradient(
-            135deg,
-            rgba(0, 40, 106, 1) 0%,
-            rgba(0, 0, 0, 1) 30%,
-            rgba(0, 0, 0, 1) 60%,
-            rgba(69, 0, 66, 1) 100%
-        );
+        height: 100vh;
+        background: #101010;
 
         .return-button {
             display: none;
@@ -111,7 +113,11 @@
 
         main {
             .title {
-                top: 20%;
+                top: 17%;
+                position: absolute;
+                text-align: center;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
             form {
@@ -123,29 +129,42 @@
 
     // * Mobile View
     @media screen and (max-width: 785px) {
-        background: #111315;
+        background: #101010;
+        height: 120vh;
 
         .particles {
             display: none;
         }
-        
+
         .return-button {
             cursor: pointer;
-            padding: 10px 0px 0px 10px;
+            padding: 25px 0px 0px 25px;
+        }
+
+        .title {
+            width: 100%;
+
+            h1 {
+                width: 100%;
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            svg {
+                position: absolute;
+                top: 25px;
+                right: 25px;
+            }
         }
 
         main {
-            .title {
-                top: 13%;
-
-                svg {
-                    width: 30px;
-                    height: 30px;
-                }
-            }
+            zoom: 90%;
 
             form {
-                top: 60%;
+                top: 58%;
                 width: 90%;
             }
         }

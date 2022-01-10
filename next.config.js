@@ -1,4 +1,4 @@
-const rewritesFile = require('./config/rewrites.js');
+const rewritesFile = require('./server/config/rewrites.js');
 
 module.exports = {
     reactStrictMode: false,

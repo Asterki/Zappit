@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import axios from 'axios';
 
-import styles from '../../styles/main/index.module.scss';
+import styles from '../../assets/styles/main/index.module.scss';
 import * as utils from '../../utils';
 
 export async function getServerSideProps({ req, res }) {

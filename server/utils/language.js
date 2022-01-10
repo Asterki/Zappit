@@ -3,8 +3,8 @@ const locale = require("locale")
 // * Import language files and add them to supported
 const supportedLangs = {
     supported: ["es", "en"],
-    es: require("../../languages/es.js"),
-    en: require("../../languages/en.js"),
+    es: require("../locales/es.js"),
+    en: require("../locales/en.js"),
 }
 
 const getLang = (header) => {

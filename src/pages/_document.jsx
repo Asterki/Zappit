@@ -14,10 +14,7 @@ class MainDocument extends Document {
                     <meta name="language" content="English" />
                     <meta name="title" content="Zappit" />
                     <meta name="description" content="// !! Change this description later" />
-                    <meta
-                        name="keywords"
-                        content="// !! add more tags social, posting, sharing, accounts, texting, secure"
-                    />
+                    <meta name="keywords" content="// !! add more tags social, posting, sharing, accounts, texting, secure" />
                     <meta name="author" content="Asterki" />
 
                     {/* Bots */}
