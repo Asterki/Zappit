@@ -1,11 +1,11 @@
 // * This file is used for the API route
-// * /api/private/pages/accounts
+// * /api/private/pages/
 
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 
-const { getLang } = require('../../../utils/language');
+const { getLang } = require('../../utils/locales');
 
 const router = express.Router();
 router.use(
@@ -21,7 +21,14 @@ router.use(
     })
 );
 
-router.get('/login', (req, res) => {
+// * Main
+router.get('/main/index', (req, res) => {
+    let lang = getLang(req.headers['accept-language'])['main']['index'];
+    return res.status(200).send({ lang: lang });
+});
+
+// * Accounts
+router.get('/accounts/login', (req, res) => {
     let lang = getLang(req.headers['accept-language'])['accounts']['login'];
     return res.status(200).send({ lang: lang });
 });

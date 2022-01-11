@@ -8,7 +8,7 @@
 
 **Noob:**
 
-- Started working on Home page design
+-   Started working on Home page design
 
 <br />
 
@@ -23,7 +23,7 @@
 
 **Noob:**
 
-- Community related research
+-   Community related research
 
 <br />
 
@@ -48,8 +48,22 @@
 
 # Jan 10 2022
 
-**Asterki**
+**Asterki:**
 
 -   Started to make a login strategy, using fake data, and a mailer to alert for new logins
+-   Changed colours
+-   Finished the passport login strategy
+-   Added reCaptcha to the login page
+-   Almost finished making the local login system, it just needs to get the user from the database and not from a dummy user
+-   Improvements of code, to make it look prettier
+-   Added Content Security Policy, Cross Origin Embedder Policy, Cross Origin Opener Policy, Cross Origin Resource Policy DNS Prefetch Control, Expect-Ct, Frameguard, HSTS, IE No Open, No Sniff, Origin Agent Cluster, Permitted Cross Domain Policies, Referrer Policy and XSS Filter
+
+**Noob:**
+
+-   Complained about NFT’s
+
+**Asterki & Noob:**
+
+-   After 3 months, we found the perfect font for the page
 
 <br />

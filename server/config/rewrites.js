@@ -1,3 +1,6 @@
+// * In this file will be declared all the rewrites that will be used in
+// * the next.config.js file.
+
 module.exports = () => {
     return [
         // * Main Category

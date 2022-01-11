@@ -37,8 +37,10 @@ export default function Index(props) {
                 <title>{props.lang.pageTitle}</title>
             </Head>
 
-            <Link href="/accounts/login">Login</Link>
-            <h1>{props.lang.pageTitle}</h1>
+            <main>
+                <Link href='/accounts/login'>Login</Link>
+                <h1>{props.lang.pageTitle}</h1>
+            </main>
         </div>
     );
 }

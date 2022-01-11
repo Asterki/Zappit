@@ -1,0 +1,3 @@
+-   Add nodemailer for the login to alert the user when someone logs in
+-   Get the user from the databse instead from a dummy user
+-   Make the register page

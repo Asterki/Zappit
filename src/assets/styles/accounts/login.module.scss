@@ -1,73 +1,137 @@
-@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap");
+@import url("../../fonts/fonts.module.css");
 
 .page {
     // * General Styles
     @media screen {
         color: white;
-        font-family: "Comfortaa", cursive;
+        font-family: "Baloo2", sans-serif;
+        background-color: #111111;
+        font-weight: bold;
 
         .title {
             user-select: none;
+            h1 {
+                font-weight: 1000 !important;
+            }
         }
 
         main {
-            form {
-                position: absolute;
-                left: 50%;
-                transform: translate(-50%, -50%);
+            .form-container {
+                display: block;
 
-                label {
-                    margin-bottom: 5px;
-                    font-size: 19px;
-                    margin-left: 5px;
-                }
+                form {
+                    position: absolute;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
 
-                p {
-                    margin-bottom: 40px;
-                    font-size: 14px;
-                    // margin-top: -10px;
-                    color: #c0c0c0;
-
-                    a {
-                        color: #8c77fa;
-                        text-decoration: none;
+                    label {
+                        margin-bottom: 5px;
+                        font-size: 19px;
+                        margin-left: 5px;
                     }
-                }
 
-                .input-group {
-                    input {
-                        padding: 10px;
+                    p {
+                        margin-top: -10px;
+                        margin-bottom: 40px;
+                        font-size: 14px;
+                        color: #c0c0c0;
 
-                        transition: all 0.15s ease-in-out;
-                        border-radius: 10px;
-                        background-color: #171717 !important;
-                        border: 2px solid #343434;
+                        a {
+                            color: #8c77fa;
+                            text-decoration: none;
+                        }
+                    }
 
-                        color: #cecece;
-                        font-weight: 500;
+                    .input-group {
+                        input {
+                            padding: 10px;
 
-                        &:focus {
-                            outline: none;
+                            transition: all 0.15s ease-in-out;
+                            border-radius: 10px;
+                            background-color: #171717 !important;
+                            border: 2px solid #222222;
+
+                            color: #cecece;
+                            font-weight: 500;
+
+                            &:focus {
+                                outline: none;
+                                border: 2px solid #8c77fa;
+                            }
+                        }
+
+                        span {
+                            transition: all 0.15s ease-in-out;
+                            background-color: #171717 !important;
+                            border: 2px solid #222222;
+                            border-radius: 10px;
+                        }
+
+                        input:focus + span {
                             border: 2px solid #8c77fa;
                         }
                     }
 
-                    span {
-                        transition: all 0.15s ease-in-out;
-                        background-color: #171717 !important;
-                        border: 2px solid #343434;
+                    button[type="submit"] {
+                        width: 100%;
+                        height: 50px;
+                        margin-top: 40px;
+                        padding: 10px;
+
+                        transition: all 0.2s ease-in-out !important;
+                        background-image: linear-gradient(130deg, #8c78fa 50%, #9a51f8 100%);
+                        box-shadow: 0px 0px 30px 2px rgba(140, 119, 250, 0.6);
+                        cursor: pointer;
+                        border: none;
                         border-radius: 10px;
+
+                        color: white;
+                        font-size: 19px;
+
+                        &:hover {
+                            box-shadow: 0px 0px 30px 6px rgba(140, 119, 250, 0.6);
+                            filter: contrast(150%);
+                            background-position: 0;
+                        }
                     }
 
-                    input:focus + span {
-                        border: 2px solid #8c77fa;
+                    .login-alternatives {
+                        position: absolute;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        margin-top: 40px;
+
+                        svg {
+                            margin: 20px;
+                            padding: 20px;
+                            background-color: #171717;
+                        }
                     }
                 }
+            }
 
-                button[type="submit"] {
+            .captcha-container {
+                display: none;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+
+                div {
+                    margin: 0 auto;
+                }
+
+                p {
+                    font-size: 19px;
+                    margin-bottom: 30px;
+                }
+
+                button {
                     width: 100%;
-                    margin-top: 40px;
+                    height: 50px;
                     padding: 10px;
+                    margin-top: 40px;
 
                     transition: all 0.2s ease-in-out !important;
                     background-image: linear-gradient(130deg, #8c78fa 50%, #9a51f8 100%);
@@ -79,23 +143,14 @@
                     color: white;
                     font-size: 19px;
 
+                    &:disabled {
+                        filter: grayscale(100%) !important;
+                    }
+
                     &:hover {
                         box-shadow: 0px 0px 30px 6px rgba(140, 119, 250, 0.6);
                         filter: contrast(150%);
                         background-position: 0;
-                    }
-                }
-                
-                .login-alternatives {
-                    position: absolute;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    margin-top: 40px;
-
-                    svg {
-                        margin: 20px;
-                        padding: 20px;
-                        background-color: #171717;
                     }
                 }
             }
@@ -105,7 +160,6 @@
     // * Desktop View
     @media screen and (min-width: 785px) {
         height: 100vh;
-        background: #101010;
 
         .return-button {
             display: none;
@@ -129,7 +183,6 @@
 
     // * Mobile View
     @media screen and (max-width: 785px) {
-        background: #101010;
         height: 120vh;
 
         .particles {
