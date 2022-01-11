@@ -1,5 +1,7 @@
 # Jan 7 2022
 
+<div id="january-07-2022" />
+
 **Asterki:**
 
 -   Started filesystem and basic internal API
@@ -13,6 +15,8 @@
 <br />
 
 # Jan 8 2022
+
+<div id="january-08-2022" />
 
 **Asterki:**
 
@@ -28,6 +32,8 @@
 <br />
 
 # Jan 9 2022
+
+<div id="january-09-2022" />
 
 **Asterki:**
 
@@ -47,6 +53,8 @@
 <br />
 
 # Jan 10 2022
+
+<div id="january-10-2022" />
 
 **Asterki:**
 
