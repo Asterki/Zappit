@@ -1,7 +1,5 @@
-const errors = {
-    generateReport: require('./errors/generateReport')
-}
-
 module.exports = {
-    errors
-}
+	errors: {
+		generateReport: require('./errors/generateReport'),
+	},
+};

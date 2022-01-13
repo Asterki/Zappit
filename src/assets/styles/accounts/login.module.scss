@@ -5,7 +5,7 @@
     @media screen {
         color: white;
         font-family: "Baloo2", sans-serif;
-        background-color: #111111;
+        background-color: #0e0e0f;
         font-weight: bold;
 
         .title {
@@ -111,7 +111,7 @@
             }
 
             .captcha-container {
-                display: none;
+                // display: none;
                 position: absolute;
                 left: 50%;
                 top: 50%;

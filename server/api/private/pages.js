@@ -33,4 +33,9 @@ router.get('/accounts/login', (req, res) => {
     return res.status(200).send({ lang: lang });
 });
 
+router.get('/accounts/register', (req, res) => {
+    let lang = getLang(req.headers['accept-language'])['accounts']['register'];
+    return res.status(200).send({ lang: lang });
+})
+
 module.exports = router;

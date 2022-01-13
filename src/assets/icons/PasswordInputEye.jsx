@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
-export default function Eye(props) {
+export default function PassswordInputEye(props) {
     return (
         <>
             <svg

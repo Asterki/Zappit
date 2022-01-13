@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
+// * Accounts/Login Page
+// * Last updated: 12/01/2022
+
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+
+import { motion } from 'framer-motion';
 import Head from 'next/head';
-import $ from 'jquery';
 import Link from 'next/link';
+import { InputGroup, Form, Spinner } from 'react-bootstrap';
 import ReCAPTCHA from 'react-google-recaptcha';
+
+import Modal from '../../components/elements/modal';
+import Particles from '../../components/elements/particles';
+
+import PassswordInputEye from '../../assets/icons/PasswordInputEye';
+import Logo from '../../assets/icons/Logo';
+import ReturnButton from '../../assets/icons/ReturnButton';
 
 import * as utils from '../../utils';
 import styles from '../../assets/styles/accounts/login.module.scss';
-
-import InputGroup from 'react-bootstrap/InputGroup';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Modal from 'react-bootstrap/Modal';
-import Particles from '../../components/elements/particles';
-
-import Eye from '../../components/icons/eye';
-import Logo from '../../components/icons/logo';
-import ReturnButton from '../../components/icons/return-button';
+import animations from '../../assets/animations/index';
 
 export async function getServerSideProps({ req, res }) {
-	const response = await axios({
+	const { data } = await axios({
 		method: 'get',
 		url: `${process.env.HOST}/api/private/pages/accounts/login`,
 		headers: {
@@ -35,77 +38,70 @@ export async function getServerSideProps({ req, res }) {
 		};
 	});
 
-	return {
-		props: {
-			lang: response.data.lang,
-			host: process.env.HOST,
-		},
-	};
+	return { props: { ...data } };
 }
 
 export default function LoginPage(props) {
 	const [showingPassword, setShowingPassword] = useState(false);
 	const [passedCaptcha, setPassedCaptcha] = useState(false);
+
+	const [openTab, setOpenTab] = useState('form');
+
 	const [loginError, setLoginError] = useState({
-		message: '',
+		message: 'err-wrong-password',
 		error: false,
 	});
 
-	useEffect(() => {
-		$('#login-button-spinner').hide();
+	const closeModal = () => setLoginError({ ...loginError, error: false });
+	const switchReCaptchaPassed = (value) => (value == null ? setPassedCaptcha(false) : setPassedCaptcha(true));
 
-		$('#show-password-button').on('click', () => {
-			setShowingPassword(!showingPassword);
-		});
+	const switchPasswordVisibility = () => setShowingPassword(!showingPassword);
+	const goBackHistory = () => window.history.back();
 
-		$('#return-button').on('click', () => {
-			window.location.href = '/';
-		});
+	const openReCaptchaTab = (event) => {
+		event.preventDefault();
+		setOpenTab('recaptcha');
+	};
+	const openFormTab = () => {
+		setOpenTab('form');
+	};
 
-		$('#login-form').on('submit', (e) => {
-			e.preventDefault();
-			$('#form-container').fadeOut(300);
+	const sendLoginRequest = async (event) => {
+		if (passedCaptcha) {
+			document.querySelector('#login-button-spinner').style.display = 'block';
+			document.querySelector('#login-button-text').style.display = 'none';
+
+			const response = await axios({
+				method: 'post',
+				url: `${props.host}/api/private/accounts/login`,
+				data: {
+					email: document.querySelector('#email-input').value,
+					password: document.querySelector('#password-input').value,
+				},
+			});
+
+			if (response.data.success == true) return (window.location.href = '/');
+
+			document.querySelector('#login-button-spinner').style.display = 'none';
+			document.querySelector('#login-button-text').style.display = 'block';
+
+			openFormTab();
+			document.querySelector('#password-input').value = '';
+			document.querySelector('#email-input').value = '';
 
 			setTimeout(() => {
-				$('#captcha-container').fadeIn(300);
-			}, 300);
-		});
-
-		$('#login-button').on('click', async (e) => {
-			e.preventDefault();
-
-			if (passedCaptcha) {
-				$('#login-button-spinner').show();
-				$('#login-button-text').hide();
-
-				const response = await axios({
-					method: 'post',
-					url: `${props.host}/api/private/accounts/login`,
-					data: {
-						email: $('#email-input').val(),
-						password: $('#password-input').val(),
-					},
-				});
-
-				if (response.data.success == true) return (window.location.href = '/');
-
-				$('#login-button-spinner').hide();
-				$('#login-button-text').show();
-
-				$('#captcha-container').fadeOut(300);
+				$('#form-container').fadeIn(300);
 				setLoginError({
 					message: response.data.message,
 					error: true,
 				});
+			}, 300);
+		}
+	};
 
-				$('#password-input #email-input').val('');
-
-				setTimeout(() => {
-					$('#form-container').fadeIn(300);
-				}, 300);
-			}
-		});
-	});
+	useEffect(() => {
+		document.querySelector('#login-button-spinner').style.display = 'none';
+	}, []);
 
 	return (
 		<div className={styles.page}>
@@ -117,20 +113,9 @@ export default function LoginPage(props) {
 				<Particles />
 			</div>
 
-			<Modal show={loginError.error} animation={true} centered>
-				<Modal.Header closeButton>
-					<Modal.Title>Modal heading</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>Woohoo, youre reading this text in a modal!</Modal.Body>
-				<Modal.Footer>
-					<button variant='secondary'>Close</button>
-					<button variant='primary'>Save Changes</button>
-				</Modal.Footer>
-			</Modal>
-
 			<main>
 				<div className={styles['return-button']}>
-					<ReturnButton id='return-button' width='50' height='50' />
+					<ReturnButton onClick={goBackHistory} width='50' height='50' />
 				</div>
 
 				<div className={styles['title']}>
@@ -139,8 +124,13 @@ export default function LoginPage(props) {
 					<h1>{props.lang.title}</h1>
 				</div>
 
-				<div id='form-container' className={styles['form-container']}>
-					<Form action='/api/private/accounts/login' id='login-form' method='post'>
+				<motion.div
+					className={styles['form-container']}
+					variants={animations.fade(0.3)}
+					initial={openTab == 'form' ? 'visible' : 'hidden'}
+					animate={openTab == 'form' ? 'visible' : 'hidden'}
+				>
+					<Form action='/api/private/accounts/login' onSubmit={openReCaptchaTab} method='post'>
 						<Form.Label htmlFor='email'>{props.lang.email}</Form.Label>
 						<InputGroup className={`mb-3 ${styles['input-group']}`}>
 							<Form.Control
@@ -148,7 +138,7 @@ export default function LoginPage(props) {
 								placeholder={props.lang.emailPlaceholder}
 								aria-label={props.lang.emailPlaceholder}
 								type='email'
-								name='email'
+								id='email-input'
 								required
 							/>
 						</InputGroup>
@@ -164,12 +154,12 @@ export default function LoginPage(props) {
 								className='shadow-none text-white'
 								placeholder={props.lang.passwordPlaceholder}
 								aria-label={props.lang.passwordPlaceholder}
-								name='password'
 								type={showingPassword ? 'text' : 'password'}
+								id='password-input'
 								required
 							/>
-							<InputGroup.Text id='show-password-button'>
-								<Eye width='20' height='20' open={showingPassword} />
+							<InputGroup.Text onClick={switchPasswordVisibility}>
+								<PassswordInputEye width='20' height='20' open={showingPassword} />
 							</InputGroup.Text>
 						</InputGroup>
 
@@ -182,22 +172,32 @@ export default function LoginPage(props) {
 							<span>{props.lang.continue}</span>
 						</button>
 					</Form>
-				</div>
+				</motion.div>
 
-				<div id='captcha-container' className={styles['captcha-container']}>
+				<motion.div
+					variants={animations.fade(0.3)}
+					initial={openTab == 'recaptcha' ? 'visible' : 'hidden'}
+					animate={openTab == 'recaptcha' ? 'visible' : 'hidden'}
+					className={styles['captcha-container']}
+				>
 					<p>{props.lang.captcha}</p>
 					<ReCAPTCHA
 						theme='dark'
 						hl={props.lang.lang}
 						sitekey='6LdvbwUeAAAAABEZSr_2aLZnI29vMZ1P-5k-1Xm-'
-						onChange={(value) => (value == null ? setPassedCaptcha(false) : setPassedCaptcha(true))}
+						onChange={switchReCaptchaPassed}
 					/>
-					<button id='login-button' disabled={!passedCaptcha}>
+					<button disabled={!passedCaptcha} onClick={sendLoginRequest}>
 						<p id='login-button-text'>{props.lang.login}</p>
 						<Spinner id='login-button-spinner' animation='border' variant='light' />
 					</button>
-				</div>
+				</motion.div>
 			</main>
+
+			<Modal open={loginError.error} title='Error' type='error'>
+				<p>{props.lang.errors[loginError.message]}</p>
+				<button onClick={closeModal}>Continue</button>
+			</Modal>
 		</div>
 	);
 }

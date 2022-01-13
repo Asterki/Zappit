@@ -18,6 +18,11 @@ router.post(
 		rateLimit({
 			windowMs: 15 * 60 * 1000,
 			max: 3,
+			statusCode: 200,
+			message: {
+				success: false,
+				message: 'err-rate-limit',
+			},
 		}),
 	],
 	(req, res, next) => {

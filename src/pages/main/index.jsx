@@ -7,40 +7,74 @@ import styles from '../../assets/styles/main/index.module.scss';
 import * as utils from '../../utils';
 
 export async function getServerSideProps({ req, res }) {
-    const response = await axios({
-        method: 'get',
-        url: `${process.env.HOST}/api/private/pages/main/index`,
-        headers: {
-            'accept-language': req.headers['accept-language'],
-        },
-    }).catch((error) => {
-        let reportCode = utils.errors.generateReport(error);
-        return {
-            redirect: {
-                destination: `/error?code=${reportCode}`,
-                permanent: false,
-            },
-        };
-    });
+	const response = await axios({
+		method: 'get',
+		url: `${process.env.HOST}/api/private/pages/main/index`,
+		headers: {
+			'accept-language': req.headers['accept-language'],
+		},
+	}).catch((error) => {
+		let reportCode = utils.errors.generateReport(error);
+		return {
+			redirect: {
+				destination: `/error?code=${reportCode}`,
+				permanent: false,
+			},
+		};
+	});
 
-    return {
-        props: {
-            lang: response.data.lang,
-        },
-    };
+	return {
+		props: {
+			lang: response.data.lang,
+		},
+	};
 }
 
 export default function Index(props) {
-    return (
-        <div className={styles.page}>
-            <Head>
-                <title>{props.lang.pageTitle}</title>
-            </Head>
+	return (
+		<div className={styles.page}>
+			<Head>
+				<title>{props.lang.pageTitle}</title>
+			</Head>
 
-            <main>
-                <Link href='/accounts/login'>Login</Link>
-                <h1>{props.lang.pageTitle}</h1>
-            </main>
-        </div>
-    );
+			<main>
+				<h1>Zappit</h1>
+
+				<table>
+					<tr>
+						<th>Account</th>
+						<th>Main</th>
+						<th>Profile</th>
+					</tr>
+					<tr>
+						<td>
+							<Link href='/login'>Login</Link>
+						</td>
+						<td>
+							<Link href='/'>Main</Link>
+						</td>
+						<td>Placeholder</td>
+					</tr>
+					<tr>
+						<td>
+							<Link href='/api/private/accounts/logout'>Logout</Link>
+						</td>
+
+						<td>
+							<Link href='/home'>Home</Link>
+						</td>
+						<td>Placeholder</td>
+					</tr>
+					<tr>
+						<td>
+							<Link href='/register'>Register</Link>
+						</td>
+						<td>Placeholder</td>
+
+						<td>Placeholder</td>
+					</tr>
+				</table>
+			</main>
+		</div>
+	);
 }

@@ -1,0 +1,133 @@
+@import url("../../fonts/fonts.module.css");
+
+.page {
+    // * General Styles
+    @media screen {
+        color: white;
+        font-family: "Baloo2", sans-serif;
+        background-color: #0e0e0f;
+        font-weight: bold;
+
+        main {
+            form {
+                position: absolute;
+                left: 50%;
+                top: 55%;
+                transform: translate(-50%, -50%);
+
+                label {
+                    font-size: 19px;
+                    margin: 20px 0 -10px 5px !important;
+                }
+
+                .input-group {
+                    input {
+                        padding: 10px;
+
+                        transition: all 0.15s ease-in-out;
+                        border-radius: 10px;
+                        background-color: #171717 !important;
+                        border: 2px solid #222222;
+
+                        color: #cecece;
+                        font-weight: 500;
+
+                        &:focus {
+                            outline: none;
+                            border: 2px solid #8c77fa;
+                        }
+                    }
+
+                    span {
+                        transition: all 0.15s ease-in-out;
+                        background-color: #171717 !important;
+                        border: 2px solid #222222;
+                        border-radius: 10px;
+                    }
+
+                    input:focus + span {
+                        border: 2px solid #8c77fa;
+                    }
+                }
+
+                button {
+                    width: 100%;
+                    height: 50px;
+                    margin-top: 70px;
+                    padding: 10px;
+
+                    transition: all 0.2s ease-in-out !important;
+                    background-image: linear-gradient(130deg, #8c78fa 50%, #9a51f8 100%);
+                    box-shadow: 0px 0px 30px 2px rgba(140, 119, 250, 0.6);
+                    cursor: pointer;
+                    border: none;
+                    border-radius: 10px;
+
+                    color: white;
+                    font-size: 19px;
+
+                    &:hover {
+                        box-shadow: 0px 0px 30px 6px rgba(140, 119, 250, 0.6);
+                        filter: contrast(150%);
+                        background-position: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    // * Desktop
+    @media screen and (min-width: 785px) {
+        height: 100vh;
+
+        .return-button {
+            display: none;
+        }
+
+        main {
+            .title {
+                top: 17%;
+                position: absolute;
+                text-align: center;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            form {
+                width: 500px;
+            }
+        }
+    }
+
+    @media screen and (max-width: 784px) {
+        height: 120vh;
+
+        .particles {
+            display: none;
+        }
+
+        .return-button {
+            cursor: pointer;
+            padding: 25px 0px 0px 25px;
+        }
+
+        .title {
+            width: 100%;
+
+            h1 {
+                width: 100%;
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            svg {
+                position: absolute;
+                top: 25px;
+                right: 25px;
+            }
+        }
+    }
+}

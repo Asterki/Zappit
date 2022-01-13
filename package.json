@@ -29,7 +29,6 @@
 		"fs": "^0.0.1-security",
 		"helmet": "^5.0.1",
 		"http": "^0.0.1-security",
-		"jquery": "^3.6.0",
 		"locale": "^0.1.0",
 		"mongoose": "^6.1.5",
 		"next": "latest",

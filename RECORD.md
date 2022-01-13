@@ -1,4 +1,6 @@
-# Jan 7 2022
+# January
+
+### Jan 7 2022
 
 <div id="january-07-2022" />
 
@@ -14,7 +16,7 @@
 
 <br />
 
-# Jan 8 2022
+## Jan 8 2022
 
 <div id="january-08-2022" />
 
@@ -31,7 +33,7 @@
 
 <br />
 
-# Jan 9 2022
+## Jan 9 2022
 
 <div id="january-09-2022" />
 
@@ -52,7 +54,7 @@
 
 <br />
 
-# Jan 10 2022
+## Jan 10 2022
 
 <div id="january-10-2022" />
 
@@ -73,5 +75,38 @@
 **Asterki & Noob:**
 
 -   After 3 months, we found the perfect font for the page
+
+<br />
+
+## Jan 11 2022
+
+<div id="january-11-2022" />
+
+**Asterki:**
+
+-   Removed jquery from the entire project
+-   Finished making modals
+-   Finished the local login system
+-   General performance improvements
+
+<br />
+
+## Jan 12 2022
+
+<div id="january-12-2022" />
+
+**Asterki:**
+
+-   Completely fiished login page, working on register page now
+-   Setting up a redis server to cache usernames when typing on the register page
+-   Optimized code and added comments 
+-   Created animations folder to make more complex animations
+-   Made the RECORD.md file more organized to make it easier to navigate, now dividing in months
+-   Research on more concepts to make the development easier
+
+**Noob:** 
+
+-   Made models and popups designs
+-   Lots of new ideas
 
 <br />
