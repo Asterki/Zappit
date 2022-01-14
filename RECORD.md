@@ -110,3 +110,24 @@
 -   Lots of new ideas
 
 <br />
+
+## Jan 13 2022
+
+<div id="january-13-2022" />
+
+**Asterki:**
+
+-   Completely fiished login page, working on register page now
+-   Setting up a redis server to cache usernames when typing on the register page
+-   Optimized code and added comments 
+-   Created animations folder to make more complex animations
+-   Made the RECORD.md file more organized to make it easier to navigate, now dividing in months
+-   Research on more concepts to make the development easier
+
+**Noob:** 
+
+-   Made designs for the context menu
+-   
+-   Reached level 100 on fortnite
+
+<br />

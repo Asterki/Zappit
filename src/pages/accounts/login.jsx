@@ -49,7 +49,7 @@ export default function LoginPage(props) {
 
 	const [loginError, setLoginError] = useState({
 		message: 'err-wrong-password',
-		error: false,
+		error: true,
 	});
 
 	const closeModal = () => setLoginError({ ...loginError, error: false });

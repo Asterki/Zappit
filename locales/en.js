@@ -52,6 +52,9 @@ let en = {
 			password: 'Your Password',
 			passwordPlaceholder: '••••••••••••',
 
+			passwordConfirm: 'Confirm Password',
+			passwordConfirmPlaceholder: '••••••••••••',
+
 			login: 'Already have an account? & Login',
 			next: 'Next',
 

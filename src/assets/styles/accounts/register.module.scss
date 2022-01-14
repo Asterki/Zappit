@@ -5,7 +5,7 @@
     @media screen {
         color: white;
         font-family: "Baloo2", sans-serif;
-        background-color: #0e0e0f;
+        background-color: #0b0c0c;
         font-weight: bold;
 
         main {
@@ -17,7 +17,13 @@
 
                 label {
                     font-size: 19px;
-                    margin: 20px 0 -10px 5px !important;
+                    margin: 50px 0 -10px 5px !important;
+                }
+
+                .error-label {
+                    color: #ed4245;
+                    font-size: 13px;
+                    margin: -10px 0 0 0 !important;
                 }
 
                 .input-group {
@@ -71,6 +77,29 @@
                         filter: contrast(150%);
                         background-position: 0;
                     }
+
+                    &:disabled {
+                        background-color: #8c78fa !important;
+                        box-shadow: none;
+                        cursor: not-allowed;
+                        filter: grayscale(100%);
+                    }
+                }
+
+                .captcha {
+                    margin-bottom: -20px;
+                    margin-top: 40px;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .password-strength {
+                    height: 5px;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                    background-color: #222222;
+                    margin-top: -10px;
+
                 }
             }
         }
@@ -86,7 +115,7 @@
 
         main {
             .title {
-                top: 17%;
+                top: 13%;
                 position: absolute;
                 text-align: center;
                 left: 50%;

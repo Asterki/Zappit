@@ -5,7 +5,7 @@
     @media screen {
         color: white;
         font-family: "Baloo2", sans-serif;
-        background-color: #0e0e0f;
+        background-color: #0b0c0c;
         font-weight: bold;
 
         .title {
@@ -145,6 +145,8 @@
 
                     &:disabled {
                         filter: grayscale(100%) !important;
+                        box-shadow: none;
+                        cursor: not-allowed;
                     }
 
                     &:hover {
