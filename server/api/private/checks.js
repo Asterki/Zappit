@@ -1,3 +1,6 @@
+// * This file is used for the API route
+// * /api/private/checks/
+
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');

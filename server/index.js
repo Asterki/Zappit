@@ -15,9 +15,9 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 nextApp.prepare().then(() => {
 	const app = express();
-
-	require('./config/middleware')(app);
+	
 	require('./config/databases');
+	require('./config/middleware')(app);
 	require('./config/passport');
 	require('./api/routes')(app);
 

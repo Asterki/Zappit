@@ -136,7 +136,7 @@
 
 ## Jan 14 2022
 
-<div id="january-134-2022" />
+<div id="january-14-2022" />
 
 **Asterki:**
 
@@ -151,5 +151,20 @@
 **Noob:**
 
 -   Started working on friends page
+
+<br />
+
+
+## Jan 15 2022
+
+<div id="january-15-2022" />
+
+**Asterki:**
+
+-   Added comments to files
+-   Made the core more clean
+-   Added the redis client
+-   Added email verification feature in the server, needs page
+-   First run on the /accounts/register route, succeeded first try
 
 <br />

@@ -3,21 +3,12 @@
 const mongoose = require('mongoose');
 const redis = require('redis');
 
-(async () => {
-	const client = redis.createClient();
-
-	client.on('error', (err) => console.log('Redis Client Error', err));
-
-	await client.connect().then(()  => [
-        console.log('Redis Client Connected'),
-    ])
-})();
+const redisClient = redis.createClient();
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisClient.connect().then(() => console.log('Redis Client Connected'));
 
 mongoose.connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true });
+const mongooseClient = mongoose.connection;
+mongooseClient.once('open', () => console.log('MongoDB database connection established successfully'));
 
-const connection = mongoose.connection;
-connection.once('open', function () {
-	console.log('MongoDB database connection established successfully');
-});
-
-module.exports = connection;
+module.exports = { redisClient, mongooseClient };

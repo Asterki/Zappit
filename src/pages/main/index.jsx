@@ -13,15 +13,7 @@ export async function getServerSideProps({ req, res }) {
 		headers: {
 			'accept-language': req.headers['accept-language'],
 		},
-	}).catch((error) => {
-		let reportCode = utils.errors.generateReport(error);
-		return {
-			redirect: {
-				destination: `/error?code=${reportCode}`,
-				permanent: false,
-			},
-		};
-	});
+	})
 
 	return {
 		props: {
