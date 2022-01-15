@@ -49,22 +49,12 @@ export default function LoginPage(props) {
 
 	const [loginError, setLoginError] = useState({
 		message: 'err-wrong-password',
-		error: true,
+		error: false,
 	});
 
 	const closeModal = () => setLoginError({ ...loginError, error: false });
 	const switchReCaptchaPassed = (value) => (value == null ? setPassedCaptcha(false) : setPassedCaptcha(true));
-
 	const switchPasswordVisibility = () => setShowingPassword(!showingPassword);
-	const goBackHistory = () => window.history.back();
-
-	const openReCaptchaTab = (event) => {
-		event.preventDefault();
-		setOpenTab('recaptcha');
-	};
-	const openFormTab = () => {
-		setOpenTab('form');
-	};
 
 	const sendLoginRequest = async (event) => {
 		if (passedCaptcha) {
@@ -73,7 +63,7 @@ export default function LoginPage(props) {
 
 			const response = await axios({
 				method: 'post',
-				url: `${props.host}/api/private/accounts/login`,
+				url: `/api/private/accounts/login`,
 				data: {
 					email: document.querySelector('#email-input').value,
 					password: document.querySelector('#password-input').value,
@@ -85,12 +75,13 @@ export default function LoginPage(props) {
 			document.querySelector('#login-button-spinner').style.display = 'none';
 			document.querySelector('#login-button-text').style.display = 'block';
 
-			openFormTab();
+			setOpenTab('form');
 			document.querySelector('#password-input').value = '';
 			document.querySelector('#email-input').value = '';
 
 			setTimeout(() => {
-				$('#form-container').fadeIn(300);
+				setOpenTab('form');
+				
 				setLoginError({
 					message: response.data.message,
 					error: true,
@@ -115,7 +106,7 @@ export default function LoginPage(props) {
 
 			<main>
 				<div className={styles['return-button']}>
-					<ReturnButton onClick={goBackHistory} width='50' height='50' />
+					<ReturnButton onClick={(e) => window.history.back()} width='50' height='50' />
 				</div>
 
 				<div className={styles['title']}>
@@ -130,7 +121,14 @@ export default function LoginPage(props) {
 					initial={openTab == 'form' ? 'visible' : 'hidden'}
 					animate={openTab == 'form' ? 'visible' : 'hidden'}
 				>
-					<Form action='/api/private/accounts/login' onSubmit={openReCaptchaTab} method='post'>
+					<Form
+						action='/api/private/accounts/login'
+						onSubmit={(e) => {
+							e.preventDefault();
+							setOpenTab('recaptcha');
+						}}
+						method='post'
+					>
 						<Form.Label htmlFor='email'>{props.lang.email}</Form.Label>
 						<InputGroup className={`mb-3 ${styles['input-group']}`}>
 							<Form.Control

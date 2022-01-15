@@ -132,3 +132,24 @@
 -   Reached level 100 on fortnite
 
 <br />
+
+
+## Jan 14 2022
+
+<div id="january-134-2022" />
+
+**Asterki:**
+
+-   Almost finished the register page, needs optimization and make the code more clean
+-   Finished the user model, registering first user to test the checks on the register page
+-   Made transporters for emails
+-   Made the redis server and manager
+-   Made email verification emails
+-   Made the checks API, made for checking info that comes from the database
+-   Finished register page
+
+**Noob:**
+
+-   Started working on friends page
+
+<br />

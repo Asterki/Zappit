@@ -12,18 +12,12 @@
             form {
                 position: absolute;
                 left: 50%;
-                top: 55%;
+                top: 57%;
                 transform: translate(-50%, -50%);
 
                 label {
                     font-size: 19px;
-                    margin: 50px 0 -10px 5px !important;
-                }
-
-                .error-label {
-                    color: #ed4245;
-                    font-size: 13px;
-                    margin: -10px 0 0 0 !important;
+                    margin: 20px 0 -10px 5px !important;
                 }
 
                 .input-group {
@@ -87,8 +81,8 @@
                 }
 
                 .captcha {
-                    margin-bottom: -20px;
-                    margin-top: 40px;
+                    margin-bottom: -40px;
+                    margin-top: 30px;
                     display: flex;
                     justify-content: center;
                 }
@@ -99,7 +93,12 @@
                     margin-bottom: 10px;
                     background-color: #222222;
                     margin-top: -10px;
+                }
 
+                .errors {
+                    color: #ed4245;
+                    font-size: 15px;
+                    margin-top: 20px;
                 }
             }
         }

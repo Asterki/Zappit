@@ -32,8 +32,7 @@ let en = {
 			errors: {
 				'err-missing-credentials': 'Please enter your email and password',
 				'err-logged-in': 'You are already logged in',
-				'err-wrong-password': 'Wrong password',
-				'err-user-not-found': 'User not found',
+				'err-wrong-credentials': 'Could not find a user with that email and password',
 				'err-rate-limit': 'Too many login attempts, please try again later',
 			},
 		},
@@ -58,6 +57,20 @@ let en = {
 			login: 'Already have an account? & Login',
 			next: 'Next',
 
+			errors: {
+				'': '',
+				'err-username-taken': '• Username is already taken',
+				'err-username-short': '• Username is too short',
+				'err-username-long': '• Username is too long',
+				
+				'err-email-taken': '• Email is already taken',
+				'err-email-invalid': '• Email is invalid',
+				
+				'err-password-match': '• Passwords do not match',
+				'err-password-short': '• Password must be at least 8 characters long',
+				'err-password-long': '• Password must be less than 128 characters long',
+				'err-password-weak': '• Password is too weak',
+			},
 		},
 	},
 };

@@ -17,7 +17,7 @@ nextApp.prepare().then(() => {
 	const app = express();
 
 	require('./config/middleware')(app);
-	require('./config/mongoose');
+	require('./config/databases');
 	require('./config/passport');
 	require('./api/routes')(app);
 

@@ -5,13 +5,8 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/user');
 
-passport.serializeUser(function (user, done) {
-	done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-	done(null, user);
-});
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 passport.use(
 	new passportLocal.Strategy(
@@ -25,21 +20,20 @@ passport.use(
 			if (!req.body.email || !req.body.password) return done(null, false, { message: 'err-missing-credentials' });
 			if (req.user) return done(null, false, { message: 'err-logged-in' });
 
-			const userExample = {
-				email: 'asterki.dev@gmail.com',
-				password: '$2b$10$k8U8AyqfEFgh8a6T26LpBuQizJTM4NHrnJOOS5kGLgP1wgl37UPfu', // 'water'
-			};
+			User.findOne({ 'email.value': email }, (err, user) => {
+				if (err) return done(err);
 
-			if (!bcrypt.compareSync(req.body.password, userExample.password)) return done(null, false, { message: 'err-wrong-password' });
+				if (!user) return done(null, false, { message: 'err-wrong-credentials' });
+				if (!bcrypt.compareSync(password, user.password)) return done(null, false, { message: 'err-wrong-credentials' });
 
-			return done(null, userExample);
+				// TODO: Check the login zone, block if not on list of allowed zones
 
-			// TODO: Uncomment this when the database is ready, and insert code here
-			// User.findOne({ email: email }, (err, user) => {
-			//     if (err) return done(err);
-			//     if (!user) return done(null, false, { message: 'err-user-not-found' });
+				User.updateOne({ _id: user._id }, { lastLogin: Date.now() }, (err, raw) => {
+					if (err) return done(err);
+				});
 
-			// });
+				return done(null, user);
+			});
 		}
 	)
 );

@@ -4,6 +4,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const ms = require('ms');
 
 const { getLang } = require('../../utils/locales');
 
@@ -16,7 +17,7 @@ router.use(
 );
 router.use(
     rateLimit({
-        windowMs: 10 * 1000,
+        windowMs: ms('10s'),
         max: 5,
     })
 );

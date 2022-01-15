@@ -1,8 +1,9 @@
 // * Accounts/Register Page
-// * Last updated: 12/01/2022
+// * Last updated: 14/01/2022
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import validator from 'validator';
 
 import Link from 'next/link';
 import { Form, InputGroup, Spinner, ProgressBar } from 'react-bootstrap';
@@ -16,7 +17,6 @@ import Particles from '../../components/elements/particles';
 import PassswordInputEye from '../../assets/icons/PasswordInputEye';
 import Logo from '../../assets/icons/Logo';
 import ReturnButton from '../../assets/icons/ReturnButton';
-import ArrowSpinner from '../../assets/icons/ArrowSpinner';
 
 import * as utils from '../../utils';
 import styles from '../../assets/styles/accounts/register.module.scss';
@@ -30,20 +30,14 @@ export async function getServerSideProps({ req, res }) {
 			'accept-language': req.headers['accept-language'],
 		},
 	}).catch((error) => {
-		let reportCode = utils.errors.generateReport(error);
-		return {
-			redirect: {
-				destination: `/error?code=${reportCode}`,
-				permanent: false,
-			},
-		};
+		console.log(error);
 	});
 
-	return { props: { ...data } };
+	return { props: { ...data, host: process.env.HOST } };
 }
 
 export default function Register(props) {
-	const [openTab, setOpenTab] = useState('password');
+	const [openTab, setOpenTab] = useState('username');
 	const showTab = (event, tab) => {
 		event.preventDefault();
 		setOpenTab(tab);
@@ -62,6 +56,10 @@ export default function Register(props) {
 			document.querySelector('#username-addon').style.border = '2px solid #222222';
 		},
 	};
+	let typingTimers = {
+		username: undefined,
+		email: undefined,
+	};
 
 	const [usernameTabState, setUsernameTabState] = useState({
 		username: {
@@ -69,15 +67,108 @@ export default function Register(props) {
 			error: '',
 		},
 		email: {
-			passed: false,
+			passed: true,
 			error: '',
 		},
 		name: {
-			passed: false,
+			passed: true,
 			error: '',
 		},
 	});
-	const usernameTabEvents = {};
+	const usernameTabEvents = {
+		username: async (event) => {
+			if (event.target.value.length < 3) {
+				return setUsernameTabState({
+					...usernameTabState,
+					username: {
+						passed: false,
+						error: 'err-username-short',
+					},
+				});
+			}
+
+			if (event.target.value.length > 24) {
+				return setUsernameTabState({
+					...usernameTabState,
+					username: {
+						passed: false,
+						error: 'err-username-long',
+					},
+				});
+			}
+
+			clearTimeout(typingTimers.username);
+			typingTimers.username = setTimeout(async () => {
+				const { data } = await axios({
+					method: 'post',
+					url: `/api/private/checks/accounts/isUsernameTaken`,
+					headers: {},
+					data: {
+						username: event.target.value,
+					},
+				});
+
+				if (data.result == true) {
+					return setUsernameTabState({
+						...usernameTabState,
+						username: {
+							passed: false,
+							error: 'err-username-taken',
+						},
+					});
+				}
+
+				return setUsernameTabState({
+					...usernameTabState,
+					username: {
+						passed: true,
+						error: '',
+					},
+				});
+			}, 2000);
+		},
+		email: async (event) => {
+			if (!validator.isEmail(event.target.value)) {
+				return setUsernameTabState({
+					...usernameTabState,
+					email: {
+						passed: false,
+						error: 'err-email-invalid',
+					},
+				});
+			}
+
+			clearTimeout(typingTimers.email);
+			typingTimers.email = setTimeout(async () => {
+				const { data } = await axios({
+					method: 'post',
+					url: `/api/private/checks/accounts/isEmailTaken`,
+					headers: {},
+					data: {
+						email: event.target.value,
+					},
+				});
+
+				if (data.result == true) {
+					return setUsernameTabState({
+						...usernameTabState,
+						email: {
+							passed: false,
+							error: 'err-email-taken',
+						},
+					});
+				}
+
+				return setUsernameTabState({
+					...usernameTabState,
+					email: {
+						passed: true,
+						error: '',
+					},
+				});
+			}, 2000);
+		},
+	};
 
 	const [passwordTabState, setPasswordTabState] = useState({
 		password: {
@@ -115,21 +206,15 @@ export default function Register(props) {
 		},
 		password(event) {
 			let password = event.target.value;
+			let passwordConfirm = document.querySelector('#password-confirm-input').value;
 			let passwordStrength = utils.passwords.rate(password);
 
 			if (passwordStrength > 0 && passwordStrength < 30)
 				document.querySelector('#password-strength div').style.background = '#ed4245';
 			if (passwordStrength > 30 && passwordStrength < 60)
 				document.querySelector('#password-strength div').style.background = '#eda01b';
-			if (passwordStrength > 60 && passwordStrength < 100)
+			if (passwordStrength > 60)
 				document.querySelector('#password-strength div').style.background = '#3ba55d';
-
-			if (passwordStrength < 60) {
-				return setPasswordTabState({
-					...passwordTabState,
-					password: { ...passwordTabState.password, strength: passwordStrength, passed: false, error: 'err-password-weak' },
-				});
-			}
 
 			if (password.length < 8) {
 				return setPasswordTabState({
@@ -138,16 +223,28 @@ export default function Register(props) {
 				});
 			}
 
-			if (password.length > 124) {
+			if (password.length > 128) {
 				return setPasswordTabState({
 					...passwordTabState,
 					password: { ...passwordTabState.password, strength: passwordStrength, passed: false, error: 'err-password-long' },
 				});
 			}
 
+			if (passwordStrength < 30) {
+				return setPasswordTabState({
+					...passwordTabState,
+					password: { ...passwordTabState.password, strength: passwordStrength, passed: false, error: 'err-password-weak' },
+				});
+			}
+
 			setPasswordTabState({
 				...passwordTabState,
 				password: { ...passwordTabState.password, strength: passwordStrength, passed: true, error: '' },
+				passwordConfirm: {
+					...passwordTabState.passwordConfirm,
+					error: passwordConfirm !== password ? 'err-password-match' : '',
+					passed: passwordConfirm === password,
+				},
 			});
 		},
 		passwordConfirm(event) {
@@ -166,10 +263,28 @@ export default function Register(props) {
 		},
 	};
 
+	const register = async (e) => {
+		e.preventDefault();
+
+		document.querySelector('#register-button-spinner').style.display = 'block';
+		document.querySelector('#register-button-text').style.display = 'none';
+		document.querySelector('#register-button').disabled = true;
+	};
+
 	useEffect(() => {
-		if (passwordTabState.password.passed && passwordTabState.passwordConfirm.passed && passwordTabState.captcha.passed)
+		if (passwordTabState.password.passed && passwordTabState.passwordConfirm.passed && passwordTabState.captcha.passed) {
 			document.querySelector('#register-button').disabled = false;
-		else document.querySelector('#register-button').disabled = true;
+		} else {
+			document.querySelector('#register-button').disabled = true;
+		}
+
+		if (usernameTabState.username.passed && usernameTabState.email.passed && usernameTabState.name.passed) {
+			document.querySelector('#next-button').disabled = false;
+		} else {
+			document.querySelector('#next-button').disabled = true;
+		}
+
+		document.querySelector('#register-button-spinner').style.display = 'none';
 	}, [usernameTabState, passwordTabState]);
 
 	return (
@@ -178,7 +293,9 @@ export default function Register(props) {
 				<title>{props.lang.pageTitle}</title>
 			</Head>
 
-			<div className={styles.particles}>{/* <Particles /> */}</div>
+			<div className={styles.particles}>
+				<Particles />
+			</div>
 
 			<main>
 				<div className={styles['return-button']}>
@@ -203,13 +320,14 @@ export default function Register(props) {
 								className='shadow-none text-white'
 								placeholder={props.lang.emailPlaceholder}
 								aria-label={props.lang.emailPlaceholder}
+								onChange={usernameTabEvents.email}
 								type='email'
 								id='email-input'
 								required
 							/>
 						</InputGroup>
 
-						<Form.Label htmlFor='password'>{props.lang.username}</Form.Label>
+						<Form.Label htmlFor='username'>{props.lang.username}</Form.Label>
 						<InputGroup className={`mb-3 ${styles['input-group']}`}>
 							<InputGroup.Text id='username-addon' className='text-muted'>
 								@
@@ -220,13 +338,33 @@ export default function Register(props) {
 								aria-label={props.lang.usernamePlaceholder}
 								onFocus={usernameAddon.focus}
 								onBlur={usernameAddon.blur}
+								onChange={usernameTabEvents.username}
 								type='text'
 								id='username-input'
 								required
 							/>
 						</InputGroup>
 
-						<button type='submit'>{props.lang.next}</button>
+						<button type='submit' id='next-button' disabled={true}>
+							{props.lang.next}
+						</button>
+
+						<ul className={styles['errors']}>
+							<motion.div
+								variants={animations.fade(0.3)}
+								initial={usernameTabState.email.error == '' ? 'hidden' : 'visible'}
+								animate={usernameTabState.email.error == '' ? 'hidden' : 'visible'}
+							>
+								{props.lang.errors[usernameTabState.email.error]}
+							</motion.div>
+							<motion.div
+								variants={animations.fade(0.3)}
+								initial={usernameTabState.username.error == '' ? 'hidden' : 'visible'}
+								animate={usernameTabState.username.error == '' ? 'hidden' : 'visible'}
+							>
+								{props.lang.errors[usernameTabState.username.error]}
+							</motion.div>
+						</ul>
 					</Form>
 				</motion.div>
 
@@ -257,7 +395,6 @@ export default function Register(props) {
 							className={styles['password-strength']}
 							now={passwordTabState.password.strength}
 						/>
-						<div className={styles["error-label"]}>placeholder</div>
 
 						<Form.Label htmlFor='password'>{props.lang.passwordConfirm}</Form.Label>
 						<InputGroup className={`mb-3 ${styles['input-group']}`}>
@@ -275,8 +412,6 @@ export default function Register(props) {
 							</InputGroup.Text>
 						</InputGroup>
 
-						<div className={styles["error-label"]}>placeholder</div>
-
 						<ReCAPTCHA
 							className={styles['captcha']}
 							theme='dark'
@@ -285,9 +420,27 @@ export default function Register(props) {
 							onChange={registerTabEvents.captcha}
 						/>
 
-						<button id='register-button' disabled={true} type='submit'>
-							{props.lang.title}
+						<button id='register-button' disabled={false} onClick={register} type='submit'>
+							<p id='register-button-text'>{props.lang.title}</p>
+							<Spinner id='register-button-spinner' className="text-center" animation='border' variant='light' />
 						</button>
+
+						<ul className={styles['errors']}>
+							<motion.div
+								variants={animations.fade(0.3)}
+								initial={passwordTabState.password.error == '' ? 'hidden' : 'visible'}
+								animate={passwordTabState.password.error == '' ? 'hidden' : 'visible'}
+							>
+								{props.lang.errors[passwordTabState.password.error]}
+							</motion.div>
+							<motion.div
+								variants={animations.fade(0.3)}
+								initial={passwordTabState.passwordConfirm.error == '' ? 'hidden' : 'visible'}
+								animate={passwordTabState.passwordConfirm.error == '' ? 'hidden' : 'visible'}
+							>
+								{props.lang.errors[passwordTabState.passwordConfirm.error]}
+							</motion.div>
+						</ul>
 					</Form>
 				</motion.div>
 			</main>
