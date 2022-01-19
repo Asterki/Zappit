@@ -6,7 +6,7 @@ const path = require('path');
 const compression = require('compression');
 const favicon = require('serve-favicon');
 const { errorReporter } = require('express-youch');
-const session = require('express-session');
+const session = require('cookie-session');
 const mongoStore = require('connect-mongo');
 const passport = require('passport');
 
@@ -39,5 +39,6 @@ module.exports = (app) => {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-	if (dev == false) app.use(helmet());
+	// ! TODO configure helmet
+	// if (dev == false) app.use(helmet());
 };

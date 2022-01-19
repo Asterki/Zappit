@@ -4,6 +4,7 @@ const next = require('next');
 const http = require('http');
 const chalk = require('chalk');
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const PORT = process.env.PORT || 8080;
 const dev = process.env.NODE_ENV !== 'production';
@@ -11,7 +12,6 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 nextApp.prepare().then(() => {
 	const app = express();

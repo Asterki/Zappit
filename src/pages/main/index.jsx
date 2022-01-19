@@ -10,9 +10,7 @@ export async function getServerSideProps({ req, res }) {
 	const response = await axios({
 		method: 'get',
 		url: `${process.env.HOST}/api/private/pages/main/index`,
-		headers: {
-			'accept-language': req.headers['accept-language'],
-		},
+		headers: req.headers
 	})
 
 	return {

@@ -182,3 +182,25 @@ No record
 **Noob:**
 
 -   Navbar
+
+<br />
+
+## Jan 18 2022
+
+<div id="january-17-2022" />
+
+**Noob:**
+
+-   Existencial Crisis
+
+<br />
+
+<div id="january-18-2022" />
+
+**Asterki:**
+
+-   Moved from redis to LevelDB
+-   Fixed some errros on error handling, ironic
+-   Disabled security, need to configure before working again
+-   Got a host, first live development version released, failed successfully
+

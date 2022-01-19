@@ -17,7 +17,6 @@ import PassswordInputEye from '../../assets/icons/PasswordInputEye';
 import Logo from '../../assets/icons/Logo';
 import ReturnButton from '../../assets/icons/ReturnButton';
 
-import * as utils from '../../utils';
 import styles from '../../assets/styles/accounts/login.module.scss';
 import animations from '../../assets/animations/index';
 
@@ -25,14 +24,11 @@ export async function getServerSideProps({ req, res }) {
 	const { data } = await axios({
 		method: 'get',
 		url: `${process.env.HOST}/api/private/pages/accounts/login`,
-		headers: {
-			'accept-language': req.headers['accept-language'],
-		},
+		headers: req.headers,
 	}).catch((error) => {
-		let reportCode = utils.errors.generateReport(error);
 		return {
 			redirect: {
-				destination: `/error?code=${reportCode}`,
+				destination: `/support/error?code=${error.response.status}`,
 				permanent: false,
 			},
 		};
@@ -81,7 +77,7 @@ export default function LoginPage(props) {
 
 			setTimeout(() => {
 				setOpenTab('form');
-				
+
 				setLoginError({
 					message: response.data.message,
 					error: true,

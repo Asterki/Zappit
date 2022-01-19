@@ -18,7 +18,6 @@ import PassswordInputEye from '../../assets/icons/PasswordInputEye';
 import Logo from '../../assets/icons/Logo';
 import ReturnButton from '../../assets/icons/ReturnButton';
 
-import * as utils from '../../utils';
 import styles from '../../assets/styles/accounts/register.module.scss';
 import animations from '../../assets/animations/index';
 
@@ -26,14 +25,17 @@ export async function getServerSideProps({ req, res }) {
 	const { data } = await axios({
 		method: 'get',
 		url: `${process.env.HOST}/api/private/pages/accounts/register`,
-		headers: {
-			'accept-language': req.headers['accept-language'],
-		},
+		headers: req.headers,
 	}).catch((error) => {
-		console.log(error);
+		return {
+			redirect: {
+				destination: `/support/error?code=${error.response.status}`,
+				permanent: false,
+			},
+		};
 	});
 
-	return { props: { ...data, host: process.env.HOST } };
+	return { props: { ...data } };
 }
 
 export default function Register(props) {
@@ -213,8 +215,7 @@ export default function Register(props) {
 				document.querySelector('#password-strength div').style.background = '#ed4245';
 			if (passwordStrength > 30 && passwordStrength < 60)
 				document.querySelector('#password-strength div').style.background = '#eda01b';
-			if (passwordStrength > 60)
-				document.querySelector('#password-strength div').style.background = '#3ba55d';
+			if (passwordStrength > 60) document.querySelector('#password-strength div').style.background = '#3ba55d';
 
 			if (password.length < 8) {
 				return setPasswordTabState({
@@ -422,7 +423,7 @@ export default function Register(props) {
 
 						<button id='register-button' disabled={false} onClick={register} type='submit'>
 							<p id='register-button-text'>{props.lang.title}</p>
-							<Spinner id='register-button-spinner' className="text-center" animation='border' variant='light' />
+							<Spinner id='register-button-spinner' className='text-center' animation='border' variant='light' />
 						</button>
 
 						<ul className={styles['errors']}>
