@@ -204,3 +204,27 @@ No record
 -   Disabled security, need to configure before working again
 -   Got a host, first live development version released, failed successfully
 
+
+## Jan 23 2022
+
+<div id="january-23-2022" />
+
+**Noob:**
+
+-   Played first basketball game, scored first in-game 2 pointer
+
+<br />
+
+## Jan 24 2022
+
+<div id="january-24-2022" />
+
+**Noob:**
+
+-   Fucking nothing
+
+**Asterki:**
+
+- Something probably
+
+<br />
