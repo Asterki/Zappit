@@ -1,40 +1,44 @@
 module.exports = {
-    reactStrictMode: false,
-    webpack5: true,
+	reactStrictMode: false,
+	webpack5: true,
 
-    async rewrites() {
-        return [
-            // * Main Category
-            {
-                source: '/',
-                destination: '/main',
-            },
-            {
-                source: '/home',
-                destination: '/main',
-            },
-    
-            // * Accounts Category
-            {
-                source: '/login',
-                destination: '/accounts/login',
-            },
-            {
-                source: '/register',
-                destination: '/accounts/register',
-            },
-            {
-                source: '/logout',
-                destination: '/accounts/logout',
-            },
-            {
-                source: '/password-recovery',
-                destination: '/accounts/password-recovery',
-            },
-        ];
-    },
+	async rewrites() {
+		return [
+			// * Main Category
+			{
+				source: '/',
+				destination: '/main',
+			},
+			{
+				source: '/home',
+				destination: '/main/home',
+			},
 
-    resolve: {
-        extensions: ['.js', '.jsx'],
-    },
+			// * Accounts Category
+			{
+				source: '/login',
+				destination: '/accounts/login',
+			},
+			{
+				source: '/register',
+				destination: '/accounts/register',
+			},
+			{
+				source: '/logout',
+				destination: '/accounts/logout',
+			},
+			{
+				source: '/password-recovery',
+				destination: '/accounts/password-recovery',
+			},
+			{
+				source: '/verify-email',
+				destination: '/accounts/verify-email',
+			},
+		];
+	},
+
+	resolve: {
+		extensions: ['.js', '.jsx'],
+	},
 };

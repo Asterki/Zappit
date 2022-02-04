@@ -21,23 +21,37 @@ import styles from '../../assets/styles/accounts/login.module.scss';
 import animations from '../../assets/animations/index';
 
 export async function getServerSideProps({ req, res }) {
-	const { data } = await axios({
-		method: 'get',
-		url: `${process.env.HOST}/api/private/pages/accounts/login`,
-		headers: req.headers,
-	}).catch((error) => {
+	if (req.user !== undefined)
 		return {
 			redirect: {
-				destination: `/support/error?code=${error.response.status}`,
+				destination: '/home',
 				permanent: false,
 			},
 		};
-	});
 
-	return { props: { ...data } };
+	return await axios({
+		method: 'get',
+		url: `${process.env.HOST}/api/private/pages/accounts/login`,
+		headers: req.headers,
+	})
+		.then((response) => {
+			return {
+				props: {
+					...response.data,
+				},
+			};
+		})
+		.catch((error) => {
+			return {
+				redirect: {
+					destination: `/support/error?code=${error.response.status}`,
+					permanent: false,
+				},
+			};
+		});
 }
 
-export default function LoginPage(props) {
+export default function AccountsLogin(props) {
 	const [showingPassword, setShowingPassword] = useState(false);
 	const [openTab, setOpenTab] = useState('form');
 
@@ -47,7 +61,7 @@ export default function LoginPage(props) {
 	});
 	const [loginError, setLoginError] = useState({
 		message: '',
-		error: false,
+		open: false,
 	});
 	const [inputStates, setInputStates] = useState({
 		email: '',
@@ -69,23 +83,28 @@ export default function LoginPage(props) {
 				},
 			});
 
-			if (response.data.success == true) return (window.location.href = '/');
+			if (response.data.code == 200) return (window.location.href = '/home');
+			if (response.data.code == 500) return (window.location.href = '/support/error?code=500');
 
-			document.querySelector('#login-button-spinner').style.display = 'none';
-			document.querySelector('#login-button-text').style.display = 'block';
+			if (response.data.code == 403 || response.data.code == 429) {
+				console.log(response.data)
 
-			setOpenTab('form');
-			document.querySelector('#password-input').value = '';
-			document.querySelector('#email-input').value = '';
+				document.querySelector('#login-button-spinner').style.display = 'none';
+				document.querySelector('#login-button-text').style.display = 'block';
 
-			setTimeout(() => {
 				setOpenTab('form');
+				document.querySelector('#password-input').value = '';
+				document.querySelector('#email-input').value = '';
 
-				setLoginError({
-					message: response.data.message,
-					error: true,
-				});
-			}, 300);
+				setTimeout(() => {
+					setOpenTab('form');
+
+					setLoginError({
+						message: response.data.message,
+						open: true,
+					});
+				}, 300);
+			}
 		}
 	};
 
@@ -199,7 +218,7 @@ export default function LoginPage(props) {
 
 			<Modal open={loginError.error} title='Error' type='error'>
 				<p>{props.lang.errors[loginError.message]}</p>
-				<button onClick={(e) => setLoginError({ message: '', error: false })}>Continue</button>
+				<button onClick={(e) => setLoginError({ message: '', open: false })}>Continue</button>
 			</Modal>
 		</div>
 	);

@@ -20,7 +20,7 @@ export async function getServerSideProps({ req, res }) {
 	};
 }
 
-export default function Index(props) {
+export default function MainIndex(props) {
 	return (
 		<div className={styles.page}>
 			<Head>

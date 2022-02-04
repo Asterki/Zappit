@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ErrorPage(props) {
+export default function SupportError(props) {
 	return (
 		<div className='container'>
 			<div className='row'>

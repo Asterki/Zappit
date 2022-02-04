@@ -23,20 +23,34 @@ import styles from '../../assets/styles/accounts/register.module.scss';
 import animations from '../../assets/animations/index';
 
 export async function getServerSideProps({ req, res }) {
-	const { data } = await axios({
-		method: 'get',
-		url: `${process.env.HOST}/api/private/pages/accounts/register`,
-		headers: req.headers,
-	}).catch((error) => {
+	if (req.user !== undefined)
 		return {
 			redirect: {
-				destination: `/support/error?code=${error.response.status}`,
+				destination: '/home',
 				permanent: false,
 			},
 		};
-	});
 
-	return { props: { ...data } };
+	return await axios({
+		method: 'get',
+		url: `${process.env.HOST}/api/private/pages/accounts/register`,
+		headers: req.headers,
+	})
+		.then((response) => {
+			return {
+				props: {
+					...response.data,
+				},
+			};
+		})
+		.catch((error) => {
+			return {
+				redirect: {
+					destination: `/support/error?code=${error.response.status}`,
+					permanent: false,
+				},
+			};
+		});
 }
 
 let typingTimers = {
@@ -44,7 +58,7 @@ let typingTimers = {
 	email: undefined,
 };
 
-export default function Register(props) {
+export default function AccountsRegister(props) {
 	const [openTab, setOpenTab] = useState('username');
 	const showTab = (event, tab) => {
 		event.preventDefault();
@@ -52,8 +66,8 @@ export default function Register(props) {
 	};
 
 	const [registerError, setRegisterError] = useState({
-		message: 'err-wrong-password',
-		error: false,
+		message: 'err-rate-limit',
+		open: false,
 	});
 
 	const usernameAddon = {
@@ -105,16 +119,18 @@ export default function Register(props) {
 			typingTimers.username = setTimeout(async () => {
 				const { data } = await axios({
 					method: 'post',
-					url: `/api/private/checks/accounts/isUsernameTaken`,
+					url: `/api/private/checks/accounts/is-username-taken`,
 					headers: {},
 					data: {
 						username: event.target.value,
 					},
 				});
 
-				if (data.success == false) return (window.location.href = `/support/error?code=500`);
+				if (data.code == 500) return (window.location.href = `/support/error?code=500`);
+				if (data.code == 400) return (window.location.href = `/support/error?code=400`);
+				if (data.code == 429) return clearTimeout(typingTimers.username);
 
-				if (data.result == true) {
+				if (data.message == true) {
 					return setUsernameTabState({
 						...usernameTabState,
 						username: {
@@ -148,16 +164,18 @@ export default function Register(props) {
 			typingTimers.email = setTimeout(async () => {
 				const { data } = await axios({
 					method: 'post',
-					url: `/api/private/checks/accounts/isEmailTaken`,
+					url: `/api/private/checks/accounts/is-email-taken`,
 					headers: {},
 					data: {
 						email: event.target.value,
 					},
 				});
 
-				if (data.success == false) return (window.location.href = `/support/error?code=500`);
+				if (data.code == 500) return (window.location.href = `/support/error?code=500`);
+				if (data.code == 400) return (window.location.href = `/support/error?code=400`);
+				if (data.code == 429) return clearTimeout(typingTimers.email);
 
-				if (data.result == true) {
+				if (data.message == true) {
 					return setUsernameTabState({
 						...usernameTabState,
 						email: {
@@ -291,7 +309,20 @@ export default function Register(props) {
 			},
 		});
 
-		if (result.data.success == true) return (window.location.href = '/');
+		if (result.data.code == 200) return (window.location.href = '/home');
+		if (result.data.code !== 429) return (window.location.href = `/support/error?code=${result.data.code}`);
+
+		if (result.data.code == 429) {
+			document.querySelector('#register-button-spinner').style.display = 'none';
+			document.querySelector('#register-button-text').style.display = 'block';
+			document.querySelector('#register-button').disabled = false;
+
+			setOpenTab('username');
+			return setRegisterError({
+				message: 'err-rate-limit',
+				open: true,
+			});
+		}
 	};
 
 	useEffect(() => {
@@ -368,7 +399,7 @@ export default function Register(props) {
 							/>
 						</InputGroup>
 
-						<button type='submit' id='next-button' disabled={true}>
+						<button type='submit' id='next-button'>
 							{props.lang.next}
 						</button>
 						<p className={styles['login']}>
@@ -475,6 +506,11 @@ export default function Register(props) {
 					{props.lang.tos.split('&')[2]} <Link href='/support/privacy'>{props.lang.tos.split('&')[3]}</Link>
 				</p>
 			</main>
+
+			<Modal open={registerError.open} type='error'>
+				{props.lang[registerError.message]}
+				<button onClick={(e) => setRegisterError({ message: '', open: false })}>Continue</button>
+			</Modal>
 		</div>
 	);
 }

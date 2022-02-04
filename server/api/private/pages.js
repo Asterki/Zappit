@@ -2,14 +2,14 @@
 // * /api/private/pages/
 
 const express = require('express');
-const rateLimit = require('express-rate-limit');
-const chalk = require('chalk');
-const cors = require('cors');
 const ms = require('ms');
 
 const { getLang } = require('../../utils/locales');
 
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const router = express.Router();
+
 router.use(
     cors({
         origin: process.env.HOST,

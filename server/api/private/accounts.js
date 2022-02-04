@@ -7,16 +7,16 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const geoip = require('geoip-lite');
 const uuid = require('uuid');
-const chalk = require('chalk');
 const ms = require('ms');
 const fs = require('fs');
 
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const Users = require('../../models/users');
+const User = require('../../models/users');
 const { levelDB } = require('../../config/databases');
 
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+
 router.use(
 	cors({
 		origin: process.env.HOST,
@@ -29,44 +29,22 @@ router.post(
 	rateLimit({
 		windowMs: ms('1h'),
 		max: 5,
+		statusCode: 200,
 		message: {
-			success: false,
 			message: 'err-rate-limit',
+			code: 429,
 		},
 	}),
 	(req, res, next) => {
-		// Authenticate the user
 		passport.authenticate('local', (err, user, info) => {
-			// If there was an error in the authentication process
-			if (err) return next(err);
-			if (!user) return res.status(200).send({ success: false, message: info.message });
+			if (err) return res.send({ message: 'err-server-error', code: 500 });
+			if (!user) return res.send({ message: info.message, code: 403 });
 
-			// Login the user
 			req.logIn(user, (err) => {
 				if (err) throw err;
-				return res.status(200).send({ success: true, message: 'ok' });
+				return res.status(200).send({ message: 'ok', code: 200 });
 			});
 		})(req, res, next);
-	}
-);
-
-router.post(
-	'/logout',
-	rateLimit({
-		windowMs: ms('6h'),
-		max: 30,
-		message: {
-			success: false,
-			message: 'err-rate-limit',
-		},
-	}),
-	(req, res, next) => {
-		// If the user is not logged in
-		if (!req.user) return res.status(200).send({ success: false, message: 'err-not-logged-in' });
-
-		// Logout the user and redirect to the welcome page
-		req.logout();
-		res.redirect('/');
 	}
 );
 
@@ -75,29 +53,25 @@ router.post(
 	rateLimit({
 		windowMs: ms('1d'),
 		max: 1,
+		statusCode: 200,
 		message: {
-			success: false,
 			message: 'err-rate-limit',
+			code: 429,
 		},
 	}),
 	(req, res, next) => {
-		// Check if the body parameters are provided
 		let { username, email, password } = req.body;
-		if (!username || !email || !password) return res.status(200).send({ success: false, message: 'err-missing-fields' });
+		if (!username || !email || !password) return res.send({ message: 'err-missing-body-params', code: 400 });
 
-		// Check if the body parameters are valid
-		if (username.length > 24 || username.length < 3) return res.status(200).send({ success: false, message: 'err-username-length' });
-		if (!validator.isEmail(email)) return res.status(200).send({ success: false, message: 'err-email-invalid' });
-		if (password.length < 8 || password.length > 128) return res.status(200).send({ success: false, message: 'err-password-length' });
+		if (username.length > 24 || username.length < 3) return res.send({ message: 'err-username-length', code: 400 });
+		if (!validator.isEmail(email)) return res.send({ message: 'err-invalid-email', code: 400 });
+		if (password.length < 8 || password.length > 128) return res.send({ message: 'err-password-length', code: 400 });
 
-		Users.findOne({ $or: [{ 'email.value': email }, { username: username.toLowerCase() }] }, (err, result) => {
-			// Return if error, check if the username or email are already taken
-			if (err) return res.send(200).send({ success: false, message: 'err-internal-error' });
-			if (result) return res.status(200).send({ success: false, message: 'err-credentials-used' });
+		User.findOne({ $or: [{ 'email.value': email }, { username: username.toLowerCase() }] }, (err, result) => {
+			if (err) return res.send({ message: 'err-server-error', code: 500 });
+			if (result) return res.send({ message: 'err-username-taken', code: 400 });
 
-			// Create the user with the data provided
-			// let zoneInfo = geoip.lookup(ip); // ! Disabled for development
-			let user = new Users({
+			let user = new User({
 				username: username.toLowerCase(),
 				email: {
 					value: email,
@@ -105,56 +79,76 @@ router.post(
 				},
 				password: bcrypt.hashSync(password, 10),
 				userID: uuid.v4(),
-				// accountInfo: {
-				//     authorizedLoginZones: [{ country: zoneInfo.country, city: zoneInfo.city }],
-				// },
 			});
 
-			// Save the user
 			user.save((err, result) => {
-				if (err || !result) return res.send(200).send({ success: false, message: 'err-internal-error' });
-				return res.status(200).send({ success: true, message: 'ok' });
+				if (err || !result) return res.send({ message: 'err-server-error', code: 500 });
+
+				req.logIn(result, (err) => {
+					if (err) return res.send({ message: 'err-server-error', code: 500 });
+				});
+
+				return res.status(200).send({ code: 200, message: 'ok' });
+			});
+		});
+	}
+);
+
+router.post(
+	'/verify-email',
+	rateLimit({
+		windowMs: ms('1h'),
+		max: 5,
+		statusCode: 200,
+		message: {
+			code: 429,
+			message: 'err-rate-limit',
+		},
+	}),
+	(req, res) => {
+		let { code } = req.body;
+		if (!code) return res.send({ message: 'err-missing-body-params', code: 400 });
+		if (code.length !== 6) return res.send({ message: 'err-invalid-code', code: 400 });
+
+		levelDB.get('email-accounts-verification-codes', (err, result) => {
+			if (err) return res.send({ message: 'err-server-error', code: 500 });
+
+			let codes = JSON.parse(result);
+			let found = codes.find((element) => element.code == code);
+
+			if (!found) return res.send({ message: 'err-invalid-code', code: 400 });
+			if (found.expires < Date.now()) return res.send({ message: 'err-code-expired', code: 400 });
+
+			codes = codes.filter((code) => code.code !== found.code);
+
+			levelDB.put('email-accounts-verification-codes', JSON.stringify(codes), (err) => {
+				if (err) return res.send({ message: 'err-server-error', code: 500 });
+
+				User.findOneAndUpdate({ 'email.value': found.email }, { $set: { 'email.verified': true } }, (err, result) => {
+					if (err || !result) return res.send({ message: 'err-server-error', code: 500 });
+					return res.send({ message: 'ok', code: 200 });
+				});
 			});
 		});
 	}
 );
 
 router.get(
-	'/verifyEmail',
+	'/logout',
 	rateLimit({
-		windowMs: ms('1h'),
-		max: 5,
+		windowMs: ms('6h'),
+		max: 30,
+		statusCode: 200,
 		message: {
-			success: false,
 			message: 'err-rate-limit',
+			code: 429,
 		},
 	}),
-	async (req, res) => {
-		let { token } = req.query;
-		if (!token) return res.redirect('/support/error?code=400');
+	(req, res, next) => {
+		if (!req.user) return res.send({ message: 'err-not-logged-in', code: 403 });
 
-		// Get the tokens from the database and parse them
-		let result = await levelDB.get('emailVerificationTokens');
-		let emailVerificationTokens = JSON.parse(result);
-		if (emailVerificationTokens.length == 0) return res.redirect('/accounts/verifyEmail?message=invalid');
-
-		// Find the token provided by the user in the database, return if not found
-		let emailVerificationToken = emailVerificationTokens.find((element) => element.token == token);
-		if (!emailVerificationToken) return res.redirect('/accounts/verifyEmail?message=invalid');
-		if (emailVerificationToken.expiration < Date.now()) return res.redirect('/accounts/verifyEmail?message=expired');
-
-
-		// Remove the token from the database
-		emailVerificationTokens = emailVerificationTokens.filter((element) => element.token !== token);
-		levelDB.put('emailVerificationTokens', JSON.stringify(emailVerificationTokens), (err) => {
-			if (err) return res.redirect('/support/error?code=500');
-		});
-
-		// Update the email value
-		Users.updateOne({ 'email.value': emailVerificationToken.email }, { $set: { 'email.verified': true, 'email.verifiedAt': Date.now() } }, (err, result) => {
-			if (err) return res.redirect('/support/error?code=500');
-			return res.redirect('/accounts/verifyEmail?success=true');
-		});
+		req.logout();
+		res.redirect('/');
 	}
 );
 

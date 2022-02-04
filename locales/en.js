@@ -61,7 +61,7 @@ let en = {
 			tos: 'By creating an account you agree to our & Terms of Service & and our & Privacy Policy', 
 
 			errors: {
-				'': '',
+				'err-rate-limit': 'You have already created an account within 24 hours',
 				'err-username-taken': '• Username is already taken',
 				'err-username-short': '• Username is too short',
 				'err-username-long': '• Username is too long',
