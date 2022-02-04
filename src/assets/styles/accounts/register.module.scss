@@ -8,16 +8,34 @@
         background-color: #0b0c0c;
         font-weight: bold;
 
+        .title {
+            user-select: none;
+            h1 {
+                font-weight: 1000 !important;
+            }
+        }
+
         main {
             form {
                 position: absolute;
                 left: 50%;
-                top: 57%;
                 transform: translate(-50%, -50%);
 
                 label {
                     font-size: 19px;
                     margin: 20px 0 -10px 5px !important;
+                }
+
+                .login {
+                    margin-top: 10px;
+                    margin-bottom: 40px;
+                    font-size: 14px;
+                    color: #c0c0c0;
+
+                    a {
+                        color: #8c77fa;
+                        text-decoration: none;
+                    }
                 }
 
                 .input-group {
@@ -73,10 +91,8 @@
                     }
 
                     &:disabled {
-                        background-color: #8c78fa !important;
                         box-shadow: none;
                         cursor: not-allowed;
-                        filter: grayscale(100%);
                     }
                 }
 
@@ -114,7 +130,7 @@
 
         main {
             .title {
-                top: 13%;
+                top: 17%;
                 position: absolute;
                 text-align: center;
                 left: 50%;
@@ -122,7 +138,23 @@
             }
 
             form {
+                top: 56% !important;
                 width: 500px;
+            }
+        }
+
+        .tos {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 14px;
+            color: #c0c0c0;
+
+            a {
+                color: #8c77fa;
+                text-decoration: none;
             }
         }
     }

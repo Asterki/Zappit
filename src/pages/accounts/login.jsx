@@ -1,5 +1,5 @@
 // * Accounts/Login Page
-// * Last updated: 12/01/2022
+// * Last updated: 20/01/2022
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -10,8 +10,8 @@ import Link from 'next/link';
 import { InputGroup, Form, Spinner } from 'react-bootstrap';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-import Modal from '../../components/elements/modal';
-import Particles from '../../components/elements/particles';
+import Modal from '../../components/modal';
+import Particles from '../../components/particles';
 
 import PassswordInputEye from '../../assets/icons/PasswordInputEye';
 import Logo from '../../assets/icons/Logo';
@@ -39,18 +39,20 @@ export async function getServerSideProps({ req, res }) {
 
 export default function LoginPage(props) {
 	const [showingPassword, setShowingPassword] = useState(false);
-	const [passedCaptcha, setPassedCaptcha] = useState(false);
-
 	const [openTab, setOpenTab] = useState('form');
 
+	const [passedCaptcha, setPassedCaptcha] = useState({
+		passed: false,
+		value: '',
+	});
 	const [loginError, setLoginError] = useState({
-		message: 'err-wrong-password',
+		message: '',
 		error: false,
 	});
-
-	const closeModal = () => setLoginError({ ...loginError, error: false });
-	const switchReCaptchaPassed = (value) => (value == null ? setPassedCaptcha(false) : setPassedCaptcha(true));
-	const switchPasswordVisibility = () => setShowingPassword(!showingPassword);
+	const [inputStates, setInputStates] = useState({
+		email: '',
+		password: '',
+	});
 
 	const sendLoginRequest = async (event) => {
 		if (passedCaptcha) {
@@ -63,6 +65,7 @@ export default function LoginPage(props) {
 				data: {
 					email: document.querySelector('#email-input').value,
 					password: document.querySelector('#password-input').value,
+					recaptcha: passedCaptcha.value,
 				},
 			});
 
@@ -85,10 +88,6 @@ export default function LoginPage(props) {
 			}, 300);
 		}
 	};
-
-	useEffect(() => {
-		document.querySelector('#login-button-spinner').style.display = 'none';
-	}, []);
 
 	return (
 		<div className={styles.page}>
@@ -118,12 +117,10 @@ export default function LoginPage(props) {
 					animate={openTab == 'form' ? 'visible' : 'hidden'}
 				>
 					<Form
-						action='/api/private/accounts/login'
 						onSubmit={(e) => {
 							e.preventDefault();
 							setOpenTab('recaptcha');
 						}}
-						method='post'
 					>
 						<Form.Label htmlFor='email'>{props.lang.email}</Form.Label>
 						<InputGroup className={`mb-3 ${styles['input-group']}`}>
@@ -132,6 +129,12 @@ export default function LoginPage(props) {
 								placeholder={props.lang.emailPlaceholder}
 								aria-label={props.lang.emailPlaceholder}
 								type='email'
+								onChange={(e) => {
+									setInputStates({
+										...inputStates,
+										email: e.target.value,
+									});
+								}}
 								id='email-input'
 								required
 							/>
@@ -150,9 +153,15 @@ export default function LoginPage(props) {
 								aria-label={props.lang.passwordPlaceholder}
 								type={showingPassword ? 'text' : 'password'}
 								id='password-input'
+								onChange={(e) => {
+									setInputStates({
+										...inputStates,
+										password: e.target.value,
+									});
+								}}
 								required
 							/>
-							<InputGroup.Text onClick={switchPasswordVisibility}>
+							<InputGroup.Text onClick={(e) => setShowingPassword(!showingPassword)}>
 								<PassswordInputEye width='20' height='20' open={showingPassword} />
 							</InputGroup.Text>
 						</InputGroup>
@@ -162,8 +171,8 @@ export default function LoginPage(props) {
 							<Link href='/register'>{props.lang.forgotPassword.split('&')[1]}</Link>
 						</p>
 
-						<button type='submit'>
-							<span>{props.lang.continue}</span>
+						<button disabled={inputStates.email == '' || inputStates.password == ''} type='submit'>
+							{props.lang.continue}
 						</button>
 					</Form>
 				</motion.div>
@@ -178,19 +187,19 @@ export default function LoginPage(props) {
 					<ReCAPTCHA
 						theme='dark'
 						hl={props.lang.lang}
-						sitekey='6LdvbwUeAAAAABEZSr_2aLZnI29vMZ1P-5k-1Xm-'
-						onChange={switchReCaptchaPassed}
+						sitekey='6LfmhCceAAAAAHLL2uBDMNeFP8lT5vk5J0TaJmv8'
+						onChange={(value) => setPassedCaptcha({ value: value, passed: value !== null })}
 					/>
-					<button disabled={!passedCaptcha} onClick={sendLoginRequest}>
+					<button disabled={!passedCaptcha.passed} onClick={sendLoginRequest}>
 						<p id='login-button-text'>{props.lang.login}</p>
-						<Spinner id='login-button-spinner' animation='border' variant='light' />
+						<Spinner style={{ display: 'none' }} id='login-button-spinner' animation='border' variant='light' />
 					</button>
 				</motion.div>
 			</main>
 
 			<Modal open={loginError.error} title='Error' type='error'>
 				<p>{props.lang.errors[loginError.message]}</p>
-				<button onClick={closeModal}>Continue</button>
+				<button onClick={(e) => setLoginError({ message: '', error: false })}>Continue</button>
 			</Modal>
 		</div>
 	);

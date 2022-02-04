@@ -1,5 +1,5 @@
 // * Accounts/Register Page
-// * Last updated: 14/01/2022
+// * Last updated: 20/01/2022
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -10,9 +10,10 @@ import { Form, InputGroup, Spinner, ProgressBar } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import ReCAPTCHA from 'react-google-recaptcha';
+import * as utils from '../../utils';
 
-import Modal from '../../components/elements/modal';
-import Particles from '../../components/elements/particles';
+import Modal from '../../components/modal';
+import Particles from '../../components/particles';
 
 import PassswordInputEye from '../../assets/icons/PasswordInputEye';
 import Logo from '../../assets/icons/Logo';
@@ -38,6 +39,11 @@ export async function getServerSideProps({ req, res }) {
 	return { props: { ...data } };
 }
 
+let typingTimers = {
+	username: undefined,
+	email: undefined,
+};
+
 export default function Register(props) {
 	const [openTab, setOpenTab] = useState('username');
 	const showTab = (event, tab) => {
@@ -57,10 +63,6 @@ export default function Register(props) {
 		blur() {
 			document.querySelector('#username-addon').style.border = '2px solid #222222';
 		},
-	};
-	let typingTimers = {
-		username: undefined,
-		email: undefined,
 	};
 
 	const [usernameTabState, setUsernameTabState] = useState({
@@ -110,6 +112,8 @@ export default function Register(props) {
 					},
 				});
 
+				if (data.success == false) return (window.location.href = `/support/error?code=500`);
+
 				if (data.result == true) {
 					return setUsernameTabState({
 						...usernameTabState,
@@ -151,6 +155,8 @@ export default function Register(props) {
 					},
 				});
 
+				if (data.success == false) return (window.location.href = `/support/error?code=500`);
+
 				if (data.result == true) {
 					return setUsernameTabState({
 						...usernameTabState,
@@ -186,13 +192,14 @@ export default function Register(props) {
 		},
 		captcha: {
 			passed: false,
+			value: '',
 			error: '',
 		},
 	});
 	const registerTabEvents = {
 		captcha(value) {
-			if (value == null) return setPasswordTabState({ ...passwordTabState, passed: false, error: '' });
-			setPasswordTabState({ ...passwordTabState, captcha: { passed: true, error: '' } });
+			if (value == null) return setPasswordTabState({ ...passwordTabState, passed: false, error: '', value: '' });
+			setPasswordTabState({ ...passwordTabState, captcha: { passed: true, error: '', value: value } });
 		},
 		passwordAddon() {
 			setPasswordTabState({
@@ -266,10 +273,25 @@ export default function Register(props) {
 
 	const register = async (e) => {
 		e.preventDefault();
+		if (e.target.disabled == true) return;
 
 		document.querySelector('#register-button-spinner').style.display = 'block';
 		document.querySelector('#register-button-text').style.display = 'none';
 		document.querySelector('#register-button').disabled = true;
+
+		const result = await axios({
+			method: 'post',
+			url: `/api/private/accounts/register`,
+			headers: {},
+			data: {
+				username: document.querySelector('#username-input').value,
+				email: document.querySelector('#email-input').value,
+				password: document.querySelector('#password-input').value,
+				captcha: passwordTabState.captcha.value,
+			},
+		});
+
+		if (result.data.success == true) return (window.location.href = '/');
 	};
 
 	useEffect(() => {
@@ -349,6 +371,9 @@ export default function Register(props) {
 						<button type='submit' id='next-button' disabled={true}>
 							{props.lang.next}
 						</button>
+						<p className={styles['login']}>
+							{props.lang.login.split('&')[0]} <Link href='/login'>{props.lang.login.split('&')[1]}</Link>
+						</p>
 
 						<ul className={styles['errors']}>
 							<motion.div
@@ -417,12 +442,12 @@ export default function Register(props) {
 							className={styles['captcha']}
 							theme='dark'
 							hl={props.lang.lang}
-							sitekey='6LdvbwUeAAAAABEZSr_2aLZnI29vMZ1P-5k-1Xm-'
+							sitekey='6LfmhCceAAAAAHLL2uBDMNeFP8lT5vk5J0TaJmv8'
 							onChange={registerTabEvents.captcha}
 						/>
 
-						<button id='register-button' disabled={false} onClick={register} type='submit'>
-							<p id='register-button-text'>{props.lang.title}</p>
+						<button id='register-button' disabled={false} onClick={(e) => register(e)} type='submit'>
+							<p id='register-button-text'>{props.lang.register}</p>
 							<Spinner id='register-button-spinner' className='text-center' animation='border' variant='light' />
 						</button>
 
@@ -444,6 +469,11 @@ export default function Register(props) {
 						</ul>
 					</Form>
 				</motion.div>
+
+				<p className={styles['tos']}>
+					{props.lang.tos.split('&')[0]} <Link href='/support/tos'>{props.lang.tos.split('&')[1]}</Link>
+					{props.lang.tos.split('&')[2]} <Link href='/support/privacy'>{props.lang.tos.split('&')[3]}</Link>
+				</p>
 			</main>
 		</div>
 	);

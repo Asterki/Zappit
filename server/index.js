@@ -12,14 +12,14 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
-
 nextApp.prepare().then(() => {
 	const app = express();
-	
+
 	require('./config/databases');
 	require('./config/middleware')(app);
 	require('./config/passport');
 	require('./api/routes')(app);
+	require('./controllers/controllers');
 
 	app.all('*', (req, res) => {
 		return handle(req, res);
@@ -28,6 +28,6 @@ nextApp.prepare().then(() => {
 	const server = http.createServer(app);
 	server.listen(PORT, (err) => {
 		if (err) throw err;
-		console.log(chalk.green.bold(`> Ready on http://localhost:${PORT}`));
+		console.log(chalk.magenta('event ') + '- Server listening on port ' + PORT);
 	});
 });

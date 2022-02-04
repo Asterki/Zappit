@@ -1,11 +1,11 @@
 
 # Zappit.gg
-
 Your space of creativity
 
-## Roadmap
+<br />
 
-- Lots of things
+## Roadmap
+Please refer to [this project](https://github.com/orgs/Zappit-App/projects/2)
 
 <br />
 
@@ -40,11 +40,11 @@ Build and start the server
 ```bash
   npm run start
 ```
-Remember you have to configure all the enviroment variables needed
+Remember you have to configure all the environment variables needed
 
 <br />
 
-## Enviroment Variables
+## Environment Variables
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |

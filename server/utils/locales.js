@@ -11,7 +11,7 @@ const getLang = (header) => {
     const supported = new locale.Locales(supportedLangs.supported)
     const locales = new locale.Locales(header)
     let bestMatch = locales.best(supported)
-
+    
     return supportedLangs[bestMatch.language.toString()]
 }
 

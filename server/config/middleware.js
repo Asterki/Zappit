@@ -6,7 +6,10 @@ const path = require('path');
 const compression = require('compression');
 const favicon = require('serve-favicon');
 const { errorReporter } = require('express-youch');
-const session = require('cookie-session');
+const session = require('express-session');
+const ms = require('ms');
+const chalk = require('chalk');
+
 const mongoStore = require('connect-mongo');
 const passport = require('passport');
 
@@ -29,7 +32,7 @@ module.exports = (app) => {
 			}),
 			resave: false,
 			saveUninitialized: true,
-			cookie: { secure: false },
+			cookie: { secure: false, maxAge: ms('1 week'), samesite: 'strict' },
 		})
 	);
 
@@ -41,4 +44,5 @@ module.exports = (app) => {
 
 	// ! TODO configure helmet
 	// if (dev == false) app.use(helmet());
+	console.log(chalk.cyan('info  ') + '- Middleware loaded');
 };

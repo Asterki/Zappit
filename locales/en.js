@@ -40,7 +40,7 @@ let en = {
 			pageTitle: 'Zappit | Register',
 			pageDescription: 'Register to the world of Zappit',
 
-			title: 'Register',
+			title: 'Register to Zappit',
 
 			email: 'Your Email',
 			emailPlaceholder: 'john.doe@example.com',
@@ -55,7 +55,10 @@ let en = {
 			passwordConfirmPlaceholder: '••••••••••••',
 
 			login: 'Already have an account? & Login',
+			register: 'Register',
 			next: 'Next',
+
+			tos: 'By creating an account you agree to our & Terms of Service & and our & Privacy Policy', 
 
 			errors: {
 				'': '',

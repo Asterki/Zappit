@@ -7,13 +7,14 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const geoip = require('geoip-lite');
 const uuid = require('uuid');
+const chalk = require('chalk');
 const ms = require('ms');
 const fs = require('fs');
 
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const Users = require('../../models/users');
-const { redisClient } = require('../../config/databases');
+const { levelDB } = require('../../config/databases');
 
 const router = express.Router();
 router.use(
@@ -89,14 +90,14 @@ router.post(
 		if (!validator.isEmail(email)) return res.status(200).send({ success: false, message: 'err-email-invalid' });
 		if (password.length < 8 || password.length > 128) return res.status(200).send({ success: false, message: 'err-password-length' });
 
-		User.findOne({ $or: [{ 'email.value': email }, { username: username.toLowerCase() }] }, (err, result) => {
+		Users.findOne({ $or: [{ 'email.value': email }, { username: username.toLowerCase() }] }, (err, result) => {
 			// Return if error, check if the username or email are already taken
 			if (err) return res.send(200).send({ success: false, message: 'err-internal-error' });
 			if (result) return res.status(200).send({ success: false, message: 'err-credentials-used' });
 
 			// Create the user with the data provided
 			// let zoneInfo = geoip.lookup(ip); // ! Disabled for development
-			let user = new User({
+			let user = new Users({
 				username: username.toLowerCase(),
 				email: {
 					value: email,
@@ -118,7 +119,7 @@ router.post(
 	}
 );
 
-router.post(
+router.get(
 	'/verifyEmail',
 	rateLimit({
 		windowMs: ms('1h'),
@@ -130,25 +131,30 @@ router.post(
 	}),
 	async (req, res) => {
 		let { token } = req.query;
-		if (!req.token) res.redirect('/');
+		if (!token) return res.redirect('/support/error?code=400');
 
 		// Get the tokens from the database and parse them
-		let emailVerificationTokens = JSON.parse(await redisClient.get('emailVerificationTokens'));
-		if (emailVerificationTokens == null) return res.redirect('/');
+		let result = await levelDB.get('emailVerificationTokens');
+		let emailVerificationTokens = JSON.parse(result);
+		if (emailVerificationTokens.length == 0) return res.redirect('/accounts/verifyEmail?message=invalid');
 
 		// Find the token provided by the user in the database, return if not found
 		let emailVerificationToken = emailVerificationTokens.find((element) => element.token == token);
-		if (!emailVerificationToken) return res.redirect('/');
+		if (!emailVerificationToken) return res.redirect('/accounts/verifyEmail?message=invalid');
+		if (emailVerificationToken.expiration < Date.now()) return res.redirect('/accounts/verifyEmail?message=expired');
+
+
+		// Remove the token from the database
+		emailVerificationTokens = emailVerificationTokens.filter((element) => element.token !== token);
+		levelDB.put('emailVerificationTokens', JSON.stringify(emailVerificationTokens), (err) => {
+			if (err) return res.redirect('/support/error?code=500');
+		});
 
 		// Update the email value
-		Users.updateOne(
-			{ email: { value: emailVerificationToken.email } },
-			{ $set: { 'email.verified': true } },
-			(err, result) => {
-				if (err) return res.redirect('/');
-				res.redirect('/');
-			}
-		)
+		Users.updateOne({ 'email.value': emailVerificationToken.email }, { $set: { 'email.verified': true, 'email.verifiedAt': Date.now() } }, (err, result) => {
+			if (err) return res.redirect('/support/error?code=500');
+			return res.redirect('/accounts/verifyEmail?success=true');
+		});
 	}
 );
 

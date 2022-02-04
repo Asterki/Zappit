@@ -23,6 +23,7 @@
 		"cross-env": "^7.0.2",
 		"express": "^4.17.1",
 		"express-rate-limit": "^6.0.4",
+		"express-session": "^1.17.2",
 		"express-sharp": "^4.2.40",
 		"express-youch": "^1.0.1",
 		"framer-motion": "^5.5.5",

@@ -2,6 +2,7 @@
 const passport = require('passport');
 const passportLocal = require('passport-local');
 const bcrypt = require('bcrypt');
+const axios = require('axios');
 
 const Users = require('../models/users');
 
@@ -16,9 +17,20 @@ passport.use(
 			passReqToCallback: true,
 			session: true,
 		},
-		(req, email, password, done) => {
-			if (!req.body.email || !req.body.password) return done(null, false, { message: 'err-missing-credentials' });
+		async (req, email, password, done) => {
+			if (!req.body.email || !req.body.password || !req.body.recaptcha)
+				return done(null, false, { message: 'err-missing-credentials' });
 			if (req.user) return done(null, false, { message: 'err-logged-in' });
+
+			const recaptcha = await axios({
+				method: 'post',
+				url: 'https://www.google.com/recaptcha/api/siteverify',
+				params: {
+					secret: process.env.RECAPTCHA_SECRET,
+					response: req.body.recaptcha,
+				},
+			});
+			if (!recaptcha.data.success) return done(null, false, { message: 'err-recaptcha' });
 
 			Users.findOne({ 'email.value': email }, (err, user) => {
 				if (err) return done(err);

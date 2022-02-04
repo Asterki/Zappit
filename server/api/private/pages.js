@@ -3,6 +3,7 @@
 
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const chalk = require('chalk');
 const cors = require('cors');
 const ms = require('ms');
 
