@@ -17,7 +17,7 @@ const errorReports = new mongoose.Schema(
         id: {
             type: String,
             required: true,
-            unque: true,
+            unique: true,
         },
     },
     {
@@ -26,3 +26,4 @@ const errorReports = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('errorReports', errorReports);
+export {}

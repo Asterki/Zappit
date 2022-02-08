@@ -1,8 +1,9 @@
 // * Accounts/Login Page
 // * Last updated: 20/01/2022
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
+import { GetServerSideProps } from 'next';
 
 import { motion } from 'framer-motion';
 import Head from 'next/head';
@@ -20,8 +21,8 @@ import ReturnButton from '../../assets/icons/ReturnButton';
 import styles from '../../assets/styles/accounts/login.module.scss';
 import animations from '../../assets/animations/index';
 
-export async function getServerSideProps({ req, res }) {
-	if (req.user !== undefined)
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+	if (context.req.user !== undefined)
 		return {
 			redirect: {
 				destination: '/home',
@@ -31,8 +32,8 @@ export async function getServerSideProps({ req, res }) {
 
 	return await axios({
 		method: 'get',
-		url: `${process.env.HOST}/api/private/pages/accounts/login`,
-		headers: req.headers,
+		url: `${context.req.protocol + '://' + context.req.headers.host}/api/private/pages/accounts/login`,
+		headers: context.req.headers,
 	})
 		.then((response) => {
 			return {
@@ -42,6 +43,7 @@ export async function getServerSideProps({ req, res }) {
 			};
 		})
 		.catch((error) => {
+			console.log(error);
 			return {
 				redirect: {
 					destination: `/support/error?code=${error.response.status}`,
@@ -49,9 +51,9 @@ export async function getServerSideProps({ req, res }) {
 				},
 			};
 		});
-}
+};
 
-export default function AccountsLogin(props) {
+export default function AccountsLogin(props: any) {
 	const [showingPassword, setShowingPassword] = useState(false);
 	const [openTab, setOpenTab] = useState('form');
 
@@ -68,33 +70,36 @@ export default function AccountsLogin(props) {
 		password: '',
 	});
 
-	const sendLoginRequest = async (event) => {
+	const sendLoginRequest = async () => {
 		if (passedCaptcha) {
-			document.querySelector('#login-button-spinner').style.display = 'block';
-			document.querySelector('#login-button-text').style.display = 'none';
+			(document.querySelector('#login-button-spinner') as HTMLInputElement).style.display = 'block';
+			(document.querySelector('#login-button-text') as HTMLInputElement).style.display = 'none';
 
 			const response = await axios({
 				method: 'post',
 				url: `/api/private/accounts/login`,
 				data: {
-					email: document.querySelector('#email-input').value,
-					password: document.querySelector('#password-input').value,
+					email: (document.querySelector('#email-input') as HTMLInputElement).value,
+					password: (document.querySelector('#password-input') as HTMLInputElement).value,
 					recaptcha: passedCaptcha.value,
 				},
 			});
 
+			console.log(response)
+
 			if (response.data.code == 200) return (window.location.href = '/home');
 			if (response.data.code == 500) return (window.location.href = '/support/error?code=500');
+			if (response.data.code == 400) return (window.location.href = '/support/error?code=400');
 
 			if (response.data.code == 403 || response.data.code == 429) {
-				console.log(response.data)
+				console.log(response.data);
 
-				document.querySelector('#login-button-spinner').style.display = 'none';
-				document.querySelector('#login-button-text').style.display = 'block';
+				(document.querySelector('#login-button-spinner') as HTMLInputElement).style.display = 'none';
+				(document.querySelector('#login-button-text') as HTMLInputElement).style.display = 'block';
 
 				setOpenTab('form');
-				document.querySelector('#password-input').value = '';
-				document.querySelector('#email-input').value = '';
+				(document.querySelector('#password-input') as HTMLInputElement).value = '';
+				(document.querySelector('#email-input') as HTMLInputElement).value = '';
 
 				setTimeout(() => {
 					setOpenTab('form');
@@ -120,7 +125,7 @@ export default function AccountsLogin(props) {
 
 			<main>
 				<div className={styles['return-button']}>
-					<ReturnButton onClick={(e) => window.history.back()} width='50' height='50' />
+					<ReturnButton onClick={() => window.history.back()} width='50' height='50' />
 				</div>
 
 				<div className={styles['title']}>
@@ -171,6 +176,7 @@ export default function AccountsLogin(props) {
 								placeholder={props.lang.passwordPlaceholder}
 								aria-label={props.lang.passwordPlaceholder}
 								type={showingPassword ? 'text' : 'password'}
+								autoComplete='on'
 								id='password-input'
 								onChange={(e) => {
 									setInputStates({
@@ -180,7 +186,7 @@ export default function AccountsLogin(props) {
 								}}
 								required
 							/>
-							<InputGroup.Text onClick={(e) => setShowingPassword(!showingPassword)}>
+							<InputGroup.Text onClick={() => setShowingPassword(!showingPassword)}>
 								<PassswordInputEye width='20' height='20' open={showingPassword} />
 							</InputGroup.Text>
 						</InputGroup>
@@ -207,7 +213,7 @@ export default function AccountsLogin(props) {
 						theme='dark'
 						hl={props.lang.lang}
 						sitekey='6LfmhCceAAAAAHLL2uBDMNeFP8lT5vk5J0TaJmv8'
-						onChange={(value) => setPassedCaptcha({ value: value, passed: value !== null })}
+						onChange={(value: any) => setPassedCaptcha({ value: value, passed: value !== null })}
 					/>
 					<button disabled={!passedCaptcha.passed} onClick={sendLoginRequest}>
 						<p id='login-button-text'>{props.lang.login}</p>
@@ -216,9 +222,9 @@ export default function AccountsLogin(props) {
 				</motion.div>
 			</main>
 
-			<Modal open={loginError.error} title='Error' type='error'>
+			<Modal open={loginError.open} title='Error' type='error'>
 				<p>{props.lang.errors[loginError.message]}</p>
-				<button onClick={(e) => setLoginError({ message: '', open: false })}>Continue</button>
+				<button onClick={() => setLoginError({ message: '', open: false })}>Continue</button>
 			</Modal>
 		</div>
 	);

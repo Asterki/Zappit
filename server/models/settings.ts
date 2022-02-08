@@ -69,3 +69,4 @@ const Settings = new Schema({
 });
 
 module.exports = mongoose.model('Settings', Settings, 'Settings');
+export {}

@@ -1,6 +1,6 @@
-const ms = require('ms');
-const chalk = require('chalk');
-const { cache } = requires('../config/databases');
+import ms from 'ms';
+import chalk from 'chalk';
+import { cache } from '../config/databases';
 
 module.exports = () => {
 	setInterval(() => {

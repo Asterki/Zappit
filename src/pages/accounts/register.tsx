@@ -1,9 +1,10 @@
 // * Accounts/Register Page
 // * Last updated: 20/01/2022
 
-import { useEffect, useState } from 'react';
+import * as React from 'react';
 import axios from 'axios';
 import validator from 'validator';
+import { GetServerSideProps } from 'next';
 
 import Link from 'next/link';
 import { Form, InputGroup, Spinner, ProgressBar } from 'react-bootstrap';
@@ -22,8 +23,8 @@ import ReturnButton from '../../assets/icons/ReturnButton';
 import styles from '../../assets/styles/accounts/register.module.scss';
 import animations from '../../assets/animations/index';
 
-export async function getServerSideProps({ req, res }) {
-	if (req.user !== undefined)
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+	if (context.req.user !== undefined)
 		return {
 			redirect: {
 				destination: '/home',
@@ -33,8 +34,8 @@ export async function getServerSideProps({ req, res }) {
 
 	return await axios({
 		method: 'get',
-		url: `${process.env.HOST}/api/private/pages/accounts/register`,
-		headers: req.headers,
+		url: `${context.req.protocol + '://' + context.req.headers.host}/api/private/pages/accounts/register`,
+		headers: context.req.headers,
 	})
 		.then((response) => {
 			return {
@@ -51,35 +52,35 @@ export async function getServerSideProps({ req, res }) {
 				},
 			};
 		});
-}
+};
 
-let typingTimers = {
+let typingTimers: { username: any; email: any } = {
 	username: undefined,
 	email: undefined,
 };
 
-export default function AccountsRegister(props) {
-	const [openTab, setOpenTab] = useState('username');
-	const showTab = (event, tab) => {
+export default function AccountsRegister(props: any) {
+	const [openTab, setOpenTab] = React.useState('username');
+	const showTab = (event: any, tab: string) => {
 		event.preventDefault();
 		setOpenTab(tab);
 	};
 
-	const [registerError, setRegisterError] = useState({
+	const [registerError, setRegisterError] = React.useState({
 		message: 'err-rate-limit',
 		open: false,
 	});
 
 	const usernameAddon = {
 		focus() {
-			document.querySelector('#username-addon').style.border = '2px solid #8c77fa';
+			(document.querySelector('#username-addon') as HTMLInputElement).style.border = '2px solid #8c77fa';
 		},
 		blur() {
-			document.querySelector('#username-addon').style.border = '2px solid #222222';
+			(document.querySelector('#username-addon') as HTMLInputElement).style.border = '2px solid #222222';
 		},
 	};
 
-	const [usernameTabState, setUsernameTabState] = useState({
+	const [usernameTabState, setUsernameTabState] = React.useState({
 		username: {
 			passed: false,
 			error: '',
@@ -94,7 +95,7 @@ export default function AccountsRegister(props) {
 		},
 	});
 	const usernameTabEvents = {
-		username: async (event) => {
+		username: async (event: React.ChangeEvent<HTMLInputElement>) => {
 			if (event.target.value.length < 3) {
 				return setUsernameTabState({
 					...usernameTabState,
@@ -149,7 +150,7 @@ export default function AccountsRegister(props) {
 				});
 			}, 2000);
 		},
-		email: async (event) => {
+		email: async (event: React.ChangeEvent<HTMLInputElement>) => {
 			if (!validator.isEmail(event.target.value)) {
 				return setUsernameTabState({
 					...usernameTabState,
@@ -196,7 +197,7 @@ export default function AccountsRegister(props) {
 		},
 	};
 
-	const [passwordTabState, setPasswordTabState] = useState({
+	const [passwordTabState, setPasswordTabState] = React.useState({
 		password: {
 			passed: false,
 			visible: false,
@@ -215,8 +216,9 @@ export default function AccountsRegister(props) {
 		},
 	});
 	const registerTabEvents = {
-		captcha(value) {
-			if (value == null) return setPasswordTabState({ ...passwordTabState, passed: false, error: '', value: '' });
+		captcha(value: string | null) {
+			if (value == null)
+				return setPasswordTabState({ ...passwordTabState, captcha: { ...passwordTabState, passed: false, error: '', value: '' } });
 			setPasswordTabState({ ...passwordTabState, captcha: { passed: true, error: '', value: value } });
 		},
 		passwordAddon() {
@@ -231,16 +233,16 @@ export default function AccountsRegister(props) {
 				passwordConfirm: { ...passwordTabState.passwordConfirm, visible: !passwordTabState.passwordConfirm.visible },
 			});
 		},
-		password(event) {
+		password(event: React.ChangeEvent<HTMLInputElement>) {
 			let password = event.target.value;
-			let passwordConfirm = document.querySelector('#password-confirm-input').value;
+			let passwordConfirm = (document.querySelector('#password-confirm-input') as HTMLInputElement).value;
 			let passwordStrength = utils.passwords.rate(password);
 
 			if (passwordStrength > 0 && passwordStrength < 30)
-				document.querySelector('#password-strength div').style.background = '#ed4245';
+				(document.querySelector('#password-strength div') as HTMLDivElement).style.background = '#ed4245';
 			if (passwordStrength > 30 && passwordStrength < 60)
-				document.querySelector('#password-strength div').style.background = '#eda01b';
-			if (passwordStrength > 60) document.querySelector('#password-strength div').style.background = '#3ba55d';
+				(document.querySelector('#password-strength div') as HTMLDivElement).style.background = '#eda01b';
+			if (passwordStrength > 60) (document.querySelector('#password-strength div') as HTMLDivElement).style.background = '#3ba55d';
 
 			if (password.length < 8) {
 				return setPasswordTabState({
@@ -273,8 +275,8 @@ export default function AccountsRegister(props) {
 				},
 			});
 		},
-		passwordConfirm(event) {
-			let password = document.querySelector('#password-input').value;
+		passwordConfirm(event: React.ChangeEvent<HTMLInputElement>) {
+			let password = (document.querySelector('#password-input') as HTMLInputElement).value;
 
 			if (password !== event.target.value)
 				return setPasswordTabState({
@@ -289,22 +291,22 @@ export default function AccountsRegister(props) {
 		},
 	};
 
-	const register = async (e) => {
-		e.preventDefault();
-		if (e.target.disabled == true) return;
+	const register = async (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		if ((event.target as HTMLButtonElement).disabled == true) return;
 
-		document.querySelector('#register-button-spinner').style.display = 'block';
-		document.querySelector('#register-button-text').style.display = 'none';
-		document.querySelector('#register-button').disabled = true;
+		(document.querySelector('#register-button-spinner') as HTMLDivElement).style.display = 'block';
+		(document.querySelector('#register-button-text') as HTMLParagraphElement).style.display = 'none';
+		(document.querySelector('#register-button') as HTMLButtonElement).disabled = true;
 
 		const result = await axios({
 			method: 'post',
 			url: `/api/private/accounts/register`,
 			headers: {},
 			data: {
-				username: document.querySelector('#username-input').value,
-				email: document.querySelector('#email-input').value,
-				password: document.querySelector('#password-input').value,
+				username: (document.querySelector('#username-input') as HTMLInputElement).value,
+				email: (document.querySelector('#email-input') as HTMLInputElement).value,
+				password: (document.querySelector('#password-input') as HTMLInputElement).value,
 				captcha: passwordTabState.captcha.value,
 			},
 		});
@@ -313,9 +315,9 @@ export default function AccountsRegister(props) {
 		if (result.data.code !== 429) return (window.location.href = `/support/error?code=${result.data.code}`);
 
 		if (result.data.code == 429) {
-			document.querySelector('#register-button-spinner').style.display = 'none';
-			document.querySelector('#register-button-text').style.display = 'block';
-			document.querySelector('#register-button').disabled = false;
+			(document.querySelector('#register-button-spinner') as HTMLDivElement).style.display = 'none';
+			(document.querySelector('#register-button-text') as HTMLParagraphElement).style.display = 'block';
+			(document.querySelector('#register-button') as HTMLButtonElement).disabled = false;
 
 			setOpenTab('username');
 			return setRegisterError({
@@ -325,20 +327,20 @@ export default function AccountsRegister(props) {
 		}
 	};
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (passwordTabState.password.passed && passwordTabState.passwordConfirm.passed && passwordTabState.captcha.passed) {
-			document.querySelector('#register-button').disabled = false;
+			(document.querySelector('#register-button') as HTMLButtonElement).disabled = false;
 		} else {
-			document.querySelector('#register-button').disabled = true;
+			(document.querySelector('#register-button') as HTMLButtonElement).disabled = true;
 		}
 
 		if (usernameTabState.username.passed && usernameTabState.email.passed && usernameTabState.name.passed) {
-			document.querySelector('#next-button').disabled = false;
+			(document.querySelector('#next-button') as HTMLButtonElement).disabled = false;
 		} else {
-			document.querySelector('#next-button').disabled = true;
+			(document.querySelector('#next-button') as HTMLButtonElement).disabled = true;
 		}
 
-		document.querySelector('#register-button-spinner').style.display = 'none';
+		(document.querySelector('#register-button-spinner') as HTMLDivElement).style.display = 'none';
 	}, [usernameTabState, passwordTabState]);
 
 	return (
@@ -353,7 +355,7 @@ export default function AccountsRegister(props) {
 
 			<main>
 				<div className={styles['return-button']}>
-					<ReturnButton onClick={(e) => window.history.back()} width='50' height='50' />
+					<ReturnButton onClick={() => window.history.back()} width='50' height='50' />
 				</div>
 
 				<div className={styles['title']}>
@@ -477,7 +479,7 @@ export default function AccountsRegister(props) {
 							onChange={registerTabEvents.captcha}
 						/>
 
-						<button id='register-button' disabled={false} onClick={(e) => register(e)} type='submit'>
+						<button id='register-button' disabled={false} onClick={(event) => register(event)} type='submit'>
 							<p id='register-button-text'>{props.lang.register}</p>
 							<Spinner id='register-button-spinner' className='text-center' animation='border' variant='light' />
 						</button>
@@ -509,7 +511,7 @@ export default function AccountsRegister(props) {
 
 			<Modal open={registerError.open} type='error'>
 				{props.lang[registerError.message]}
-				<button onClick={(e) => setRegisterError({ message: '', open: false })}>Continue</button>
+				<button onClick={() => setRegisterError({ message: '', open: false })}>Continue</button>
 			</Modal>
 		</div>
 	);

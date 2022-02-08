@@ -1,13 +1,13 @@
 // General dependencies
-const express = require('express');
-const next = require('next');
-const http = require('http');
-const chalk = require('chalk');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+import express from 'express';
+import next from 'next';
+import http from 'http';
+import chalk from 'chalk';
 
-const PORT = process.env.PORT || 8080;
-const dev = process.env.NODE_ENV !== 'production';
+import { config } from '../env';
+
+const PORT = config.PORT || 8080;
+const dev = config.NODE_ENV !== 'production';
 
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
@@ -21,13 +21,15 @@ nextApp.prepare().then(() => {
 	require('./api/routes')(app);
 	require('./controllers/controllers');
 
-	app.all('*', (req, res) => {
+	app.all('*', (req: express.Request, res: express.Response) => {
 		return handle(req, res);
 	});
 
-	const server = http.createServer(app);
-	server.listen(PORT, (err) => {
-		if (err) throw err;
+	const server: http.Server = http.createServer(app);
+
+	server.listen(PORT, () => {
 		console.log(chalk.magenta('event ') + '- Server listening on port ' + PORT);
 	});
 });
+
+export {};

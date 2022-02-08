@@ -1,6 +1,7 @@
-const chalk = require('chalk');
+import chalk from 'chalk';
+import express from 'express';
 
-module.exports = (app) => {
+module.exports = (app: express.Application) => {
 	app.use('/api/private/pages/', require('./private/pages'));
 	app.use('/api/private/accounts/', require('./private/accounts'));
 	app.use('/api/private/checks/', require('./private/checks'));

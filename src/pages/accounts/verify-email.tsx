@@ -58,7 +58,7 @@ export default function AccountsVerifyEmail(props) {
 			url: `/api/private/emails/accounts/email-verification`,
 			headers: {},
 			data: {
-				email: props.user.email,
+				email: props.user.email.value,
 				lang: 'en', // !!! Change later
 			},
 		});

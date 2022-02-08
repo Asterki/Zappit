@@ -10,8 +10,8 @@ export async function getServerSideProps({ req, res }) {
 	const response = await axios({
 		method: 'get',
 		url: `${process.env.HOST}/api/private/pages/main/index`,
-		headers: req.headers
-	})
+		headers: req.headers,
+	});
 
 	return {
 		props: {
@@ -60,7 +60,13 @@ export default function MainIndex(props) {
 							<Link href='/register'>Register</Link>
 						</td>
 						<td>Placeholder</td>
-
+						<td>Placeholder</td>
+					</tr>
+					<tr>
+						<td>
+							<Link href='/verify-email'>Verify Email</Link>
+						</td>
+						<td>Placeholder</td>
 						<td>Placeholder</td>
 					</tr>
 				</table>
