@@ -2,7 +2,7 @@
 // * that will be used in the application.
 
 import nodemailer from 'nodemailer';
-import { config } from '../../env';
+import { config } from '../env';
 
 const securityTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',

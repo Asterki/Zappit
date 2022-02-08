@@ -5,7 +5,7 @@ import level from 'level';
 import path from 'path';
 import chalk from 'chalk';
 
-import { config } from '../../env';
+import { config } from '../env';
 
 const cache = level(path.join(__dirname, '../../data/db/cache'));
 const levelDB = level(path.join(__dirname, '../../data/db/levelDB'));

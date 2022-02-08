@@ -13,7 +13,7 @@ import chalk from 'chalk';
 import mongoStore from 'connect-mongo';
 import passport from 'passport';
 
-import { config } from '../../env';
+import { config } from '../env';
 
 module.exports = (app: express.Application) => {
 	app.use(express.json());

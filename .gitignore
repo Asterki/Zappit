@@ -4,5 +4,4 @@ data
 node_modules
 server/logs
 
-./env.ts
-./server/config/environment.ts
+server/env.ts

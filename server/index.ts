@@ -4,7 +4,7 @@ import next from 'next';
 import http from 'http';
 import chalk from 'chalk';
 
-import { config } from '../env';
+import { config } from './env';
 
 const PORT = config.PORT || 8080;
 const dev = config.NODE_ENV !== 'production';
