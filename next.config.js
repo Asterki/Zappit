@@ -1,6 +1,10 @@
 module.exports = {
 	reactStrictMode: false,
 	webpack5: true,
+	
+	images: {
+    		loader: 'custom',
+  	},
 
 	async rewrites() {
 		return [
