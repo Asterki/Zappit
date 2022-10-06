@@ -1,0 +1,6 @@
+src
+build
+data
+.eslintrc.js
+next.config.js
+locales

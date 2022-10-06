@@ -1,0 +1,13 @@
+{
+    "short_name": "DIMLIM",
+    "name": "DIMLIM Private Chat",
+    "icons": [
+        { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "/maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}
