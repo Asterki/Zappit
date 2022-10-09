@@ -161,7 +161,7 @@ router.post(
     }
 );
 
-router.get("/logout", (req, res) => {
+router.get("/logout", (req: express.Request, res: express.Response) => {
     if (!req.isAuthenticated()) return res.redirect("/");
 
     try {

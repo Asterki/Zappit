@@ -4,10 +4,10 @@ import http from "http";
 import socketIO from "socket.io";
 
 import minimist from "minimist";
+import path from "path";
 import chalk from "chalk";
 
-require("dotenv").config({});
-
+require("dotenv").config({ path: path.join(__dirname, "../.env.local") });
 const launchArgs = minimist(process.argv.slice(2), {
     string: ["port"],
     boolean: ["dev"],
