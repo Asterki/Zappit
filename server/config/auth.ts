@@ -18,7 +18,6 @@ app.use(
         secret: process.env.SESSION_SECRET as string,
         resave: false,
         saveUninitialized: true,
-        // @ts-ignore
         store: mongoStore.create({
             mongoUrl: process.env.MONGODB_URI as string,
         }),
@@ -26,6 +25,7 @@ app.use(
         cookie: {
             secure: (process.env.COOKIE_SECURE as string) == "true",
             maxAge: parseInt(process.env.COOKIE_MAX_AGE as string) || 604800000,
+            sameSite: true,
         },
     })
 );
@@ -41,8 +41,9 @@ passport.use(
             session: true,
         },
         async (req: any, email: string, password: string, done: any) => {
+            
             try {
-                let user: User | null = await Users.findOne({ "email.value": email });
+                const user: User | null = await Users.findOne({ $or: [{ "email.value": req.body.emailOrUsername }, { "username": req.body.emailOrUsername },] });
 
                 if (!user) return done(null, false, "invalid-credentials");
                 if (!bcrypt.compareSync(password, user.password)) return done(null, false, "invalid-credentials");
@@ -51,11 +52,12 @@ passport.use(
                     if (!req.body.tfaCode) return done(null, false, "missing-tfa-code");
                     if (typeof req.body.tfaCode !== "string") return done(null, false, "invalid-tfa-code");
 
-                    let result = checkTFA(req.body.tfaCode, req.user);
+                    const result = checkTFA(req.body.tfaCode, req.user);
                     if (result == false) return done(null, false, "invalid-tfa-code");
                 }
                 
                 // TODO: Add the device to the users' logged in devices
+                // TODO: Mail the user
 
                 return done(null, user);
             } catch (err) {

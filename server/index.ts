@@ -7,6 +7,7 @@ import minimist from "minimist";
 import path from "path";
 import chalk from "chalk";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require("dotenv").config({ path: path.join(__dirname, "../.env.local") });
 const launchArgs = minimist(process.argv.slice(2), {
     string: ["port"],

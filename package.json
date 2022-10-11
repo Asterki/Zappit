@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "nodemon --config ./nodemon.json ./server/index.ts --dev true --port 8081",
+        "dev": "nodemon --config ./nodemon.json ./server/index.ts --dev true --port 8080",
         "build": "next build",
         "start": "npm-run-all start:*",
         "start:install": "npm i",
@@ -12,7 +12,7 @@
         "start:build-client": "next build",
         "start:move-static": "cp -r ./locales ./build/ && cp ./src/assets -r ./build/src && cp -r ./public ./build/",
         "start:run-server": "node ./build/server/index.js --dev false",
-        "lint": "next lint"
+        "lint": "next lint && npx eslint . --ext .js,.jsx,.ts,.tsx"
     },
     "dependencies": {
         "@emotion/react": "^11.10.4",
@@ -32,6 +32,7 @@
         "mongoose": "^6.6.5",
         "ms": "^2.1.3",
         "next": "12.3.1",
+        "nodemailer": "^6.8.0",
         "nodemon": "^2.0.20",
         "npm-run-all": "^4.1.5",
         "passport": "^0.6.0",
@@ -57,6 +58,7 @@
         "@types/minimist": "^1.2.2",
         "@types/ms": "^0.7.31",
         "@types/node": "18.8.2",
+        "@types/nodemailer": "^6.4.6",
         "@types/passport": "^1.0.11",
         "@types/passport-local": "^1.0.34",
         "@types/react": "18.0.21",

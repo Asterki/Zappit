@@ -1,5 +1,3 @@
-import express from "express";
-
 interface User {
     username: string;
     email: {
@@ -17,6 +15,10 @@ interface User {
     };
 }
 
+interface UserData {
+    userID: string
+}
+
 declare global {
     namespace Express {
         interface Request {
@@ -25,4 +27,4 @@ declare global {
     }
 }
 
-export type { User };
+export type { User, UserData };

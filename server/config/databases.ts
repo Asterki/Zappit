@@ -35,4 +35,4 @@ mongooseClient.once("error", (error: Error) => {
     console.log(error);
 });
 
-export { mongooseClient };
+export { mongooseClient, redisClient };
