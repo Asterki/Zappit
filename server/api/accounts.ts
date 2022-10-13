@@ -1,313 +1,338 @@
-import express from "express";
-import rateLimit from "express-rate-limit";
-import ms from "ms";
-import validator from "validator";
-import bcrypt from "bcrypt";
-import passport from "passport";
-import speakeasy from "speakeasy";
-import { v4 as uuidv4 } from "uuid";
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import ms from 'ms';
+import validator from 'validator';
+import bcrypt from 'bcrypt';
+import passport from 'passport';
+import speakeasy from 'speakeasy';
+import { v4 as uuidv4 } from 'uuid';
 
-import Users from "../models/user";
-import UsersData from "../models/user";
+import Users from '../models/user';
+import UsersData from '../models/user';
 
-import { logError } from "../utils/logs";
-import { checkTFA } from "../utils/accounts";
-import { redisClient } from "../config/databases";
+import { checkTFA } from '../utils/accounts';
+import { redisClient } from '../config/databases';
 
-import { User } from "../types";
+import { User } from '../types';
 const router = express.Router();
 
-declare module "express-serve-static-core" {
-    interface Request {
-        user?: User;
-    }
+declare module 'express-serve-static-core' {
+	interface Request {
+		user?: User;
+	}
 }
 
 // Account creation/deletion
 router.post(
-    "/register",
-    rateLimit({
-        windowMs: ms("12h"),
-        max: 1,
-        statusCode: 429,
-        skipFailedRequests: true,
-        skipSuccessfulRequests: false,
-        message: "rate-limit",
-    }),
-    async (req: express.Request, res: express.Response) => {
-        // Don't allow already logged in users to register a new account
-        if (req.isAuthenticated() || req.user) return res.status(403).send("unauthorized");
+	'/register',
+	rateLimit({
+		windowMs: ms('12h'),
+		max: 1,
+		statusCode: 429,
+		skipFailedRequests: true,
+		skipSuccessfulRequests: false,
+		message: 'rate-limit',
+	}),
+	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+		// Don't allow already logged in users to register a new account
+		if (req.isAuthenticated() || req.user) return res.status(403).send('unauthorized');
 
-        // If all arguments are there and are the right type
-        const { username, email, password, displayName, locale } = req.body;
-        if (!username || !email || !password || !displayName) return res.status(400).send("missing-parameters");
-        if (typeof username !== "string" || typeof email !== "string" || typeof password !== "string" || typeof displayName !== "string")
-            return res.status(400).send("invalid-parameters");
+		// If all arguments are there and are the right type
+		const { username, email, password, displayName, locale } = req.body;
+		if (!username || !email || !password || !displayName) return res.status(400).send('missing-parameters');
+		if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string')
+			return res.status(400).send('invalid-parameters');
 
-        // Checks
-        if (username.length < 3 || username.length > 14) return res.status(400).send("invalid-username");
-        if (displayName.length > 24) return res.status(400).send("invalid-display-name");
-        if (!validator.isEmail(email)) return res.status(400).send("invalid-email");
-        if (password.length < 6 || password.length > 256) return res.status(400).send("invalid-password");
+		// Checks
+		if (username.length < 3 || username.length > 14) return res.status(400).send('invalid-username');
+		if (displayName.length > 24) return res.status(400).send('invalid-display-name');
+		if (!validator.isEmail(email)) return res.status(400).send('invalid-email');
+		if (password.length < 6 || password.length > 256) return res.status(400).send('invalid-password');
 
-        try {
-            // Find if the username is already registered
-            const result = await Users.findOne({ $or: [{ "email.value": email.toLowerCase() }, { username: username.toLowerCase() }] });
-            if (result) return res.status(400).send("err-username-or-email-taken");
+		try {
+			// Find if the username is already registered
+			const result = await Users.findOne({
+				$or: [
+					{
+						'email.value': email.toLowerCase(),
+					},
+					{
+						username: username.toLowerCase(),
+					},
+				],
+			});
+			if (result) return res.status(400).send('err-username-or-email-taken');
 
-            // Create the new user
-            const userID = uuidv4();
+			// Create the new user
+			const userID = uuidv4();
 
-            const user = new Users({
-                username: username.toLowerCase(),
-                email: {
-                    value: email.toLowerCase(),
-                    verified: false,
-                },
-                password: bcrypt.hashSync(password, 10),
-                userID: userID,
+			const user = new Users({
+				username: username.toLowerCase(),
+				email: {
+					value: email.toLowerCase(),
+					verified: false,
+				},
+				password: bcrypt.hashSync(password, 10),
+				userID: userID,
 
-                locale: locale,
+				locale: locale,
 
-                tfa: {
-                    secret: "",
-                    backupCodes: [],
-                },
-            });
+				tfa: {
+					secret: '',
+					backupCodes: [],
+				},
+			});
 
-            // Create user data
-            const userData = new UsersData({
-                userID: userID,
-            });
+			// Create user data
+			const userData = new UsersData({
+				userID: userID,
+			});
 
-            // Save the user to the database
-            user.save((err: Error | null, result: User) => {
-                if (err) throw err;
+			// Save the user to the database
+			user.save((err: Error | null, result: User) => {
+				if (err) throw err;
 
-                req.logIn(result, (err: Error) => {
-                    if (err) throw err;
-                    return res.status(200).send("success");
-                });
-            });
+				req.logIn(result, (err: Error) => {
+					if (err) throw err;
+					return res.status(200).send('success');
+				});
+			});
 
-            userData.save((err: Error | null) => {
-                if (err) throw err;
-            });
-        } catch (err) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+			userData.save((err: Error | null) => {
+				if (err) throw err;
+			});
+		} catch (err) {
+			next(err);
+		}
+	}
 );
 
 router.post(
-    "/delete-account",
-    rateLimit({
-        windowMs: ms("12h"),
-        max: 1,
-        statusCode: 429,
-        skipFailedRequests: true,
-        skipSuccessfulRequests: false,
-        message: "rate-limit",
-    }),
-    async (req: express.Request, res: express.Response) => {
-        // Block not logged in users
-        if (!req.isAuthenticated() || !req.user) return res.status(403).send("unauthorized");
+	'/delete-account',
+	rateLimit({
+		windowMs: ms('12h'),
+		max: 1,
+		statusCode: 429,
+		skipFailedRequests: true,
+		skipSuccessfulRequests: false,
+		message: 'rate-limit',
+	}),
+	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+		// Block not logged in users
+		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
-        const { password } = req.body;
-        if (!password) return res.status(400).send("missing-parameters");
-        if (typeof password !== "string") return res.status(400).send("invalid-parameters");
+		const { password } = req.body;
+		if (!password) return res.status(400).send('missing-parameters');
+		if (typeof password !== 'string') return res.status(400).send('invalid-parameters');
 
-        try {
-            // If user haves tfa activated, verify it
-            if (req.user.tfa.secret !== "") {
-                if (!req.body.tfaCode) return res.status(400).send("missing-parameters");
-                if (typeof req.body.tfaCode !== "string") return res.status(400).send("invalid-parameters");
+		try {
+			// If user haves tfa activated, verify it
+			if (req.user.tfa.secret !== '') {
+				if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
+				if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
 
-                const result = checkTFA(req.body.tfaCode, req.user);
-                if (result == false) return res.status(403).send("unauthorized");
-            }
+				const result = checkTFA(req.body.tfaCode, req.user);
+				if (result == false) return res.status(403).send('unauthorized');
+			}
 
-            // Delete from database
-            await Users.deleteOne({ userID: req.body.userID });
+			// Delete from database
+			await Users.deleteOne({
+				userID: req.body.userID,
+			});
 
-            // Logout the user
-            req.logout((err: any) => {
-                if (err) throw err;
-                return res.status(200).send("success");
-            });
-        } catch (err) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+			// Logout the user
+			req.logout((err: any) => {
+				if (err) throw err;
+				return res.status(200).send('success');
+			});
+		} catch (err) {
+			next(err);
+		}
+	}
 );
 
 // Account access
 router.post(
-    "/login",
-    rateLimit({
-        windowMs: ms("1h"),
-        max: 10,
-        statusCode: 429,
-        message: "rate-limit",
-    }),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        const { emailOrUsername, password } = req.body;
-        if (!emailOrUsername || !password) return res.status(400).send("missing-parameters");
-        if (typeof emailOrUsername !== "string" || typeof password !== "string") return res.status(400).send("invalid-parameters");
+	'/login',
+	rateLimit({
+		windowMs: ms('1h'),
+		max: 10,
+		statusCode: 429,
+		message: 'rate-limit',
+	}),
+	(req: express.Request, res: express.Response, next: express.NextFunction) => {
+		const { emailOrUsername, password } = req.body;
+		if (!emailOrUsername || !password) return res.status(400).send('missing-parameters');
+		if (typeof emailOrUsername !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
 
-        try {
-            passport.authenticate("local", (err: Error | null, user: User, result: string) => {
-                if (err) throw err;
-                if (!user) return res.status(200).send(result);
+		try {
+			passport.authenticate('local', (err: Error | null, user: User, result: string) => {
+				if (err) throw err;
+				if (!user) return res.status(200).send(result);
 
-                // Login the user
-                req.logIn(user, (err) => {
-                    if (err) throw err;
-                    return res.status(200).send("success");
-                });
-            })(req, res, next);
-        } catch (err) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+				// Login the user
+				req.logIn(user, (err) => {
+					if (err) throw err;
+					return res.status(200).send('success');
+				});
+			})(req, res, next);
+		} catch (err) {
+			next(err);
+		}
+	}
 );
 
-router.get("/logout", (req: express.Request, res: express.Response) => {
-    if (!req.isAuthenticated()) return res.redirect("/");
+router.get('/logout', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	if (!req.isAuthenticated()) return res.redirect('/');
 
-    try {
-        req.logout((err: any) => {
-            if (err) throw err;
-            res.redirect("/");
-        });
-    } catch (err) {
-        logError(err);
-        res.status(500).send("server-error");
-    }
+	try {
+		req.logout((err: any) => {
+			if (err) throw err;
+			res.redirect('/');
+		});
+	} catch (err) {
+		next(err);
+	}
 });
 
 // TFA
 router.post(
-    "/activate-tfa",
-    rateLimit({
-        windowMs: ms("1h"),
-        max: 3,
-        statusCode: 429,
-        message: "rate-limit",
-    }),
-    async (req: express.Request, res: express.Response) => {
-        if (!req.isAuthenticated() || !req.user) return res.status(400).send("unauthorized");
+	'/activate-tfa',
+	rateLimit({
+		windowMs: ms('1h'),
+		max: 3,
+		statusCode: 429,
+		message: 'rate-limit',
+	}),
+	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+		if (!req.isAuthenticated() || !req.user) return res.status(400).send('unauthorized');
 
-        try {
-            if (req.user.tfa.secret !== "") return res.status(400).send("already-activated");
+		try {
+			if (req.user.tfa.secret !== '') return res.status(400).send('already-activated');
 
-            const secret: any = speakeasy.generateSecret({ length: 20 });
-            req.user.tfa.secret = secret.base32;
+			const secret: any = speakeasy.generateSecret({
+				length: 20,
+			});
+			req.user.tfa.secret = secret.base32;
 
-            // Update to the database
-            await Users.updateOne({ userID: req.user.userID }, { tfa: req.user.tfa });
+			// Update to the database
+			await Users.updateOne(
+				{
+					userID: req.user.userID,
+				},
+				{
+					tfa: req.user.tfa,
+				}
+			);
 
-            return res.status(200).send({
-                code: secret.base32,
-            });
-        } catch (err: any) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+			return res.status(200).send({
+				code: secret.base32,
+			});
+		} catch (err: any) {
+			next(err);
+		}
+	}
 );
 
 router.post(
-    "/deactivate-tfa",
-    rateLimit({
-        windowMs: ms("1h"),
-        max: 3,
-        statusCode: 429,
-        message: "rate-limit",
-    }),
-    async (req: express.Request, res: express.Response) => {
-        if (!req.isAuthenticated() || !req.user) return res.status(403).send("unauthorized");
+	'/deactivate-tfa',
+	rateLimit({
+		windowMs: ms('1h'),
+		max: 3,
+		statusCode: 429,
+		message: 'rate-limit',
+	}),
+	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
-        try {
-            if (req.user.tfa.secret == "") return res.status(400).send("not-activated");
-            req.user.tfa.secret = "";
-            req.user.tfa.backupCodes = [];
+		try {
+			if (req.user.tfa.secret == '') return res.status(400).send('not-activated');
+			req.user.tfa.secret = '';
+			req.user.tfa.backupCodes = [];
 
-            await Users.updateOne({ userID: req.user.userID }, { tfa: req.user.tfa });
-            res.status(200).send("success");
-        } catch (err: any) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+			await Users.updateOne(
+				{
+					userID: req.user.userID,
+				},
+				{
+					tfa: req.user.tfa,
+				}
+			);
+			res.status(200).send('success');
+		} catch (err: any) {
+			next(err);
+		}
+	}
 );
 
 router.post(
-    "/get-backup-tfa-codes",
-    rateLimit({
-        windowMs: ms("1h"),
-        max: 3,
-        statusCode: 429,
-        message: "rate-limit",
-    }),
-    async (req: express.Request, res: express.Response) => {
-        if (!req.isAuthenticated() || !req.user) return res.status(403).send("unauthorized");
-        if (!req.body.tfaCode) return res.status(400).send("missing-parameters");
-        if (typeof req.body.tfaCode !== "string") return res.status(400).send("invalid-parameters");
+	'/get-backup-tfa-codes',
+	rateLimit({
+		windowMs: ms('1h'),
+		max: 3,
+		statusCode: 429,
+		message: 'rate-limit',
+	}),
+	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
+		if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
+		if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
 
-        try {
-            // Must be a code generated by the authentication app
-            const verified = speakeasy.totp.verify({
-                secret: req.user.tfa.secret,
-                encoding: "base32",
-                token: req.body.tfaCode,
-            });
+		try {
+			// Must be a code generated by the authentication app
+			const verified = speakeasy.totp.verify({
+				secret: req.user.tfa.secret,
+				encoding: 'base32',
+				token: req.body.tfaCode,
+			});
 
-            if (!verified) return res.status(200).send("invalid-tfa-code");
+			if (!verified) return res.status(200).send('invalid-tfa-code');
 
-            // Generate Codes
-            const codeList: Array<string> = [];
-            for (let i = 0; i < 10; i++) {
-                codeList.push(Math.random().toString(16).slice(2, 10).toLowerCase());
-            }
+			// Generate Codes
+			const codeList: Array<string> = [];
+			for (let i = 0; i < 10; i++) {
+				codeList.push(Math.random().toString(16).slice(2, 10).toLowerCase());
+			}
 
-            // Hash the generated codes (These will be stored in the database)
-            const hashedCodes: Array<string> = [];
-            codeList.forEach((code: string) => {
-                hashedCodes.push(bcrypt.hashSync(code, 10));
-            });
+			// Hash the generated codes (These will be stored in the database)
+			const hashedCodes: Array<string> = [];
+			codeList.forEach((code: string) => {
+				hashedCodes.push(bcrypt.hashSync(code, 10));
+			});
 
-            // Update to the database
-            req.user.tfa.backupCodes = hashedCodes;
-            await Users.updateOne({ userID: req.user.userID }, { tfa: req.user.tfa });
+			// Update to the database
+			req.user.tfa.backupCodes = hashedCodes;
+			await Users.updateOne(
+				{
+					userID: req.user.userID,
+				},
+				{
+					tfa: req.user.tfa,
+				}
+			);
 
-            return res.status(200).json(codeList);
-        } catch (err: any) {
-            logError(err);
-            res.status(500).send("server-error");
-        }
-    }
+			return res.status(200).json(codeList);
+		} catch (err: any) {
+			next(err);
+		}
+	}
 );
 
 // Check if values are used
-router.post("/check-use", async (req: express.Request, res: express.Response) => {
-    const { test, value } = req.body;
-    if (!test || !value) return res.status(400).send("missing-parameters");
-    if (typeof test !== "string" || typeof value !== "string") return res.status(400).send("invalid-parameters");
+router.post('/check-use', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	const { test, value } = req.body;
+	if (!test || !value) return res.status(400).send('missing-parameters');
+	if (typeof test !== 'string' || typeof value !== 'string') return res.status(400).send('invalid-parameters');
 
-    try {
-        const valueListRaw = await redisClient.get(test == "username" ? "checks-usernames" : "checks-emails");
-        if (valueListRaw == null) return res.status(200).send("not-in-use");
+	try {
+		const valueListRaw = await redisClient.get(test == 'username' ? 'checks-usernames' : 'checks-emails');
+		if (valueListRaw == null) return res.status(200).send('not-in-use');
 
-        const valueList: Array<string> = JSON.parse(valueListRaw);
-        return res.status(200).send(valueList.includes(value));
-    } catch (err) {
-        logError(err);
-        res.status(500).send("server-error");
-    }
+		const valueList: Array<string> = JSON.parse(valueListRaw);
+		return res.status(200).send(valueList.includes(value));
+	} catch (err) {
+		next(err);
+	}
 });
 
 module.exports = router;
