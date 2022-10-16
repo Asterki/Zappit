@@ -8,7 +8,7 @@ import speakeasy from 'speakeasy';
 import { v4 as uuidv4 } from 'uuid';
 
 import Users from '../models/user';
-import UsersData from '../models/user';
+// import UsersData from '../models/user';
 
 import { checkTFA } from '../utils/accounts';
 import { logError } from '../utils/logs';
@@ -29,12 +29,13 @@ router.post(
 	rateLimit({
 		windowMs: ms('12h'),
 		max: 1,
-		statusCode: 429,
+		statusCode: 200,
 		skipFailedRequests: true,
 		skipSuccessfulRequests: false,
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
+		if (!req.body) return res.status(400).send('missing-parameters');
 		// Don't allow already logged in users to register a new account
 		if (req.isAuthenticated() || req.user) return res.status(403).send('unauthorized');
 
@@ -84,11 +85,6 @@ router.post(
 				},
 			});
 
-			// Create user data
-			const userData = new UsersData({
-				userID: userID,
-			});
-
 			// Save the user to the database
 			user.save((err: Error | null, result: User) => {
 				if (err) throw err;
@@ -97,10 +93,6 @@ router.post(
 					if (err) throw err;
 					return res.status(200).send('success');
 				});
-			});
-
-			userData.save((err: Error | null) => {
-				if (err) throw err;
 			});
 		} catch (err) {
 			logError(err);
@@ -114,12 +106,13 @@ router.post(
 	rateLimit({
 		windowMs: ms('12h'),
 		max: 1,
-		statusCode: 429,
+		statusCode: 200,
 		skipFailedRequests: true,
 		skipSuccessfulRequests: false,
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
+		if (!req.body) return res.status(400).send('missing-parameters');
 		// Block not logged in users
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
@@ -160,13 +153,14 @@ router.post(
 	rateLimit({
 		windowMs: ms('1h'),
 		max: 10,
-		statusCode: 429,
+		statusCode: 200,
 		message: 'rate-limit',
 	}),
 	(req: express.Request, res: express.Response, next: express.NextFunction) => {
-		const { emailOrUsername, password } = req.body;
-		if (!emailOrUsername || !password) return res.status(400).send('missing-parameters');
-		if (typeof emailOrUsername !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
+		if (!req.body) return res.status(400).send('missing-parameters');
+		const { email, password } = req.body;
+		if (!email || !password) return res.status(400).send('missing-parameters');
+		if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
 
 		try {
 			passport.authenticate('local', (err: Error | null, user: User, result: string) => {
@@ -187,6 +181,7 @@ router.post(
 );
 
 router.get('/logout', (req: express.Request, res: express.Response) => {
+	if (!req.body) return res.status(400).send('missing-parameters');
 	if (!req.isAuthenticated()) return res.redirect('/');
 
 	try {
@@ -206,10 +201,11 @@ router.post(
 	rateLimit({
 		windowMs: ms('1h'),
 		max: 3,
-		statusCode: 429,
+		statusCode: 200,
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
+		if (!req.body) return res.status(400).send('missing-parameters');
 		if (!req.isAuthenticated() || !req.user) return res.status(400).send('unauthorized');
 
 		try {
@@ -245,10 +241,11 @@ router.post(
 	rateLimit({
 		windowMs: ms('1h'),
 		max: 3,
-		statusCode: 429,
+		statusCode: 200,
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
+		if (!req.body) return res.status(400).send('missing-parameters');
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
 		try {
@@ -277,10 +274,11 @@ router.post(
 	rateLimit({
 		windowMs: ms('1h'),
 		max: 3,
-		statusCode: 429,
+		statusCode: 200,
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
+		if (!req.body) return res.status(400).send('missing-parameters');
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 		if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
 		if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
@@ -328,6 +326,7 @@ router.post(
 
 // Check if values are used
 router.post('/check-use', async (req: express.Request, res: express.Response) => {
+	if (!req.body) return res.status(400).send('missing-parameters');
 	const { test, value } = req.body;
 	if (!test || !value) return res.status(400).send('missing-parameters');
 	if (typeof test !== 'string' || typeof value !== 'string') return res.status(400).send('invalid-parameters');

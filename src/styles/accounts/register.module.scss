@@ -3,12 +3,38 @@
 	background-color: #111215;
 	background: linear-gradient(127deg, #192342 0%, #111215 40%, #111215 60%, #270823 100%);
 
-	.center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+
+	* {
+		font-weight: 100 !important;
+	}
+
+	header {
+		text-align: center;
+		margin-bottom: 100px;
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 30%;
+
+		top: 150px;
+
+		h1 {
+			color: white !important;
+		}
+	}
+
+	.center {
+		width: 25%;
+		margin-top: 150px;
+
+		.tab {
+			display: none;
+		}
+
+		.tab-active {
+			display: block;
+		}
 
 		label {
 			padding: 20px 0px -10px 0px !important;
@@ -20,9 +46,30 @@
 		font-weight: bold;
 		font-size: large;
 
-		header {
-			text-align: center;
-			margin-bottom: 50px;
+		main {
+			.next-button {
+				width: 100%;
+				z-index: 10 !important;
+
+				padding: 15px;
+				border-radius: 13px;
+				border: none !important;
+				outline: none !important;
+				box-shadow: 0px 0px 15px #a765fc;
+
+				text-align: center;
+				color: rgb(255, 255, 255);
+				background: linear-gradient(268.13deg, #6700ea33 10.78%, #22c2f433 77.16%), #a765fc;
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 900px) {
+	.page {
+		background: linear-gradient(180deg, #192342 0%, #111215 20%, #111215 80%, #270823 100%);
+		.center {
+			width: 90% !important;
 		}
 	}
 }

@@ -43,17 +43,17 @@ passport.use(
 		async (req: any, email: string, password: string, done: any) => {
 			try {
 				const user: User | null = await Users.findOne({
-					$or: [{ 'email.value': req.body.emailOrUsername }, { username: req.body.emailOrUsername }],
+					$or: [{ 'email.value': req.body.email }, { username: req.body.email }],
 				});
 
 				if (!user) return done(null, false, 'invalid-credentials');
-				if (!bcrypt.compareSync(password, user.password)) return done(null, false, 'invalid-credentials');
+				if (!bcrypt.compareSync(req.body.password, user.password)) return done(null, false, 'invalid-credentials');
 
-				if (req.user.tfa.secret !== undefined) {
+				if (user.tfa.secret) {
 					if (!req.body.tfaCode) return done(null, false, 'missing-tfa-code');
 					if (typeof req.body.tfaCode !== 'string') return done(null, false, 'invalid-tfa-code');
 
-					const result = checkTFA(req.body.tfaCode, req.user);
+					const result = checkTFA(req.body.tfaCode, user);
 					if (result == false) return done(null, false, 'invalid-tfa-code');
 				}
 
