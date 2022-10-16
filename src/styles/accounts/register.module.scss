@@ -1,5 +1,28 @@
 .page {
-    height: 100vh;
+	height: 100vh;
+	background-color: #111215;
+	background: linear-gradient(127deg, #192342 0%, #111215 40%, #111215 60%, #270823 100%);
 
-    background: linear-gradient(127deg, rgb(23, 49, 90) 0%, rgba(2,15,34,1) 30%, rgba(16,16,16,1) 50%, rgb(26, 5, 25) 70%, rgb(49, 9, 48) 100%); 
+	.center {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 30%;
+
+		label {
+			padding: 20px 0px -10px 0px !important;
+
+			font-size: 20px;
+			text-align: left !important;
+		}
+
+		font-weight: bold;
+		font-size: large;
+
+		header {
+			text-align: center;
+			margin-bottom: 50px;
+		}
+	}
 }

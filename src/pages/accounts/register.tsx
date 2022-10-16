@@ -4,6 +4,8 @@ import $ from 'jquery';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 
+import { Input } from 'antd';
+
 import styles from '../../styles/accounts/register.module.scss';
 import type { NextPage } from 'next';
 
@@ -19,9 +21,7 @@ const Register: NextPage = (props) => {
 
 	return (
 		<div className={styles['page']}>
-			<p>This will be the register page</p>
-
-			<div id="particles" hidden>
+			<div id="particles">
 				<Particles
 					init={particlesInit}
 					options={{
@@ -69,31 +69,59 @@ const Register: NextPage = (props) => {
 				/>
 			</div>
 
-			<main>
-				<form action="/api/accounts/register" method="POST">
-					<label htmlFor="text">Username</label>
-					<input type="text" name="username" placeholder="Username" aria-label="username input" />
-					<br />
+			<div className={styles.center}>
+				<header>
+					<img src="/assets/svg/logo.svg" alt="Zappit Logo" />
+					<h1>Register Into Zappit</h1>
+				</header>
 
-					<label htmlFor="text">Email</label>
-					<input type="text" name="email" placeholder="asterki.dev@proton.me" aria-label="username input" />
-					<br />
+				<main>
+					<form action="/api/accounts/register" method="POST">
+						<div id="email-tab">
+							<label htmlFor="text">Username</label>
+							<Input
+								className={styles['input']}
+								addonBefore="@"
+								allowClear
+								type="text"
+								name="username"
+								placeholder="Username"
+								aria-label="username input"
+							/>
+							<br />
 
-					<label htmlFor="text">Locale</label>
-					<input type="text" name="locale" placeholder="ES" aria-label="username input" />
-					<br />
+							<label htmlFor="text">Email</label>
+							<Input type="text" addonBefore="@" allowClear status="error" name="email" placeholder="asterki.dev@proton.me" aria-label="username input" />
+							<br />
 
-					<label htmlFor="text">Display Name</label>
-					<input type="text" name="displayName" placeholder="displayName" aria-label="username input" />
-					<br />
+							<button>Next</button>
+						</div>
 
-					<label htmlFor="password">Password</label>
-					<input type="password" name="password" placeholder="password" aria-label="username input" />
-					<br />
+						<div id="username-tab" hidden>
+							<label htmlFor="text">Username</label>
+							<Input type="text" name="username" placeholder="Username" aria-label="username input" />
+							<br />
 
-					<input type="submit" value="Submit" />
-				</form>
-			</main>
+							<label htmlFor="text">Your Name</label>
+							<Input type="text" name="email" placeholder="asterki.dev@proton.me" aria-label="username input" />
+							<br />
+
+							<input type="submit" value="Submit" />
+						</div>
+						<div id="password-tab" hidden>
+							<label htmlFor="text">Username</label>
+							<Input type="text" name="username" placeholder="Username" aria-label="username input" />
+							<br />
+
+							<label htmlFor="text">Email</label>
+							<Input type="text" name="email" placeholder="asterki.dev@proton.me" aria-label="username input" />
+							<br />
+
+							<input type="submit" value="Submit" />
+						</div>
+					</form>
+				</main>
+			</div>
 		</div>
 	);
 };

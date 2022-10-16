@@ -2,6 +2,7 @@ import Head from "next/head";
 import * as React from "react";
 
 import "../styles/globals.scss";
+import 'antd/dist/antd.css';
 import type { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {

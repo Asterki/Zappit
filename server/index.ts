@@ -27,10 +27,10 @@ const io = new socketIO.Server(server);
 nextApp.prepare().then(() => {
 	const handle = nextApp.getRequestHandler();
 
-	require('./config/middleware');
 	require('./config/auth');
 	require('./config/databases');
 	require('./config/routes');
+	require('./config/middleware');
 
 	// Handle next.js routing
 	app.get('*', (req: express.Request, res: express.Response) => {

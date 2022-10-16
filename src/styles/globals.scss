@@ -1,5 +1,16 @@
+@font-face {
+    font-family: "Baloo 2";
+    src: url("/assets/fonts/Baloo2-VariableFont_wght.ttf");
+}
+
 html,
 body {
     margin: 0 !important;
     padding: 0 !important;
+    font-family: "Baloo 2";
+    color: white;
+}
+
+#particles {
+    opacity: 0;
 }

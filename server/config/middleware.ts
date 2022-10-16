@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import helmet from 'helmet';
-import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 
@@ -30,16 +29,6 @@ try {
 	app.use('/', express.static(path.join(__dirname, '../../public/')));
 	// app.use("/assets/", express.static(path.join(__dirname, "../../src/assets")));
 	// app.use("/avatars/", express.static(path.join(__dirname, avatarsPath)));
-
-	// Error handling
-	app.use((err: Error, req: express.Request, res: express.Response) => {
-		fs.writeFile(path.join(__dirname, '../logs/errors.log'), `\n\n${err.stack}`, (err) => {
-			if (err) throw err;
-			console.log(`${chalk.redBright('error')} - New server error reported, please check logs`);
-		});
-
-		res.status(500).send('server-error');
-	});
 
 	// Security, which is disabled in development mode
 	if (launchArgs.dev == false) {

@@ -11,6 +11,7 @@ import Users from '../models/user';
 import UsersData from '../models/user';
 
 import { checkTFA } from '../utils/accounts';
+import { logError } from '../utils/logs';
 import { redisClient } from '../config/databases';
 
 import { User } from '../types';
@@ -33,7 +34,7 @@ router.post(
 		skipSuccessfulRequests: false,
 		message: 'rate-limit',
 	}),
-	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	async (req: express.Request, res: express.Response) => {
 		// Don't allow already logged in users to register a new account
 		if (req.isAuthenticated() || req.user) return res.status(403).send('unauthorized');
 
@@ -102,7 +103,8 @@ router.post(
 				if (err) throw err;
 			});
 		} catch (err) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
@@ -117,7 +119,7 @@ router.post(
 		skipSuccessfulRequests: false,
 		message: 'rate-limit',
 	}),
-	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	async (req: express.Request, res: express.Response) => {
 		// Block not logged in users
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
@@ -146,7 +148,8 @@ router.post(
 				return res.status(200).send('success');
 			});
 		} catch (err) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
@@ -177,12 +180,13 @@ router.post(
 				});
 			})(req, res, next);
 		} catch (err) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
 
-router.get('/logout', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/logout', (req: express.Request, res: express.Response) => {
 	if (!req.isAuthenticated()) return res.redirect('/');
 
 	try {
@@ -191,7 +195,8 @@ router.get('/logout', (req: express.Request, res: express.Response, next: expres
 			res.redirect('/');
 		});
 	} catch (err) {
-		next(err);
+		logError(err);
+		return res.status(500).send('server-error');
 	}
 });
 
@@ -204,7 +209,7 @@ router.post(
 		statusCode: 429,
 		message: 'rate-limit',
 	}),
-	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	async (req: express.Request, res: express.Response) => {
 		if (!req.isAuthenticated() || !req.user) return res.status(400).send('unauthorized');
 
 		try {
@@ -229,7 +234,8 @@ router.post(
 				code: secret.base32,
 			});
 		} catch (err: any) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
@@ -242,7 +248,7 @@ router.post(
 		statusCode: 429,
 		message: 'rate-limit',
 	}),
-	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	async (req: express.Request, res: express.Response) => {
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
 		try {
@@ -260,7 +266,8 @@ router.post(
 			);
 			res.status(200).send('success');
 		} catch (err: any) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
@@ -273,7 +280,7 @@ router.post(
 		statusCode: 429,
 		message: 'rate-limit',
 	}),
-	async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	async (req: express.Request, res: express.Response) => {
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 		if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
 		if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
@@ -313,13 +320,14 @@ router.post(
 
 			return res.status(200).json(codeList);
 		} catch (err: any) {
-			next(err);
+			logError(err);
+			return res.status(500).send('server-error');
 		}
 	}
 );
 
 // Check if values are used
-router.post('/check-use', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/check-use', async (req: express.Request, res: express.Response) => {
 	const { test, value } = req.body;
 	if (!test || !value) return res.status(400).send('missing-parameters');
 	if (typeof test !== 'string' || typeof value !== 'string') return res.status(400).send('invalid-parameters');
@@ -331,7 +339,8 @@ router.post('/check-use', async (req: express.Request, res: express.Response, ne
 		const valueList: Array<string> = JSON.parse(valueListRaw);
 		return res.status(200).send(valueList.includes(value));
 	} catch (err) {
-		next(err);
+		logError(err);
+		return res.status(500).send('server-error');
 	}
 });
 
