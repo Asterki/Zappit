@@ -12,7 +12,7 @@ import Users from '../models/user';
 
 import { checkTFA } from '../utils/accounts';
 import { logError } from '../utils/logs';
-import { redisClient } from '../config/databases';
+// import { redisClient } from '../config/databases';
 
 import { User } from '../types';
 const router = express.Router();
@@ -40,14 +40,13 @@ router.post(
 		if (req.isAuthenticated() || req.user) return res.status(403).send('unauthorized');
 
 		// If all arguments are there and are the right type
-		const { username, email, password, displayName, locale } = req.body;
-		if (!username || !email || !password || !displayName) return res.status(400).send('missing-parameters');
-		if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string')
-			return res.status(400).send('invalid-parameters');
+		const { username, email, password, locale } = req.body;
+		if (!username || !email || !password) return res.status(400).send('missing-parameters');
+		if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
 
 		// Checks
-		if (username.length < 3 || username.length > 14) return res.status(400).send('invalid-username');
-		if (displayName.length > 24) return res.status(400).send('invalid-display-name');
+		if (username.length < 3 || username.length > 16 || !validator.isAlpha(username, 'en-GB', { ignore: '.' })) return res.status(400).send('invalid-username');
+
 		if (!validator.isEmail(email)) return res.status(400).send('invalid-email');
 		if (password.length < 6 || password.length > 256) return res.status(400).send('invalid-password');
 
@@ -326,17 +325,19 @@ router.post(
 
 // Check if values are used
 router.post('/check-use', async (req: express.Request, res: express.Response) => {
-	if (!req.body) return res.status(400).send('missing-parameters');
-	const { test, value } = req.body;
-	if (!test || !value) return res.status(400).send('missing-parameters');
-	if (typeof test !== 'string' || typeof value !== 'string') return res.status(400).send('invalid-parameters');
+	const { email, username } = req.body;
+	if (!email || !username) return res.status(400).send('missing-parameters');
+	if (typeof email !== 'string' || typeof username !== 'string') return res.status(400).send('invalid-parameters');
 
 	try {
-		const valueListRaw = await redisClient.get(test == 'username' ? 'checks-usernames' : 'checks-emails');
-		if (valueListRaw == null) return res.status(200).send('not-in-use');
+		// TODO: might change for redis later
+		const emailUser: User | null = await Users.findOne({ 'email.value': email });
+		const usernameUser: User | null = await Users.findOne({ username: username });
 
-		const valueList: Array<string> = JSON.parse(valueListRaw);
-		return res.status(200).send(valueList.includes(value));
+		return res.status(200).send({
+			emailInUse: emailUser !== null,
+			usernameInUse: usernameUser !== null,
+		});
 	} catch (err) {
 		logError(err);
 		return res.status(500).send('server-error');

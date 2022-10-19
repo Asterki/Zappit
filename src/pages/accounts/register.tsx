@@ -1,152 +1,309 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
-import $ from 'jquery';
+import axios from 'axios';
+import validator from 'validator';
+import { getLangFile } from '../../utils/pages';
 
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
+import { motion } from 'framer-motion';
 
-import { Form, FloatingLabel, InputGroup } from 'react-bootstrap';
+import { Form, Spinner } from 'react-bootstrap';
+import Head from 'next/head';
 
 import styles from '../../styles/accounts/register.module.scss';
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 
-const Register: NextPage = (props) => {
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+	if (context.req.user !== undefined)
+		return {
+			redirect: {
+				destination: '/home',
+				permanent: false,
+			},
+		};
+
+	return {
+		props: {
+			host: process.env.HOST,
+			lang: getLangFile(context.req.headers['accept-language'], 'accounts', 'register'),
+		},
+	};
+};
+
+const Register: NextPage = (props: any) => {
+	const [tab, setTab] = React.useState('email');
+	const [loading, setLoading] = React.useState(false);
+
+	const [emailError, setEmailError] = React.useState('');
+	const [passwordError, setPasswordError] = React.useState('');
+
 	const particlesInit = React.useCallback(async (engine: any) => {
 		await loadFull(engine);
 	}, []);
 
-	const changeTab = (currentTab: string, tabToChangeTo: string) => {
-		$(`#${currentTab}`).fadeOut(500);
-		setTimeout(() => {
-			$(`#${tabToChangeTo}`).fadeIn(500);
-		}, 500);
+	const checkValues = async (event: React.MouseEvent) => {
+		event.preventDefault();
+		setLoading(true);
+		setEmailError('');
+
+		// Get the input values
+		const username = (document.querySelector('#username-input') as HTMLInputElement).value;
+		const email = (document.querySelector('#email-input') as HTMLInputElement).value;
+
+		// Checks
+		if (validator.isEmpty(username) || validator.isEmpty(email)) {
+			setEmailError('missing-parameters');
+			return setLoading(false);
+		}
+
+		if (!validator.isEmail(email)) {
+			setEmailError('invalid-email');
+			return setLoading(false);
+		}
+
+		if (username.length > 16 || username.length < 4) {
+			setEmailError('invalid-username-length');
+			return setLoading(false);
+		}
+
+		if (!validator.isAlpha(username, 'en-GB', { ignore: '.' })) {
+			setEmailError('invalid-username');
+			return setLoading(false);
+		}
+
+		try {
+			// Check if the input values are in use
+			const response = await axios({
+				method: 'post',
+				url: `${props.host}/api/accounts/check-use`,
+				data: {
+					email: email,
+					username: username,
+				},
+			});
+
+			// Set an error if so
+			if (response.data.emailInUse || response.data.usernameInUse) {
+				setEmailError(response.data.emailInUse ? 'email-in-use' : 'username-in-use');
+				return setLoading(false);
+			}
+
+			// If not, change to the password tab
+			setTab('password');
+			return setLoading(false);
+		} catch (err: any) {
+			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
+		}
 	};
 
-	React.useEffect(() => {
-		$(`#email-page`).fadeIn(500);
-		$(`#particles`).fadeIn(3000);
-	}, []);
+	const register = async (event: React.MouseEvent) => {
+		event.preventDefault();
+
+		setLoading(true);
+		setPasswordError('');
+
+		// Not tested again, because they were already tested in the last tab
+		const username = (document.querySelector('#username-input') as HTMLInputElement).value;
+		const email = (document.querySelector('#email-input') as HTMLInputElement).value;
+
+		const password = (document.querySelector('#password-input') as HTMLInputElement).value;
+		const confirmPassword = (document.querySelector('#confirm-password-input') as HTMLInputElement).value;
+
+		if (validator.isEmpty(password) || validator.isEmpty(confirmPassword)) {
+			setPasswordError('missing-parameters');
+			return setLoading(false);
+		}
+
+		if (password !== confirmPassword) {
+			setPasswordError('mismatching-passwords');
+			return setLoading(false);
+		}
+
+		if (password.length < 6 || password.length > 256) {
+			setPasswordError('invalid-password-length');
+			return setLoading(false);
+		}
+
+		try {
+			const response = await axios({
+				method: 'post',
+				url: `${props.host}/api/accounts/register`,
+				data: {
+					username: username,
+					email: email,
+					password: password,
+					locale: props.lang.locale,
+				},
+			});
+
+			if (response.data == 'success') return (location.href = '/home');
+			setPasswordError(response.data);
+		} catch (err: any) {
+			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
+		}
+	};
 
 	return (
 		<div className={styles['page']}>
-			<Particles
-				init={particlesInit}
-				options={{
-					particles: {
-						number: {
-							value: 60,
-							density: {
-								enable: true,
-								value_area: 800,
-							},
-						},
-						shape: {
-							polygon: {
-								nb_sides: 5,
-							},
+			<Head>
+				<title>{props.lang.pageTitle}</title>
+				<meta name="title" content={props.lang.pageTitle} />
+				<meta name="description" content={props.lang.pageDescription} />
+			</Head>
 
-							type: 'circle',
-						},
-						line_linked: {
-							enable: false,
-						},
-						opacity: {
-							value: 0.3,
-						},
-						size: {
-							value: 3,
-							random: true,
-							anim: {
+			<div>
+				<Particles
+					init={particlesInit}
+					options={{
+						particles: {
+							number: {
+								value: 10,
+								density: {
+									enable: true,
+									value_area: 800,
+								},
+							},
+							shape: {
+								polygon: {
+									nb_sides: 5,
+								},
+
+								type: 'circle',
+							},
+							line_linked: {
 								enable: false,
-								speed: 20,
-								size_min: 0.3,
-								sync: false,
+							},
+							opacity: {
+								value: 0.3,
+							},
+							size: {
+								value: 3,
+								random: true,
+								anim: {
+									enable: false,
+									speed: 20,
+									size_min: 0.3,
+									sync: false,
+								},
+							},
+							move: {
+								direction: 'none',
+								enable: true,
+								outMode: 'bounce',
+								random: false,
+								speed: 0.3,
+								straight: false,
 							},
 						},
-						move: {
-							direction: 'none',
-							enable: true,
-							outMode: 'bounce',
-							random: false,
-							speed: 0.3,
-							straight: false,
-						},
-					},
-				}}
-			/>
+					}}
+				/>
+			</div>
+
+			<div className={styles['top-bar']}>
+				<img src="/assets/svg/logo.svg" alt="Zappit Logo" />
+				<h2>{props.lang.topBar}</h2>
+			</div>
 
 			<header>
-				<img src="/assets/svg/logo.svg" alt="Zappit Logo" />
-				<h1>Register Into Zappit</h1>
+				<h1>
+					<a>{props.lang.title.split('&')[0]}</a>
+					{props.lang.title.split('&')[1]}
+				</h1>
 			</header>
 
-			<div className={styles.center}>
-				<main>
-					<Form action="/api/accounts/register" method="POST">
-						<Form.Group id="email-tab" className={`${styles['tab']} ${styles['tab-active']}`}>
-							<InputGroup className="custom-input shadow-none">
-								<FloatingLabel controlId="floatingInput" label="Your Name">
-									<Form.Control type="text" placeholder="Your Name" />
-								</FloatingLabel>
-							</InputGroup>
-							<br />
-							<br />
+			<main>
+				{/* Email and username form */}
+				<motion.div
+					variants={{
+						shown: {
+							opacity: 1,
+							display: 'block',
+							transition: {
+								duration: 0.3,
+								delay: 0.3,
+							},
+						},
+						hidden: {
+							opacity: 0,
+							transition: {
+								duration: 0.3,
+							},
+							transitionEnd: {
+								display: 'none',
+							},
+						},
+					}}
+					initial="hidden"
+					animate={tab == 'email' ? 'shown' : 'hidden'}
+				>
+					<Form.Group controlId="username-input">
+						<Form.Label>{props.lang.emailForm.username}</Form.Label>
+						<Form.Control type="text" />
+					</Form.Group>
+					<p className={styles['error']}>{props.lang.errors[emailError]}</p>
 
-							<InputGroup className="custom-input shadow-none">
-								<FloatingLabel controlId="floatingInput" label="Username">
-									<Form.Control type="text" placeholder="Username" />
-								</FloatingLabel>
-							</InputGroup>
-							<br />
-							<br />
+					<Form.Group controlId="email-input">
+						<Form.Label>{props.lang.emailForm.email}</Form.Label>
+						<Form.Control type="email" />
+					</Form.Group>
+					<p className={styles["login"]}>
+						{props.lang.register.split('&')[0]} <a href="/login">{props.lang.register.split('&')[1]}</a>
+					</p>
+					<br />
 
-							<InputGroup className="custom-input shadow-none">
-								<FloatingLabel controlId="floatingInput" label="Email">
-									<Form.Control type="email" placeholder="Email" />
-								</FloatingLabel>
-							</InputGroup>
-							<br />
-							<br />
+					<button onClick={checkValues}>
+						{loading && <Spinner animation={'border'} size="sm" />}
+						{!loading && <div>{props.lang.emailForm.next}</div>}
+					</button>
+				</motion.div>
 
-							<button
-								className={styles['next-button']}
-								onClick={(e: any) => {
-									e.preventDefault();
-									changeTab('email-tab', 'password-tab');
-								}}
-							>
-								Next
-							</button>
-						</Form.Group>
-						<Form.Group id="password-tab" className={styles['tab']}>
-							<InputGroup className="custom-input shadow-none">
-								<FloatingLabel controlId="floatingInput" label="Password">
-									<Form.Control type="password" placeholder="Your password" />
-								</FloatingLabel>
-							</InputGroup>
-							<br />
-							<br />
+				{/* Password form */}
+				<motion.div
+					variants={{
+						shown: {
+							opacity: 1,
+							display: 'block',
+							transition: {
+								duration: 0.3,
+								delay: 0.3,
+							},
+						},
+						hidden: {
+							opacity: 0,
+							transition: {
+								duration: 0.3,
+							},
+							transitionEnd: {
+								display: 'none',
+							},
+						},
+					}}
+					initial="hidden"
+					animate={tab == 'password' ? 'shown' : 'hidden'}
+				>
+					<Form.Group controlId="password-input">
+						<Form.Label>{props.lang.passwordForm.password}</Form.Label>
+						<Form.Control type="password" />
+					</Form.Group>
+					<p className={styles['error']}>{props.lang.errors[passwordError]}</p>
 
-							<InputGroup className="custom-input shadow-none">
-								<FloatingLabel controlId="floatingInput" label="Confirm your password">
-									<Form.Control type="email" placeholder="Your password" />
-								</FloatingLabel>
-							</InputGroup>
-							<br />
-							<br />
+					<Form.Group controlId="confirm-password-input">
+						<Form.Label>{props.lang.passwordForm.confirmPassword}</Form.Label>
+						<Form.Control type="password" />
+					</Form.Group>
+					<br />
 
-							<button
-								className={styles['next-button']}
-								onClick={(e: any) => {
-									e.preventDefault();
-									changeTab('email-tab', 'username-tab');
-								}}
-							>
-								Register
-							</button>
-						</Form.Group>
-					</Form>
-				</main>
-			</div>
+					<button onClick={register}>
+						{loading && <Spinner animation={'border'} size="sm" />}
+						{!loading && <div>{props.lang.passwordForm.register}</div>}
+					</button>
+				</motion.div>
+			</main>
+
+			<footer>
+				<p>{props.lang.footer.split("&")[0]} <a href="/tos">{props.lang.footer.split("&")[1]}</a> {props.lang.footer.split("&")[2]} <a href="/privacy">{props.lang.footer.split("&")[3]}</a> </p>
+			</footer>
 		</div>
 	);
 };

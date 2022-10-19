@@ -1,6 +1,5 @@
 .page {
 	height: 100vh;
-	background-color: #1b1b1b;
 
 	display: flex;
 	justify-content: center;
@@ -8,7 +7,7 @@
 	flex-direction: column;
 
 	* {
-		font-weight: 550 !important;
+		font-weight: 550;
 	}
 
 	.top-bar {
@@ -20,10 +19,11 @@
 		align-items: center;
 		justify-content: center;
 
-		font-size: 20px;
+		font-family: 'Comfortaa';
 
 		h2 {
-			margin: 0 0 0 0 !important;
+			font-size: 20px;
+			margin: 0 0 0 0;
 		}
 
 		img {
@@ -33,6 +33,11 @@
 	}
 
 	header {
+		position: absolute;
+		top: 20%;
+		left: 50%;
+		transform: translate(-50%, 0%);
+
 		text-align: center;
 		color: white;
 		margin-bottom: 35px;
@@ -44,10 +49,22 @@
 
 	main {
 		width: 25%;
+		position: fixed;
+		z-index: 10 !important;
 
 		.error {
 			color: #ed4245;
 			margin: 0 0 30px 10px;
+		}
+
+		.go-back-button {
+			color: #a157ff;
+			position: absolute;
+
+			left: 50%;
+			transform: translateX(-50%);
+
+			cursor: pointer;
 		}
 
 		button {
@@ -55,10 +72,35 @@
 
 			border-radius: 12.3px;
 			padding: 10px;
-			border: none !important;
-			outline: none !important;
+			border: none;
+			outline: none;
 
-			background: linear-gradient(268.13deg, #6700ea33 10.78%, #22c2f433 77.16%), #a765fc;
+			background: #a157ff;
+			color: white;
+		}
+
+		a {
+			text-decoration: none;
+			color: #a157ff;
+		}
+
+		input {
+			box-shadow: none !important;
+			border: 2px solid #212129;
+			border-radius: 10px;
+			padding: 10px;
+
+			background-color: #131417 !important;
+			color: white !important;
+
+			transition: all 0.1s ease-in-out;
+
+			&:focus {
+				border: 2px solid #8d78fb;
+			}
+		}
+
+		label {
 			color: white;
 		}
 	}
@@ -70,7 +112,16 @@
 
 		a {
 			text-decoration: none;
-			color: #a157ff !important;
+			color: #a157ff;
+		}
+	}
+}
+
+@media only screen and (max-width: 900px) {
+	.page {
+		main {
+			width: 90%;
+			margin-top: 20%;
 		}
 	}
 }

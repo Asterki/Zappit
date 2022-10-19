@@ -8,33 +8,21 @@
 	src: url('/assets/fonts/Fredoka-VariableFont.ttf');
 }
 
+@font-face {
+	font-family: 'Comfortaa';
+	src: url('/assets/fonts/Comfortaa-VariableFont_wght.ttf');
+}
+
 html,
 body {
 	margin: 0 !important;
 	padding: 0 !important;
 	font-family: 'Fredoka';
 	color: #ebebeb;
+	background-color: #111315;
 }
 
-// Custom Components
-.custom-input {
-	input {
-		color: white !important;
-		box-shadow: none !important;
-
-		transition: all 0.1s ease-in-out;
-
-		&:focus {
-			border: 2px solid #8d78fb !important;
-		}
-	}
-
-	.form-floating {
-		.form-control {
-			background-color: #171717;
-
-			border: 2px solid #343434;
-			border-radius: 10px;
-		}
-	}
+.particles {
+	position: fixed;
+	z-index: 0;
 }
