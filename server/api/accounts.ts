@@ -204,7 +204,6 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.body) return res.status(400).send('missing-parameters');
 		if (!req.isAuthenticated() || !req.user) return res.status(400).send('unauthorized');
 
 		try {
@@ -244,11 +243,16 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.body) return res.status(400).send('missing-parameters');
+		if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
+		if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
 		try {
 			if (req.user.tfa.secret == '') return res.status(400).send('not-activated');
+
+			const result = checkTFA(req.body.tfaCode, req.user);
+			if (result == false) return res.status(200).send('invalid-tfa-code');
+
 			req.user.tfa.secret = '';
 			req.user.tfa.backupCodes = [];
 

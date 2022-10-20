@@ -10,17 +10,26 @@ const nextConfig = {
 	async rewrites() {
 		return [
 			{
+				source: '/',
+				destination: '/main',
+			},
+			{
+				source: '/home',
+				destination: '/main/home',
+			},
+
+			{
 				source: '/register',
 				destination: '/accounts/register',
 			},
-            {
+			{
 				source: '/login',
 				destination: '/accounts/login',
 			},
 		];
 	},
 
-    swcMinify: true
+	swcMinify: true,
 };
 
 module.exports = nextConfig;

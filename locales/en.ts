@@ -40,16 +40,18 @@ const en = {
 			title: 'Create & an account',
 
 			register: 'Already have an account? & Login',
-			footer: "By creating an account you agree to our & TOS & and our & Privacy Policy",
+			footer: 'By creating an account you agree to our & TOS & and our & Privacy Policy',
 
 			emailForm: {
 				username: 'Username',
+				usernameDescription: 'Must between 3 and 16 characters long',
 				email: 'Email',
 				next: 'Next',
 			},
 
 			passwordForm: {
 				password: 'Password',
+				passwordDescription: 'Must be between 6 and 256 characters',
 				confirmPassword: 'Confirm Password',
 				register: 'Register',
 			},
@@ -63,13 +65,35 @@ const en = {
 
 				'invalid-username-length': 'Your username must be between 4 and 16 characters',
 				'invalid-password-length': "The password can't be shorter than 6 characters or longer than 256 characters",
-				
+
 				'email-in-use': 'The email you entered is already in use',
 				'username-in-use': 'The username you entered is already in use',
 				'err-username-or-email-taken': 'Email or username already taken',
-				
+
 				'rate-limit': "You've already created an account recently, please try again later",
+				'password-strength': 'Your password is too weak',
 			},
+		},
+	},
+	main: {
+		home: {
+			title: 'This is the home page',
+		},
+	},
+	profile: {
+		index: {
+			title: 'This is the profile page',
+		},
+	},
+	settings: {
+		index: {
+			title: 'This is the settings page',
+		},
+		privacy: {
+			title: 'This is the privacy settings page',
+		},
+		security: {
+			title: 'This is the security settings page',
 		},
 	},
 };

@@ -8,7 +8,7 @@ import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 import { motion } from 'framer-motion';
 
-import { Form, Spinner } from 'react-bootstrap';
+import { Form, Spinner, ProgressBar } from 'react-bootstrap';
 import Head from 'next/head';
 
 import styles from '../../styles/accounts/register.module.scss';
@@ -34,6 +34,9 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 const Register: NextPage = (props: any) => {
 	const [tab, setTab] = React.useState('email');
 	const [loading, setLoading] = React.useState(false);
+
+	const [passwordStrength, setPasswordStrength] = React.useState(0);
+	const [passwordStrengthVariant, setPasswordStrengthVariant] = React.useState('danger');
 
 	const [emailError, setEmailError] = React.useState('');
 	const [passwordError, setPasswordError] = React.useState('');
@@ -125,6 +128,11 @@ const Register: NextPage = (props: any) => {
 			return setLoading(false);
 		}
 
+		if (passwordStrengthVariant == 'danger') {
+			setPasswordError('password-strength');
+			return setLoading(false);
+		}
+
 		try {
 			const response = await axios({
 				method: 'post',
@@ -142,6 +150,40 @@ const Register: NextPage = (props: any) => {
 		} catch (err: any) {
 			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
 		}
+	};
+
+	const checkPasswordStrength = () => {
+		const password = (document.querySelector('#password-input') as HTMLInputElement).value;
+
+		let score = 0;
+		if (!password) return score;
+
+		const letters: any = new Object();
+		for (let i = 0; i < password.length; i++) {
+			letters[password[i]] = (letters[password[i]] || 0) + 1;
+			score += 5.0 / letters[password[i]];
+		}
+
+		// bonus points for mixing it up
+		const variations: any = {
+			digits: /\d/.test(password),
+			lower: /[a-z]/.test(password),
+			upper: /[A-Z]/.test(password),
+			nonWords: /\W/.test(password),
+		};
+
+		let variationCount = 0;
+		for (const check in variations) {
+			variationCount += variations[check] == true ? 1 : 0;
+		}
+		score += (variationCount - 1) * 10;
+
+		setPasswordStrength(score);
+
+		if (score > 60) return setPasswordStrengthVariant('success');
+		if (score > 40) return setPasswordStrengthVariant('warning');
+		if (score >= 20) return setPasswordStrengthVariant('danger');
+		setPasswordStrengthVariant('danger');
 	};
 
 	return (
@@ -240,6 +282,7 @@ const Register: NextPage = (props: any) => {
 					<Form.Group controlId="username-input">
 						<Form.Label>{props.lang.emailForm.username}</Form.Label>
 						<Form.Control type="text" />
+						<Form.Text className="text-muted">{props.lang.emailForm.usernameDescription}</Form.Text>
 					</Form.Group>
 					<p className={styles['error']}>{props.lang.errors[emailError]}</p>
 
@@ -247,7 +290,7 @@ const Register: NextPage = (props: any) => {
 						<Form.Label>{props.lang.emailForm.email}</Form.Label>
 						<Form.Control type="email" />
 					</Form.Group>
-					<p className={styles["login"]}>
+					<p className={styles['login']}>
 						{props.lang.register.split('&')[0]} <a href="/login">{props.lang.register.split('&')[1]}</a>
 					</p>
 					<br />
@@ -284,7 +327,9 @@ const Register: NextPage = (props: any) => {
 				>
 					<Form.Group controlId="password-input">
 						<Form.Label>{props.lang.passwordForm.password}</Form.Label>
-						<Form.Control type="password" />
+						<Form.Control type="password" onKeyUp={checkPasswordStrength} />
+						<ProgressBar className={styles['progress-bar']} now={passwordStrength} variant={passwordStrengthVariant} />
+						<Form.Text className="text-muted">{props.lang.passwordForm.passwordDescription}</Form.Text>
 					</Form.Group>
 					<p className={styles['error']}>{props.lang.errors[passwordError]}</p>
 
@@ -302,7 +347,10 @@ const Register: NextPage = (props: any) => {
 			</main>
 
 			<footer>
-				<p>{props.lang.footer.split("&")[0]} <a href="/tos">{props.lang.footer.split("&")[1]}</a> {props.lang.footer.split("&")[2]} <a href="/privacy">{props.lang.footer.split("&")[3]}</a> </p>
+				<p>
+					{props.lang.footer.split('&')[0]} <a href="/tos">{props.lang.footer.split('&')[1]}</a> {props.lang.footer.split('&')[2]}{' '}
+					<a href="/privacy">{props.lang.footer.split('&')[3]}</a>{' '}
+				</p>
 			</footer>
 		</div>
 	);
