@@ -8,21 +8,10 @@
 			"command": "npm run dev"
 		},
 		{
-			"name": "Next.js: debug client-side",
+			"name": "Debug client-side",
 			"type": "firefox",
 			"request": "launch",
 			"url": "http://localhost:8080"
 		},
-		{
-			"name": "Next.js: debug full stack",
-			"type": "node-terminal",
-			"request": "launch",
-			"command": "npm run dev",
-			"serverReadyAction": {
-				"pattern": "started server on .+, url: (https?://.+)",
-				"uriFormat": "%s",
-				"action": "debugWithChrome"
-			}
-		}
 	]
 }

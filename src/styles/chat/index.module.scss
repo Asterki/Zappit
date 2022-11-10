@@ -1,0 +1,15 @@
+.page {
+	.main {
+		margin-top: 60px !important;
+
+        .message-input {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+
+            input {
+                width: 100%;
+            }
+        }
+	}
+}

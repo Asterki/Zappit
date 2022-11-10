@@ -1,3 +1,52 @@
 .page {
-    color: white;
+	color: white;
+	background-color: #272729;
+
+	.left-bar {
+		height: 100%;
+		width: 25%;
+		background-color: #161616;
+
+		position: fixed;
+
+		padding: 10px;
+		padding: 60px 10px 0px calc(5vw + 50px);
+
+		h4 {
+			text-align: left;
+		}
+
+		button {
+			margin: 2.5px 30px 2.5px 0px;
+			padding: 5px;
+			background-color: #161616;
+			color: white;
+			width: 100%;
+			border: none;
+			text-align: left;
+			border-radius: 5px;
+			transition: all 0.1s ease-in-out;
+
+			&:hover {
+				background-color: #272729;
+			}
+		}
+
+		hr {
+			width: 90%;
+			transform: translateX(5%);
+		}
+	}
+
+	.right-bar {
+		position: absolute;
+		left: 25%;
+		top: 0;
+
+		background-color: #272729;
+		width: 75%;
+		height: 100%;
+
+		padding: 50px;
+	}
 }

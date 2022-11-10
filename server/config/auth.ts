@@ -6,7 +6,7 @@ import mongoStore from 'connect-mongo';
 
 import Users from '../models/user';
 import { app } from '..';
-import type { User } from '../types';
+import type { User } from '../../types';
 import { checkTFA } from '../utils/accounts';
 
 // For authentication on each request
@@ -47,7 +47,9 @@ passport.use(
 				});
 
 				if (!user) return done(null, false, 'invalid-credentials');
+				
 				if (!bcrypt.compareSync(req.body.password, user.password)) return done(null, false, 'invalid-credentials');
+				if (user.banned == true) return done(null, false, 'disabled')
 
 				if (user.tfa.secret) {
 					if (!req.body.tfaCode) return done(null, false, 'missing-tfa-code');
@@ -67,4 +69,5 @@ passport.use(
 		}
 	)
 );
+
 export {};

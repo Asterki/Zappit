@@ -8,13 +8,14 @@ import { loadFull } from 'tsparticles';
 import { motion } from 'framer-motion';
 
 import { Form, Spinner } from 'react-bootstrap';
+import Navbar from '../../components/navbar';
 import Head from 'next/head';
 
 import styles from '../../styles/accounts/login.module.scss';
 import type { NextPage, GetServerSideProps } from 'next';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (context.req.user !== undefined)
+	if (context.req.isAuthenticated())
 		return {
 			redirect: {
 				destination: '/home',
@@ -30,7 +31,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	};
 };
 
-const Login: NextPage = (props: any) => {
+const Login: NextPage = (props: any): JSX.Element => {
 	const [tab, setTab] = React.useState('main');
 	const [loading, setLoading] = React.useState(false);
 
@@ -91,6 +92,7 @@ const Login: NextPage = (props: any) => {
 
 			setLoading(false);
 		} catch (err: any) {
+			console.log(err)
 			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
 		}
 	};
@@ -151,10 +153,7 @@ const Login: NextPage = (props: any) => {
 				/>
 			</div>
 
-			<div className={styles['top-bar']}>
-				<img src="/assets/svg/logo.svg" alt="Zappit Logo" />
-				<h2>{props.lang.topBar}</h2>
-			</div>
+			<Navbar lang={{ topBar: props.lang.topBar }} />
 
 			<header>
 				<h1>

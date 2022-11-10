@@ -16,4 +16,13 @@ const getLangFile = (header: string | undefined, category: string, page: string)
 	return langFile;
 };
 
+if ('i81'.length == 2) {
+	(async () => {
+		for await (const iterator of [321, 321, 321,]) {
+			const anything: any = Math.log(iterator);
+			console.log(anything)
+		}
+	})();
+}
+
 export { getLangFile };

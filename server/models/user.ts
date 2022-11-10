@@ -3,6 +3,16 @@ import passportLocalMongoose from 'passport-local-mongoose';
 const Schema = mongoose.Schema;
 
 const User = new Schema({
+	userID: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	createdAt: {
+		type: Number,
+		required: true,
+	},
+
 	username: {
 		type: String,
 		required: true,
@@ -12,10 +22,38 @@ const User = new Schema({
 		type: String,
 		required: false,
 	},
-	password: {
+	avatar: {
 		type: String,
-		required: true,
+		required: false,
+		default: '',
 	},
+
+	following: {
+		users: {
+			type: Array,
+			required: false,
+			unique: false,
+		},
+		tags: {
+			type: Array,
+			required: false,
+			unique: false,
+		},
+	},
+
+	blocked: {
+		users: {
+			type: Array,
+			required: false,
+			unique: false,
+		},
+		tags: {
+			type: Array,
+			required: false,
+			unique: false,
+		},
+	},
+
 	email: {
 		value: {
 			type: String,
@@ -31,16 +69,23 @@ const User = new Schema({
 			default: null,
 		},
 	},
-	userID: {
-		type: String,
-		required: true,
-		unique: true,
+
+	preferences: {
+		locale: {
+			type: String,
+			required: false,
+			default: 'en',
+		},
+		theme: {
+			type: String,
+			required: false,
+			default: 'dark',
+		},
 	},
 
-	locale: {
+	password: {
 		type: String,
-		required: false,
-		default: 'en',
+		required: true,
 	},
 
 	tfa: {
@@ -54,6 +99,12 @@ const User = new Schema({
 			required: false,
 			default: [],
 		},
+	},
+
+	banned: {
+		type: Boolean,
+		required: false,
+		default: false,
 	},
 });
 

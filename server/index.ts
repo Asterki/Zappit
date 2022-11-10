@@ -21,6 +21,7 @@ const launchArgs = minimist(process.argv.slice(2), {
 
 const app = express();
 const server = http.createServer(app);
+
 const nextApp = next({ dev: launchArgs.dev });
 const io = new socketIO.Server(server);
 
@@ -30,8 +31,12 @@ nextApp.prepare().then(() => {
 	require('./config/middleware');
 	require('./config/auth');
 	require('./config/databases');
+	require('./config/controllers');
 	require('./config/routes');
-
+	require('./config/cdn');
+	
+	require("./sockets/index")
+	
 	// Handle next.js routing
 	app.get('*', (req: express.Request, res: express.Response) => {
 		handle(req, res);
@@ -40,6 +45,16 @@ nextApp.prepare().then(() => {
 	// Start the server
 	server.listen(launchArgs.port, () => {
 		console.log(`${chalk.magenta('event')} - Server running in ${launchArgs.dev == true ? 'development' : 'production'} mode at ${launchArgs.port}`);
+	});
+
+	server.on('error', (error: any) => {
+		if (error.code === 'EADDRINUSE') {
+			console.log('Address in use, retrying...');
+			setTimeout(() => {
+				server.close();
+				server.listen(launchArgs.port);
+			}, 1000);
+		}
 	});
 });
 

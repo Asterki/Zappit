@@ -29,6 +29,7 @@ const en = {
 				'missing-parameters': 'Please fill all spaces',
 				'rate-limit': 'You have tried logging in too many times, please try again later',
 				'invalid-tfa-code': 'Invalid two factor authentication code',
+				'disabled': "This account has been disabled for violations of our TOS"
 			},
 		},
 		register: {
@@ -61,7 +62,7 @@ const en = {
 				'mismatching-passwords': "The passwords don't match",
 
 				'invalid-email': 'Invalid email',
-				'invalid-username': 'Usernames can only contain letters and dots (.)',
+				'invalid-username': 'Usernames can only contain letters, bottom dashes (_) and dots (.)',
 
 				'invalid-username-length': 'Your username must be between 4 and 16 characters',
 				'invalid-password-length': "The password can't be shorter than 6 characters or longer than 256 characters",
@@ -78,6 +79,9 @@ const en = {
 	main: {
 		home: {
 			title: 'This is the home page',
+
+			topBar: 'Zappit',
+
 		},
 	},
 	profile: {

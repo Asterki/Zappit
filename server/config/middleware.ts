@@ -12,7 +12,7 @@ import { app, launchArgs } from '../index';
 
 try {
 	app.disable('x-powered-by');
-	app.set('trust proxy', 1);
+	// app.set('trust proxy', 1);
 
 	// Requests
 	app.use(
@@ -27,8 +27,6 @@ try {
 	// Static content
 	app.use(favicon(path.join(__dirname, '../../public/favicon.ico')));
 	app.use('/', express.static(path.join(__dirname, '../../public/')));
-	// app.use("/assets/", express.static(path.join(__dirname, "../../src/assets")));
-	// app.use("/avatars/", express.static(path.join(__dirname, avatarsPath)));
 
 	// Security, which is disabled in development mode
 	if (launchArgs.dev == false) {

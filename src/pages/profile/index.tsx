@@ -5,6 +5,7 @@ import { getLangFile } from '../../utils/pages';
 
 import styles from '../../styles/profile/index.module.scss';
 import type { NextPage, GetServerSideProps } from 'next';
+import Navbar from '../../components/navbar';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	if (context.req.user == undefined)
@@ -23,10 +24,11 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	};
 };
 
-const Profile: NextPage = (props: any) => {
+const Profile: NextPage = (props: any): JSX.Element => {
 	return (
 		<div className={styles['page']}>
 			<h1>{props.lang.title}</h1>
+			<Navbar lang={props.lang} user={props.user} />
 		</div>
 	);
 };

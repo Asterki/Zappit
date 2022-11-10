@@ -10,12 +10,13 @@ import { motion } from 'framer-motion';
 
 import { Form, Spinner, ProgressBar } from 'react-bootstrap';
 import Head from 'next/head';
+import Navbar from '../../components/navbar';
 
 import styles from '../../styles/accounts/register.module.scss';
 import type { NextPage, GetServerSideProps } from 'next';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (context.req.user !== undefined)
+	if (context.req.isAuthenticated())
 		return {
 			redirect: {
 				destination: '/home',
@@ -31,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	};
 };
 
-const Register: NextPage = (props: any) => {
+const Register: NextPage = (props: any): JSX.Element => {
 	const [tab, setTab] = React.useState('email');
 	const [loading, setLoading] = React.useState(false);
 
@@ -70,7 +71,7 @@ const Register: NextPage = (props: any) => {
 			return setLoading(false);
 		}
 
-		if (!validator.isAlpha(username, 'en-GB', { ignore: '.' })) {
+		if (!validator.isAlphanumeric(username, 'en-GB', { ignore: '._' })) {
 			setEmailError('invalid-username');
 			return setLoading(false);
 		}
@@ -242,10 +243,7 @@ const Register: NextPage = (props: any) => {
 				/>
 			</div>
 
-			<div className={styles['top-bar']}>
-				<img src="/assets/svg/logo.svg" alt="Zappit Logo" />
-				<h2>{props.lang.topBar}</h2>
-			</div>
+			<Navbar lang={{ topBar: props.lang.topBar }} />
 
 			<header>
 				<h1>

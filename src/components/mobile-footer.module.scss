@@ -1,0 +1,36 @@
+.component {
+	color: white;
+	position: fixed;
+	bottom: 0;
+
+	background-color: #1f1f1f;
+	width: 100%;
+	text-align: center;
+
+    display: flex;
+    justify-content: space-evenly;
+
+	button {
+        margin: 10px 0px 10px 0px;
+        background-color: #1f1f1f;
+        border: none;
+    }
+
+    img {
+        max-width: 30px;
+        min-width: 30px;
+    }
+
+
+	.profile-button {
+        img {
+            border-radius: 50%;
+        }
+    }
+}
+
+@media only screen and (min-width: 901px) {
+	.component {
+		display: none;
+	}
+}
