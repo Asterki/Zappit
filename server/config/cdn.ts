@@ -16,8 +16,4 @@ router.use(
 	})
 );
 
-router.get('/', (req, res) => {
-	res.send('jqqwioeuqwioejhqweui');
-});
-
 app.use(subdomain('cdn', router));
