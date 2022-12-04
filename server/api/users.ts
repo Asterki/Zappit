@@ -1,4 +1,5 @@
 import express from 'express';
+import { z } from 'zod';
 
 import { logError } from '../utils/logs';
 
@@ -38,12 +39,17 @@ router.post('/get-contacts', async (req: express.Request, res: express.Response)
 
 router.post('/follow-user', async (req: express.Request, res: express.Response) => {
 	if (!req.isAuthenticated()) return res.status(403).send('unauthorized');
-	if (!req.body.username) return res.status(400).send('missing-parameters');
-	if (typeof req.body.username !== 'string') return res.status(400).send('invalid-parameters');
+
+	const bodyScheme = z.object({
+		username: z.string()
+	}).required()
+
+	const parsedBody = bodyScheme.safeParse(req.body)
+	if (!parsedBody.success) return res.status(400).send('invalid-parameters');
 
 	try {
 		// Find the searched user
-		const userFound: User | null = await Users.findOne({ username: req.body.username });
+		const userFound: User | null = await Users.findOne({ username: parsedBody.data.username });
 		if (!userFound) return res.status(400).send('invalid-parameters');
 
 		// Push the new user to the user's contact list
@@ -64,11 +70,16 @@ router.post('/follow-user', async (req: express.Request, res: express.Response) 
 
 router.post('/unfollow-user', async (req: express.Request, res: express.Response) => {
 	if (!req.isAuthenticated()) return res.status(403).send('unauthorized');
-	if (!req.body.username) return res.status(400).send('missing-parameters');
-	if (typeof req.body.username !== 'string') return res.status(400).send('invalid-parameters');
+
+	const bodyScheme = z.object({
+		username: z.string()
+	}).required()
+
+	const parsedBody = bodyScheme.safeParse(req.body)
+	if (!parsedBody.success) return res.status(400).send('invalid-parameters');
 
 	try {
-		const userFound: User | null = await Users.findOne({ username: req.body.username });
+		const userFound: User | null = await Users.findOne({ username: parsedBody.data.username });
 		if (!userFound) return res.status(400).send('invalid-parameters');
 
 		// Filter out the user

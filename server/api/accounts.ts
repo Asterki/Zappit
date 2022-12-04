@@ -4,6 +4,7 @@ import ms from 'ms';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
+import { string, z } from "zod"
 import { v4 as uuidv4 } from 'uuid';
 
 import Users from '../models/user';
@@ -34,30 +35,26 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.body) return res.status(400).send('missing-parameters');
-		// Don't allow already logged in users to register a new account
-		if (req.isAuthenticated() || req.user) return res.status(403).send('unauthorized');
+		// Check values provided in the request body
+		const bodyScheme = z.object({
+			username: z.string().max(16).min(3).refine(validator.isAlphanumeric),
+			email: z.string().refine(validator.isEmail),
+			password: z.string().max(256).min(8),
+			locale: string().max(2).min(2).optional()
+		}).required()
 
-		// If all arguments are there and are the right type
-		const { username, email, password, locale } = req.body;
-		if (!username || !email || !password) return res.status(400).send('missing-parameters');
-		if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
-
-		// Checks
-		if (username.length < 3 || username.length > 16 || !validator.isAlphanumeric(username, 'en-GB', { ignore: '._' })) return res.status(400).send('invalid-username');
-
-		if (!validator.isEmail(email)) return res.status(400).send('invalid-email');
-		if (password.length < 6 || password.length > 256) return res.status(400).send('invalid-password');
+		const parsedBody = bodyScheme.safeParse(req.body)
+		if (!parsedBody.success) return res.status(400).send("invalid-parameters")
 
 		try {
 			// Find if the username is already registered
 			const result = await Users.findOne({
 				$or: [
 					{
-						'email.value': email.toLowerCase(),
+						'email.value': parsedBody.data.email.toLowerCase(),
 					},
 					{
-						username: username.toLowerCase(),
+						username: parsedBody.data.username.toLowerCase(),
 					},
 				],
 			});
@@ -70,18 +67,18 @@ router.post(
 				userID: userID,
 				createdAt: Date.now(),
 
-				username: username.toLowerCase(),
-				displayName: username.toLowerCase(),
+				username: parsedBody.data.username.toLowerCase(),
+				displayName: parsedBody.data.username.toLowerCase(),
 
 				email: {
-					value: email.toLowerCase(),
+					value: parsedBody.data.email.toLowerCase(),
 				},
 
 				preferences: {
-					locale: locale,
+					locale: parsedBody.data.locale,
 				},
 
-				password: bcrypt.hashSync(password, 10),
+				password: bcrypt.hashSync(parsedBody.data.password, 10),
 			});
 
 			// Save the user to the database
@@ -111,19 +108,21 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.body) return res.status(400).send('missing-parameters');
 		// Block not logged in users
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
-		const { password } = req.body;
-		if (!password) return res.status(400).send('missing-parameters');
-		if (typeof password !== 'string') return res.status(400).send('invalid-parameters');
+		const bodyScheme = z.object({
+			password: z.string(),
+			tfaCode: z.string().optional()
+		}).required()
+
+		const parsedBody = bodyScheme.safeParse(req.body)
+		if (!parsedBody.success) return res.status(400).send("invalid-parameters")
 
 		try {
 			// If user haves tfa activated, verify it
 			if (req.user.tfa.secret !== '') {
-				if (!req.body.tfaCode) return res.status(400).send('missing-parameters');
-				if (typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
+				if (!req.body.tfaCode || typeof req.body.tfaCode !== 'string') return res.status(400).send('invalid-parameters');
 
 				const result = checkTFA(req.body.tfaCode, req.user);
 				if (result == false) return res.status(403).send('unauthorized');
@@ -156,10 +155,13 @@ router.post(
 		message: 'rate-limit',
 	}),
 	(req: express.Request, res: express.Response, next: express.NextFunction) => {
-		if (!req.body) return res.status(400).send('missing-parameters');
-		const { email, password } = req.body;
-		if (!email || !password) return res.status(400).send('missing-parameters');
-		if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).send('invalid-parameters');
+		const bodyScheme = z.object({
+			email: z.string(),
+			password: z.string()
+		}).required()
+
+		const parsedBody = bodyScheme.safeParse(req.body)
+		if (!parsedBody.success) return res.status(400).send("invalid-parameters")
 
 		try {
 			passport.authenticate('local', (err: Error | null, user: User, result: string) => {
@@ -180,7 +182,6 @@ router.post(
 );
 
 router.get('/logout', (req: express.Request, res: express.Response) => {
-	if (!req.body) return res.status(400).send('missing-parameters');
 	if (!req.isAuthenticated()) return res.redirect('/');
 
 	try {
@@ -196,14 +197,18 @@ router.get('/logout', (req: express.Request, res: express.Response) => {
 
 // Check if values are used
 router.post('/check-use', async (req: express.Request, res: express.Response) => {
-	const { email, username } = req.body;
-	if (!email || !username) return res.status(400).send('missing-parameters');
-	if (typeof email !== 'string' || typeof username !== 'string') return res.status(400).send('invalid-parameters');
+	const bodyScheme = z.object({
+		email: z.string(),
+		username: z.string()
+	}).required()
+
+	const parsedBody = bodyScheme.safeParse(req.body)
+	if (!parsedBody.success) return res.status(400).send('invalid-parameters');
 
 	try {
 		// TODO: might change for redis later
-		const emailUser: User | null = await Users.findOne({ 'email.value': email });
-		const usernameUser: User | null = await Users.findOne({ username: username });
+		const emailUser: User | null = await Users.findOne({ 'email.value': parsedBody.data.email });
+		const usernameUser: User | null = await Users.findOne({ username: parsedBody.data.username });
 
 		return res.status(200).send({
 			emailInUse: emailUser !== null,

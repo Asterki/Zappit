@@ -54,7 +54,8 @@
 		"speakeasy": "^2.0.0",
 		"tsparticles": "^2.3.4",
 		"uuid": "^9.0.0",
-		"validator": "^13.7.0"
+		"validator": "^13.7.0",
+		"zod": "^3.19.1"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.0",

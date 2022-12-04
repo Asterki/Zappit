@@ -22,7 +22,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	return {
 		props: {
 			host: process.env.HOST,
-			cdnHost: process.env.CDN_URI,
+			cdnURI: process.env.CDN_URI,
 			lang: getLangFile(context.req.headers['accept-language'], 'settings', 'index'),
 			user: JSON.parse(JSON.stringify(context.req.user)),
 		},
@@ -134,7 +134,7 @@ const Profile: NextPage = (props: any): JSX.Element => {
 					animate={activeTab == 'accounts' ? 'showing' : 'hidden'}
 					initial={'hidden'}
 				>
-					<img src={`${props.cdnHost}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`} alt="avatar" />
+					<img src={`${props.cdnURI}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`} alt="avatar" />
 
 					<form action="/api/user-settings/upload-avatar" encType="multipart/form-data" method="post">
 						<input type="file" name="avatar" id="yes" accept="image/*" />

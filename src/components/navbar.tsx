@@ -61,7 +61,7 @@ const Navbar = (props: any): JSX.Element => {
 								setDropdownOpen(!dropdownOpen);
 							}}
 						>
-							<img src={`${props.cdnHost}/avatars/${props.user.userID}/${props.user.avatar}.png?w=20&h=20&crop=true`} alt="avatar" />
+							<img src={`${props.cdnURI}/avatars/${props.user.userID}/${props.user.avatar}.png?w=20&h=20&crop=true`} alt="avatar" />
 
 							<div className={styles['dropdown-menu-button-text']}>
 								<b>{props.user.displayName}</b>

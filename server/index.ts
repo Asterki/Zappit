@@ -1,7 +1,6 @@
 import express from 'express';
 import next from 'next';
 import http from 'http';
-import socketIO from 'socket.io';
 
 import minimist from 'minimist';
 import path from 'path';
@@ -23,7 +22,6 @@ const app = express();
 const server = http.createServer(app);
 
 const nextApp = next({ dev: launchArgs.dev });
-const io = new socketIO.Server(server);
 
 nextApp.prepare().then(() => {
 	const handle = nextApp.getRequestHandler();
@@ -34,9 +32,7 @@ nextApp.prepare().then(() => {
 	require('./config/controllers');
 	require('./config/routes');
 	require('./config/cdn');
-	
-	require("./sockets/index")
-	
+
 	// Handle next.js routing
 	app.get('*', (req: express.Request, res: express.Response) => {
 		handle(req, res);
@@ -58,4 +54,4 @@ nextApp.prepare().then(() => {
 	});
 });
 
-export { app, server, nextApp, io, launchArgs };
+export { app, server, nextApp, launchArgs };

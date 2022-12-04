@@ -1,15 +1,170 @@
 .page {
+	margin-top: 60px;
+	display: flex;
+	height: calc(100vh - 60px);
+	width: 100vw;
+
+	justify-content: center;
+	align-items: center;
+
 	.main {
-		margin-top: 60px !important;
+		height: calc(100% - 60px);
+		width: 90%;
 
-        .message-input {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
+		background-color: #1f1f1f;
+		border: 2px solid #2b2b2b;
+		border-radius: 10px;
 
-            input {
-                width: 100%;
-            }
-        }
+		display: flex;
+
+		.contacts {
+			width: 30%;
+
+			.contact-search-bar {
+				width: calc(100% - 20px);
+
+				margin: 10px;
+				padding: 10px;
+				border: 2px solid #353535;
+				border-radius: 5px;
+				outline: none !important;
+
+				background-color: #1f1f1f;
+				color: white;
+			}
+
+			.contact {
+				display: flex;
+
+				padding: 10px;
+
+				cursor: pointer;
+				user-select: none;
+
+				.avatar {
+					height: 50px;
+					width: 50px;
+
+					border-radius: 50%;
+				}
+
+				.contact-information {
+					margin-left: 10px;
+					width: 80%;
+
+					h5 {
+						margin: 0 !important;
+					}
+
+					// TODO: If the message is new, then make the text white
+					.message {
+						position: relative;
+
+						height: 25px !important;
+						width: 100%;
+						display: inline-block;
+						padding-right: 8px;
+
+						color: #afafaf;
+						line-height: 25px;
+
+						overflow: hidden;
+						overflow-wrap: break-word;
+						word-wrap: break-word;
+
+						&::after {
+							position: absolute;
+							right: 0;
+							bottom: 0;
+
+							content: '…';
+						}
+					}
+				}
+			}
+		}
+
+		.chat {
+			position: relative;
+
+			width: 70%;
+
+			border-left: 2px solid #2b2b2b;
+
+			.navbar {
+				position: absolute;
+				display: flex;
+
+				height: 70px;
+				width: 100%;
+				padding: 10px;
+
+				border-bottom: 2px solid #353535;
+
+				.avatar {
+					height: 50px;
+					width: 50px;
+					border-radius: 50%;
+				}
+
+				h5 {
+					margin: 0 0 0 10px !important;
+				}
+
+				h5:last-of-type {
+					color: #acacac;
+				}
+			}
+
+			.messages {
+				position: absolute;
+				top: 70px;
+
+				width: 100%;
+				height: calc(100% - 130px);
+
+				overflow-y: scroll !important;
+
+				li {
+					text-overflow: clip;
+					overflow-wrap: break-word;
+					word-wrap: break-word;
+				}
+
+				&::-webkit-scrollbar {
+					width: 0.2em;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background-color: #3333339d;
+					outline: 1px solid #3333339d;
+				}
+			}
+
+			.message-input {
+				position: absolute;
+				bottom: 0;
+
+				height: 60px;
+				width: 100%;
+
+				background-color: #242424;
+
+				input {
+					// width: calc(100% - 20px);
+					height: 40px;
+					margin: 10px;
+
+					padding: 5px;
+
+					border: none;
+					border-radius: 10px;
+					outline: none;
+
+					background-color: #333333;
+					color: white;
+				}
+			}
+		}
 	}
 }

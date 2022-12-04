@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 	return {
 		props: {
 			host: process.env.HOST,
-			cdnHost: process.env.CDN_URI,
+			cdnURI: process.env.CDN_URI,
 			lang: getLangFile(context.req.headers['accept-language'], 'main', 'home'),
 			user: JSON.parse(JSON.stringify(context.req.user)),
 		},
@@ -31,11 +31,11 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 const Home: NextPage = (props: any): JSX.Element => {
 	return (
 		<div className={styles['page']}>
-			<Navbar className={styles["navbar"]} lang={props.lang} user={props.user} cdnHost={props.cdnHost} />
+			<Navbar className={styles["navbar"]} lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
 
 			
 
-			<MobileFooter className={styles["mobile-footer"]} lang={props.lang} user={props.user} cdnHost={props.cdnHost} />
+			<MobileFooter className={styles["mobile-footer"]} lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
 		</div>
 	);
 };
