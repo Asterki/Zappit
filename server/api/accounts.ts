@@ -37,10 +37,10 @@ router.post(
 	async (req: express.Request, res: express.Response) => {
 		// Check values provided in the request body
 		const bodyScheme = z.object({
-			username: z.string().max(16).min(3).refine(validator.isAlphanumeric),
+			username: z.string().max(16).min(3).refine((username) => { return validator.isAlphanumeric(username, 'en-GB', { ignore: '._' }) }),
 			email: z.string().refine(validator.isEmail),
-			password: z.string().max(256).min(8),
-			locale: string().max(2).min(2).optional()
+			password: z.string().max(256).min(6),
+			locale: string().max(2).min(2).optional().default("en")
 		}).required()
 
 		const parsedBody = bodyScheme.safeParse(req.body)

@@ -5,6 +5,6 @@
 	"trailingComma": "es5",
 	"semi": true,
 	"arrowParens": "always",
-	"printWidth": 160
+	"printWidth": 260
 	
 }

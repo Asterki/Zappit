@@ -2,6 +2,7 @@
 import React from 'react';
 import axios from 'axios';
 import validator from 'validator';
+import { z } from 'zod';
 import { getLangFile } from '../../utils/pages';
 
 import Particles from 'react-tsparticles';
@@ -56,23 +57,37 @@ const Register: NextPage = (props: any): JSX.Element => {
 		const email = (document.querySelector('#email-input') as HTMLInputElement).value;
 
 		// Checks
-		if (validator.isEmpty(username) || validator.isEmpty(email)) {
-			setEmailError('missing-parameters');
-			return setLoading(false);
-		}
+		const inputSchema = z
+			.object({
+				username: z
+					.string()
+					.min(3, {
+						message: 'invalid-username-length',
+					})
+					.max(16, {
+						message: 'invalid-username-length',
+					})
+					.refine(
+						(username) => {
+							return validator.isAlphanumeric(username, 'en-GB', { ignore: '._' });
+						},
+						{
+							message: 'invalid-username',
+						}
+					),
+				email: z.string().refine(validator.isEmail, {
+					message: 'invalid-email',
+				}),
+			})
+			.required();
 
-		if (!validator.isEmail(email)) {
-			setEmailError('invalid-email');
-			return setLoading(false);
-		}
+		const parsedData = inputSchema.safeParse({
+			username: username,
+			email: email,
+		});
 
-		if (username.length > 16 || username.length < 4) {
-			setEmailError('invalid-username-length');
-			return setLoading(false);
-		}
-
-		if (!validator.isAlphanumeric(username, 'en-GB', { ignore: '._' })) {
-			setEmailError('invalid-username');
+		if (!parsedData.success && parsedData.error) {
+			setEmailError(parsedData.error.errors[0].message);
 			return setLoading(false);
 		}
 
@@ -114,18 +129,39 @@ const Register: NextPage = (props: any): JSX.Element => {
 		const password = (document.querySelector('#password-input') as HTMLInputElement).value;
 		const confirmPassword = (document.querySelector('#confirm-password-input') as HTMLInputElement).value;
 
-		if (validator.isEmpty(password) || validator.isEmpty(confirmPassword)) {
-			setPasswordError('missing-parameters');
+		const inputSchema = z
+			.object({
+				password: z
+					.string()
+					.max(256, {
+						message: 'invalid-password-length',
+					})
+					.min(6, {
+						message: 'invalid-password-length',
+					}),
+				confirmPassword: z
+					.string()
+					.max(256, {
+						message: 'invalid-password-length',
+					})
+					.min(6, {
+						message: 'invalid-password-length',
+					}),
+			})
+			.required();
+
+		const parsedData = inputSchema.safeParse({
+			username: username,
+			email: email,
+		});
+
+		if (!parsedData.success && parsedData.error) {
+			setEmailError(parsedData.error.errors[0].message);
 			return setLoading(false);
 		}
 
 		if (password !== confirmPassword) {
 			setPasswordError('mismatching-passwords');
-			return setLoading(false);
-		}
-
-		if (password.length < 6 || password.length > 256) {
-			setPasswordError('invalid-password-length');
 			return setLoading(false);
 		}
 
@@ -346,8 +382,7 @@ const Register: NextPage = (props: any): JSX.Element => {
 
 			<footer>
 				<p>
-					{props.lang.footer.split('&')[0]} <a href="/tos">{props.lang.footer.split('&')[1]}</a> {props.lang.footer.split('&')[2]}{' '}
-					<a href="/privacy">{props.lang.footer.split('&')[3]}</a>{' '}
+					{props.lang.footer.split('&')[0]} <a href="/tos">{props.lang.footer.split('&')[1]}</a> {props.lang.footer.split('&')[2]} <a href="/privacy">{props.lang.footer.split('&')[3]}</a>{' '}
 				</p>
 			</footer>
 		</div>

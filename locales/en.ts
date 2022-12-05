@@ -64,7 +64,7 @@ const en = {
 				'invalid-email': 'Invalid email',
 				'invalid-username': 'Usernames can only contain letters, bottom dashes (_) and dots (.)',
 
-				'invalid-username-length': 'Your username must be between 4 and 16 characters',
+				'invalid-username-length': 'Your username must be between 3 and 16 characters',
 				'invalid-password-length': "The password can't be shorter than 6 characters or longer than 256 characters",
 
 				'email-in-use': 'The email you entered is already in use',
