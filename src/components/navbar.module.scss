@@ -1,4 +1,6 @@
 .component {
+	z-index: 1000;
+
 	.not-logged-in {
 		position: absolute;
 		top: 10px;

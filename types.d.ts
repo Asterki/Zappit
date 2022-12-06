@@ -41,6 +41,23 @@ interface UserData {
 	userID: string;
 }
 
+interface SocketIOPayload {
+	auth: {
+		sessionID: string;
+		username: string;
+	}
+	data: any
+}
+
+interface PrivateMessage {
+	author: string;
+	userID: string;
+	sendToID: string;
+	messageID: string;
+	content: string;
+	createdAt: number
+}
+
 declare global {
 	namespace Express {
 		interface Request {
@@ -49,4 +66,4 @@ declare global {
 	}
 }
 
-export type { User, UserData };
+export type { User, UserData, SocketIOPayload, PrivateMessage };

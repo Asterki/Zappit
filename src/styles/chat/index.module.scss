@@ -7,6 +7,15 @@
 	justify-content: center;
 	align-items: center;
 
+	*::-webkit-scrollbar {
+		width: 0.2em;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background-color: #3333339d;
+		outline: 1px solid #3333339d;
+	}
+
 	.main {
 		height: calc(100% - 60px);
 		width: 90%;
@@ -121,39 +130,77 @@
 				top: 70px;
 
 				width: 100%;
-				height: calc(100% - 130px);
+				height: calc(100% - 150px);
 
 				overflow-y: scroll !important;
+				overflow-x: hidden !important;
+				padding: 10px 0 10px 0;
 
-				li {
-					text-overflow: clip;
-					overflow-wrap: break-word;
-					word-wrap: break-word;
-				}
+				white-space: pre-wrap;
 
-				&::-webkit-scrollbar {
-					width: 0.2em;
-				}
+				.message {
+					display: flex;
+					align-items: center;
 
-				&::-webkit-scrollbar-thumb {
-					background-color: #3333339d;
-					outline: 1px solid #3333339d;
+					width: 100%;
+					border-radius: 10px;
+
+					div {
+						max-width: 500px;
+						min-width: 100px;
+						padding: 10px;
+						border-radius: 10px;
+
+						word-wrap: break-word;
+					}
+
+					.sent-by-user {
+						box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.288);
+						background-color: #a157ff;
+						margin: 3px 10px 3px auto;
+
+						text-overflow: clip;
+
+						.timestamp {
+							color: #c0c0c0;
+						}
+					}
+
+					.sent-to-user {
+						box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.288);
+						background-color: #303030;
+						margin: 3px auto 3px 10px;
+
+						.timestamp {
+							color: #616161;
+						}
+					}
+
+					.timestamp {
+						margin: -13px;
+
+						font-size: 15px;
+					}
 				}
 			}
 
 			.message-input {
 				position: absolute;
+				display: flex;
+				align-items: center;
 				bottom: 0;
 
-				height: 60px;
+				height: 80px;
 				width: 100%;
 
 				background-color: #242424;
 
-				input {
-					// width: calc(100% - 20px);
-					height: 40px;
-					margin: 10px;
+				textarea {
+					resize: none;
+
+					height: 50px;
+					margin: 10px 0px 10px 0px;
+					width: 100%;
 
 					padding: 5px;
 
@@ -163,6 +210,17 @@
 
 					background-color: #333333;
 					color: white;
+				}
+
+				button {
+					width: 50px;
+					height: 50px;
+
+					background: none;
+					border: none;
+					outline: none;
+
+					margin: 3px;
 				}
 			}
 		}
