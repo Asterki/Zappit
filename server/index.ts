@@ -31,7 +31,7 @@ nextApp.prepare().then(() => {
 	require('./config/databases');
 	require('./config/controllers');
 	require('./config/routes');
-	require('./config/cdn');
+	require('./config/media');
 
 	// Handle next.js routing
 	app.get('*', (req: express.Request, res: express.Response) => {

@@ -13,11 +13,16 @@
 	src: url('/assets/fonts/Comfortaa-VariableFont_wght.ttf');
 }
 
+@font-face {
+	font-family: "Open-Sans";
+	src: url('/assets/fonts/OpenSans-Variable.ttf');
+}
+
 html,
 body {
 	margin: 0 !important;
 	padding: 0 !important;
-	font-family: 'Fredoka';
+	font-family: 'Open-Sans';
 	color: #ebebeb;
 	background-color: #111315;
 }

@@ -10,6 +10,7 @@ import { getLangFile } from '../../utils/pages';
 
 import Navbar from '../../components/navbar';
 import { motion } from 'framer-motion';
+import Head from 'next/head';
 
 import styles from '../../styles/chat/index.module.scss';
 import type { NextPage, GetServerSideProps } from 'next';
@@ -97,12 +98,16 @@ const Chat: NextPage = (props: any): JSX.Element => {
 		messageInput.focus();
 	};
 
+	const test = () => {
+		socket.emit('test', [openChat.userID, props.user.userID].sort().join(''));
+	};
+
 	React.useEffect(() => {
 		document.addEventListener('keydown', (event: any) => {
 			if (event.key == 'Escape') return setOpenChat({} as User);
 		});
 
-		const newSocket = io(props.chatWebsocketURI);
+		const newSocket = io(props.chatWebsocketURI, { auth: { sessionID: props.sessionID, username: props.user.username } });
 		newSocket.on('connect', () => {
 			console.log('Socket connected');
 		});
@@ -133,6 +138,12 @@ const Chat: NextPage = (props: any): JSX.Element => {
 
 	return (
 		<div className={styles['page']}>
+			<Head>
+				<title>{props.lang.pageTitle}</title>
+				<meta name="title" content={props.lang.pageTitle} />
+				<meta name="description" content={props.lang.pageDescription} />
+			</Head>
+
 			<Navbar lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
 
 			{/* Divide the page in two */}
@@ -213,18 +224,22 @@ const Chat: NextPage = (props: any): JSX.Element => {
 											key={message.messageID}
 											className={styles['message']}
 										>
-											<div className={message.userID == props.user.userID ? styles['sent-by-user'] : styles['sent-to-user']}>
+											<motion.div
+												initial={{ opacity: 0 }}
+												whileInView={{ opacity: 1 }}
+												className={message.userID == props.user.userID ? styles['sent-by-user'] : styles['sent-to-user']}
+											>
 												{message.content}
 												<br />
 												<div title={new Date(message.createdAt).toLocaleString()} className={styles['timestamp']}>
 													{new Date(message.createdAt).toLocaleTimeString()}
 												</div>
-											</div>
+											</motion.div>
 										</motion.div>
 									);
 								})}
 
-								<div className="" id="chat-bottom"></div>
+								<div id="chat-bottom"></div>
 							</div>
 
 							<div className={styles['message-input']}>
@@ -255,6 +270,8 @@ const Chat: NextPage = (props: any): JSX.Element => {
 								<button onClick={sendMessage}>
 									<img src="/assets/svg/send-message-icon.svg" alt="send-message-icon" />
 								</button>
+
+								<button onClick={test}>wow test</button>
 							</div>
 						</div>
 					</div>

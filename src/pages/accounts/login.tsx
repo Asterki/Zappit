@@ -3,8 +3,6 @@ import React from 'react';
 import axios from 'axios';
 import { getLangFile } from '../../utils/pages';
 
-import Particles from 'react-tsparticles';
-import { loadFull } from 'tsparticles';
 import { motion } from 'framer-motion';
 
 import { Form, Spinner } from 'react-bootstrap';
@@ -37,10 +35,6 @@ const Login: NextPage = (props: any): JSX.Element => {
 
 	const [mainError, setMainError] = React.useState('');
 	const [tfaError, setTfaError] = React.useState('');
-
-	const particlesInit = React.useCallback(async (engine: any) => {
-		await loadFull(engine);
-	}, []);
 
 	const loginButton = async (event: React.MouseEvent) => {
 		// Restart errors, show spinning wheel
@@ -92,7 +86,7 @@ const Login: NextPage = (props: any): JSX.Element => {
 
 			setLoading(false);
 		} catch (err: any) {
-			console.log(err)
+			console.log(err);
 			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
 		}
 	};
@@ -104,54 +98,6 @@ const Login: NextPage = (props: any): JSX.Element => {
 				<meta name="title" content={props.lang.pageTitle} />
 				<meta name="description" content={props.lang.pageDescription} />
 			</Head>
-
-			<div>
-				<Particles
-					init={particlesInit}
-					options={{
-						particles: {
-							number: {
-								value: 10,
-								density: {
-									enable: true,
-									value_area: 800,
-								},
-							},
-							shape: {
-								polygon: {
-									nb_sides: 5,
-								},
-
-								type: 'circle',
-							},
-							line_linked: {
-								enable: false,
-							},
-							opacity: {
-								value: 0.3,
-							},
-							size: {
-								value: 3,
-								random: true,
-								anim: {
-									enable: false,
-									speed: 20,
-									size_min: 0.3,
-									sync: false,
-								},
-							},
-							move: {
-								direction: 'none',
-								enable: true,
-								outMode: 'bounce',
-								random: false,
-								speed: 0.3,
-								straight: false,
-							},
-						},
-					}}
-				/>
-			</div>
 
 			<Navbar lang={{ topBar: props.lang.topBar }} />
 
