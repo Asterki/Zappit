@@ -2,7 +2,7 @@ import speakeasy from 'speakeasy';
 import bcrypt from 'bcrypt';
 
 import Users from '../models/user';
-import type { User } from '../../types';
+import type { User } from '../../shared/types/models';
 
 const checkTFA = (code: string, user: User) => {
 	if (code.length == 6) {

@@ -7,13 +7,13 @@ import passport from 'passport';
 import { string, z } from "zod"
 import { v4 as uuidv4 } from 'uuid';
 
-import Users from '../models/user';
+import Users from '../../models/user';
 
-import { checkTFA } from '../utils/accounts';
-import { logError } from '../utils/logs';
-// import { redisClient } from '../config/databases';
+import { checkTFA } from '../../helpers/accounts';
+import { logError } from '../../helpers/logs';
+// import { redisClient } from '../config/databases';s
 
-import type { User } from '../../types';
+import type { User } from 'shared/types/models';
 
 const router = express.Router();
 

@@ -9,11 +9,11 @@ import mkdirp from 'mkdirp';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
-import { checkTFA } from '../utils/accounts';
-import { markForDeletion } from '../utils/files';
-import { logError } from '../utils/logs';
+import { checkTFA } from '../../helpers/accounts';
+import { markForDeletion } from '../../helpers/files';
+import { logError } from '../../helpers/logs';
 
-import Users from '../models/user';
+import Users from '../../models/user';
 
 const router = express.Router();
 

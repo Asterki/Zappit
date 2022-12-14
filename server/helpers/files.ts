@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { redisClient } from '../config/databases';
+import { redisClient } from '../services/databases';
 
 const markForDeletion = async (fileRoute: string) => {
 	if (fs.existsSync(fileRoute)) {

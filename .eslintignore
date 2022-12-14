@@ -3,3 +3,5 @@ data
 .eslintrc.js
 next.config.js
 locales
+cypress.config.ts
+cypress

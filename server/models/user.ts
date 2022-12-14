@@ -20,37 +20,29 @@ const User = new Schema({
 	},
 	displayName: {
 		type: String,
-		required: false,
+
 	},
 	avatar: {
 		type: String,
-		required: false,
 		default: '',
 	},
 
 	following: {
 		users: {
 			type: Array,
-			required: false,
-			unique: false,
 		},
 		tags: {
 			type: Array,
-			required: false,
-			unique: false,
 		},
 	},
 
 	blocked: {
 		users: {
 			type: Array,
-			required: false,
-			unique: false,
 		},
 		tags: {
 			type: Array,
-			required: false,
-			unique: false,
+
 		},
 	},
 
@@ -73,12 +65,10 @@ const User = new Schema({
 	preferences: {
 		locale: {
 			type: String,
-			required: false,
 			default: 'en',
 		},
 		theme: {
 			type: String,
-			required: false,
 			default: 'dark',
 		},
 	},
@@ -91,19 +81,16 @@ const User = new Schema({
 	tfa: {
 		secret: {
 			type: String,
-			required: false,
 			default: '',
 		},
 		backupCodes: {
 			type: Array,
-			required: false,
 			default: [],
 		},
 	},
 
 	banned: {
 		type: Boolean,
-		required: false,
 		default: false,
 	},
 });

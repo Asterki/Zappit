@@ -3,7 +3,7 @@ import React from 'react';
 import axios from 'axios';
 import QRCode from 'qrcode';
 
-import { getLangFile } from '../../utils/pages';
+import { getLangFile } from '../../helpers/pages';
 
 import { motion } from 'framer-motion';
 

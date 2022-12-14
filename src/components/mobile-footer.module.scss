@@ -1,19 +1,19 @@
 .component {
-	color: white;
-	position: fixed;
-	bottom: 0;
 
-	background-color: #1f1f1f;
-	width: 100%;
-	text-align: center;
+    background-color: #1f1f1f;
+    bottom: 0;
+    color: #fff;
 
     display: flex;
     justify-content: space-evenly;
+    position: fixed;
+    text-align: center;
+    width: 100%;
 
-	button {
-        margin: 10px 0px 10px 0px;
+    button {
         background-color: #1f1f1f;
         border: none;
+        margin: 10px 0px;
     }
 
     img {
@@ -22,7 +22,7 @@
     }
 
 
-	.profile-button {
+    .profile-button {
         img {
             border-radius: 50%;
         }
@@ -30,7 +30,7 @@
 }
 
 @media only screen and (min-width: 901px) {
-	.component {
-		display: none;
-	}
+    .component {
+        display: none;
+    }
 }

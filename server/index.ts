@@ -1,6 +1,9 @@
 import express from 'express';
 import next from 'next';
 import http from 'http';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import compression from 'compression';
 
 import minimist from 'minimist';
 import path from 'path';
@@ -20,18 +23,30 @@ const launchArgs = minimist(process.argv.slice(2), {
 
 const app = express();
 const server = http.createServer(app);
-
-const nextApp = next({ dev: launchArgs.dev });
+const nextApp = next({ dev: launchArgs.dev, httpServer: server });
 
 nextApp.prepare().then(() => {
 	const handle = nextApp.getRequestHandler();
 
-	require('./config/middleware');
-	require('./config/auth');
-	require('./config/databases');
-	require('./config/controllers');
-	require('./config/routes');
-	require('./config/media');
+	app.disable('x-powered-by');
+	app.set('trust proxy', 1);
+
+	app.use(
+		bodyParser.urlencoded({
+			extended: true,
+		})
+	);
+	app.use(bodyParser.json());
+	app.use(cookieParser());
+	app.use(compression());
+
+	// Services
+	require("./services/auth")
+	require("./services/databases")
+	require("./services/controllers")
+
+	// Routes
+	require("./routes/index")
 
 	// Handle next.js routing
 	app.get('*', (req: express.Request, res: express.Response) => {

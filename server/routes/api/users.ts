@@ -1,12 +1,12 @@
 import express from 'express';
 import { z } from 'zod';
 
-import { logError } from '../utils/logs';
+import { logError } from '../../helpers/logs';
 
-import Users from '../models/user';
-import { redisClient } from '../config/databases';
+import Users from '../../models/user';
+import { redisClient } from '../../services/databases';
 
-import type { User } from '../../types';
+import type { User } from 'shared/types/models';
 
 const router = express.Router();
 

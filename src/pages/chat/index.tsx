@@ -1,289 +1,410 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React from 'react';
-import axios from 'axios';
-import validator from 'validator';
-import { io, Socket } from 'socket.io-client';
-import { v4 as uuidv4 } from 'uuid';
+import React from "react";
+import axios from "axios";
+import validator from "validator";
+import { io, Socket } from "socket.io-client";
+import { v4 as uuidv4 } from "uuid";
 
-import { getLangFile } from '../../utils/pages';
+import Navbar from "../../components/navbar";
+import { motion } from "framer-motion";
+import Head from "next/head";
 
-import Navbar from '../../components/navbar';
-import { motion } from 'framer-motion';
-import Head from 'next/head';
+import styles from "../../styles/chat/index.module.scss";
+import { getLangFile, copyToClipboard } from "../../helpers/pages";
 
-import styles from '../../styles/chat/index.module.scss';
-import type { NextPage, GetServerSideProps } from 'next';
-import type { PrivateMessage, SocketIOPayload, User } from '../../../types';
+import type { NextPage, GetServerSideProps } from "next";
+import type { PrivateMessage, User } from "../../../shared/types/models";
+import type LangPack from "../../../shared/types/lang";
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (!context.req.isAuthenticated())
-		return {
-			redirect: {
-				destination: '/login',
-				permanent: false,
-			},
-		};
+    if (!context.req.isAuthenticated())
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
 
-	return {
-		props: {
-			host: process.env.HOST,
-			lang: getLangFile(context.req.headers['accept-language'], 'main', 'home'),
-			user: JSON.parse(JSON.stringify(context.req.user)),
+    return {
+        props: {
+            host: process.env.HOST,
+            lang: getLangFile(context.req.headers["accept-language"], "main", "home"),
 
-			sessionID: context.req.sessionID,
+            user: JSON.parse(JSON.stringify(context.req.user)),
+            sessionID: context.req.sessionID,
 
-			cdnURI: process.env.CDN_URI,
-			chatWebsocketURI: process.env.CHAT_WEBSOCKET_URI,
-		},
-	};
+            cdnURI: process.env.CDN_URI,
+            chatServiceURI: process.env.CHAT_SERVICE_URI,
+        },
+    };
 };
 
-const Chat: NextPage = (props: any): JSX.Element => {
-	const [contactList, setContactList] = React.useState([]);
-	const [openChat, setOpenChat] = React.useState({} as User);
+interface PageProps {
+    host: string;
+    lang: typeof LangPack.accounts.login;
 
-	const [chatMessages, setChatMessages] = React.useState([] as Array<PrivateMessage>);
+    user: User;
+    sessionID: string;
 
-	const [socket, setSocket] = React.useState(null as unknown as Socket);
+    cdnURI: string;
+    chatServiceURI: string;
+}
 
-	const switchChat = (user: User) => {
-		if (!socket || !socket.connected) return;
+const Chat: NextPage<PageProps> = (props: PageProps): JSX.Element => {
+    const [contactList, setContactList] = React.useState([]);
 
-		socket.emit('join private chat room', {
-			auth: {
-				username: props.user.username,
-				sessionID: props.sessionID,
-			},
-			data: {
-				userID: props.user.userID,
-				connectToID: user.userID,
-			},
-		} as SocketIOPayload);
+    const [openChat, setOpenChat] = React.useState({} as User);
+    const [chatMessages, setChatMessages] = React.useState([] as Array<PrivateMessage>);
 
-		setOpenChat(user);
-		setChatMessages([]);
-	};
+    const [isLoadingOlderMessages, setIsLoadingOlderMessages] = React.useState(false);
+    const [chatInfo, setChatInfo] = React.useState({
+        messagePacksLoaded: 0,
+        wasStartOfChatReached: false,
+    });
 
-	const sendMessage = () => {
-		if (!socket || !socket.connected) return;
-		const messageInput = document.querySelector('#message-input') as HTMLTextAreaElement;
-		if (validator.isEmpty(messageInput.value, { ignore_whitespace: true })) return;
+    const [socket, setSocket] = React.useState(null as unknown as Socket);
 
-		messageInput.style.height = '50px';
+    const switchChat = (user: User): void => {
+        if (!socket || !socket.connected) return;
 
-		socket.emit('private message', {
-			auth: {
-				username: props.user.username,
-				sessionID: props.sessionID,
-			},
-			data: {
-				author: props.user.username,
+        socket.emit("join private chat room", {
+            userID: props.user.userID,
+            connectToID: user.userID,
+        });
 
-				userID: props.user.userID,
-				sendToID: openChat.userID,
+        setOpenChat(user);
+        setChatMessages([]);
 
-				messageID: uuidv4().split('-').join('').substring(0, 16),
+        setChatInfo({ messagePacksLoaded: 0, wasStartOfChatReached: false });
+        setIsLoadingOlderMessages(true);
+    };
 
-				// attachments
-				// embeds
-				// mentions
-				content: messageInput.value,
+    const sendMessage = () => {
+        if (!socket || !socket.connected) return;
+        const messageInput = document.querySelector("#message-input") as HTMLTextAreaElement;
+        if (validator.isEmpty(messageInput.value, { ignore_whitespace: true })) return;
 
-				createdAt: Date.now(),
-			},
-		} as SocketIOPayload);
+        messageInput.style.height = "50px";
 
-		messageInput.value = '';
-		messageInput.focus();
-	};
+        const messageID = `${[props.user.userID, openChat.userID].sort().join("")}_${uuidv4().split("-").join("").substring(0, 16)}`;
 
-	const test = () => {
-		socket.emit('test', [openChat.userID, props.user.userID].sort().join(''));
-	};
+        socket.emit("private message", {
+            author: props.user.username,
 
-	React.useEffect(() => {
-		document.addEventListener('keydown', (event: any) => {
-			if (event.key == 'Escape') return setOpenChat({} as User);
-		});
+            authorID: props.user.userID,
+            recipientID: openChat.userID,
 
-		const newSocket = io(props.chatWebsocketURI, { auth: { sessionID: props.sessionID, username: props.user.username } });
-		newSocket.on('connect', () => {
-			console.log('Socket connected');
-		});
+            messageID: messageID,
 
-		setSocket(newSocket);
+            // attachments
+            // embeds
+            // mentions
+            content: messageInput.value,
 
-		newSocket.on('private message', (data: PrivateMessage) => {
-			setChatMessages((state: any) => {
-				return [...state, data];
-			});
+            createdAt: Date.now(),
+        });
 
-			setTimeout(() => {
-				const chatBottom = document.querySelector('#chat-bottom') as HTMLDivElement;
-				chatBottom.scrollIntoView({ block: 'end' });
-			}, 100);
-		});
+        messageInput.value = "";
+        messageInput.focus();
+    };
 
-		// Load contacts
-		(async () => {
-			const contactsResponse = await axios({
-				method: 'post',
-				url: `${props.host}/api/users/get-contacts`,
-			});
+    React.useEffect(() => {
+        document.addEventListener("keydown", (event: any) => {
+            if (event.key == "Escape") return setOpenChat({} as User);
+        });
 
-			setContactList(contactsResponse.data);
-		})();
-	}, []);
+        const newSocket = io(props.chatServiceURI, {
+            auth: { sessionID: props.sessionID, username: props.user.username },
+        });
+        newSocket.on("connect", () => {
+            console.log("Socket connected");
+        });
 
-	return (
-		<div className={styles['page']}>
-			<Head>
-				<title>{props.lang.pageTitle}</title>
-				<meta name="title" content={props.lang.pageTitle} />
-				<meta name="description" content={props.lang.pageDescription} />
-			</Head>
+        newSocket.on("disconnect", () => {
+            console.log("Disconnected");
+        });
 
-			<Navbar lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
+        setSocket(newSocket);
 
-			{/* Divide the page in two */}
-			<div className={styles['main']}>
-				<div className={styles['contacts']}>
-					<div>
-						<input type="text" placeholder="Search or start a new chat" className={styles['contact-search-bar']} />
+        newSocket.on("private message", (data: PrivateMessage) => {
+            setChatMessages((state: any) => {
+                return [...state, data];
+            });
 
-						{contactList.map((user: User) => {
-							return (
-								<motion.div
-									className={styles['contact']}
-									variants={{
-										open: {
-											backgroundColor: '#2b2b2b',
-										},
-										closed: {
-											backgroundColor: '#1f1f1f',
-										},
-									}}
-									animate={openChat.userID == user.userID ? 'open' : 'closed'}
-									transition={{
-										duration: 0.1,
-									}}
-									key={user.userID}
-									onClick={() => {
-										switchChat(user);
-									}}
-								>
-									<img src={`${props.cdnURI}/avatars/${user.userID}/${user.avatar}.png?q=1`} className={styles['avatar']} alt={`${user.username} avatar`} />
+            setTimeout(() => {
+                const chatBottom = document.querySelector("#chat-bottom") as HTMLDivElement;
+                chatBottom.scrollIntoView({ block: "end" });
+            }, 100);
+        });
 
-									<div className={styles['contact-information']}>
-										<h5>{user.displayName}</h5>
-										{/* Here will be the last message sent inside a span */}
-									</div>
-								</motion.div>
-							);
-						})}
-					</div>
-				</div>
+        // Load contacts
+        (async () => {
+            const contactsResponse = await axios({
+                method: "post",
+                url: `${props.host}/api/users/get-contacts`,
+                data: {
+                    auth: {
+                        sessionID: props.sessionID,
+                        username: props.user.username,
+                    },
+                    data: {
+                        chatID: [props.user.userID, openChat.userID].sort().join(""),
+                        chatSkipIndex: chatInfo.messagePacksLoaded,
+                    },
+                },
+            });
 
-				{openChat.userID !== undefined && (
-					<div className={styles['chat']}>
-						<div>
-							<div className={styles['navbar']}>
-								<img
-									src={`${props.cdnURI}/avatars/${openChat.userID}/${openChat.avatar}.png?q=50`}
-									className={styles['avatar']}
-									alt={`${openChat.username} avatar`}
-								/>
+            setContactList(contactsResponse.data);
+        })();
+    }, []);
 
-								<div className={styles['contact-information']}>
-									<h5>{openChat.displayName}</h5>
-									<h5>@{openChat.username}</h5>
-								</div>
-							</div>
+    React.useEffect(() => {
+        if (isLoadingOlderMessages == true && chatInfo.wasStartOfChatReached == false) {
+            (async () => {
+                const messagesResponse = await axios({
+                    method: "post",
+                    url: `${props.chatServiceURI}/api/messages/get-messages`,
+                    data: {
+                        auth: {
+                            sessionID: props.sessionID,
+                            username: props.user.username,
+                        },
+                        data: {
+                            chatID: [props.user.userID, openChat.userID].sort().join(""),
+                            chatSkipIndex: chatInfo.messagePacksLoaded,
+                        },
+                    },
+                });
 
-							<div className={styles['messages']}>
-								{chatMessages.map((message: PrivateMessage) => {
-									return (
-										<motion.div
-											variants={{
-												sent: {
-													marginLeft: '350px', // If the user sent the message
-												},
-												received: {
-													marginLeft: '-350px', // If the user got the message
-												},
-												hidden: {
-													margin: '0px',
-												},
-											}}
-											animate={'hidden'}
-											initial={message.userID == props.user.userID ? 'sent' : 'received'}
-											transition={{
-												duration: 0.2,
-											}}
-											key={message.messageID}
-											className={styles['message']}
-										>
-											<motion.div
-												initial={{ opacity: 0 }}
-												whileInView={{ opacity: 1 }}
-												className={message.userID == props.user.userID ? styles['sent-by-user'] : styles['sent-to-user']}
-											>
-												{message.content}
-												<br />
-												<div title={new Date(message.createdAt).toLocaleString()} className={styles['timestamp']}>
-													{new Date(message.createdAt).toLocaleTimeString()}
-												</div>
-											</motion.div>
-										</motion.div>
-									);
-								})}
+                if (messagesResponse.data.length !== 50) {
+                    setChatInfo((prevState) => {
+                        return { ...prevState, wasStartOfChatReached: true };
+                    });
+                }
 
-								<div id="chat-bottom"></div>
-							</div>
+                const isOpeningChat = chatMessages.length == 0;
 
-							<div className={styles['message-input']}>
-								<button onClick={sendMessage}>
-									<img src="/assets/svg/add-attachment-icon.svg" alt="add-attachment-icon" />
-								</button>
-								<textarea
-									onKeyDown={(event: any) => {
-										if (event.target.value.length > 2000) {
-											event.target.value = event.target.value.substring(0, 2000);
-											return event.preventDefault();
-										}
+                setChatMessages((prevState) => {
+                    return [...messagesResponse.data.sort().reverse(), ...prevState];
+                });
 
-										if (event.key == 'Enter') {
-											if (!openChat.userID || event.shiftKey) return;
-											event.preventDefault();
-											sendMessage();
-										}
-									}}
-									id="message-input"
-									placeholder="Message..."
-									onInput={(event: any) => {
-										if (event.target.scrollHeight > 70) return;
-										event.target.style.height = 60;
-										event.target.style.height = event.target.scrollHeight + 'px';
-									}}
-								/>
-								<button onClick={sendMessage}>
-									<img src="/assets/svg/send-message-icon.svg" alt="send-message-icon" />
-								</button>
+                setChatInfo((prevState) => {
+                    return { ...prevState, messagePacksLoaded: prevState.messagePacksLoaded + 1 };
+                });
 
-								<button onClick={test}>wow test</button>
-							</div>
-						</div>
-					</div>
-				)}
-				{openChat.userID == undefined && (
-					<div className={styles['chat']}>
-						<h1>No chat open</h1>
-					</div>
-				)}
-			</div>
-		</div>
-	);
+                if (isOpeningChat) {
+                    setTimeout(() => {
+                        const chatBottom = document.querySelector("#chat-bottom") as HTMLDivElement;
+                        chatBottom.scrollIntoView({ block: "end" });
+                    }, 100);
+                } else {
+                    setTimeout(() => {
+                        // So it doesn't go right into the last message of the new messages
+                        const message = document.querySelector(`#message-${chatMessages[0].messageID}`) as HTMLDivElement;
+                        message.scrollIntoView({ block: "start" });
+                    }, 100);
+                }
+
+                setIsLoadingOlderMessages(false);
+            })();
+        }
+    }, [isLoadingOlderMessages]);
+
+    return (
+        <div className={styles["page"]}>
+            <Head>
+                <title>{props.lang.pageTitle}</title>
+                <meta name="title" content={props.lang.pageTitle} />
+                <meta name="description" content={props.lang.pageDescription} />
+            </Head>
+
+            <Navbar lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
+
+            {/* Divide the page in two */}
+            <main>
+                <div className={styles["contacts"]}>
+                    <div>
+                        <input type="text" placeholder="Search or start a new chat" className={styles["contact-search-bar"]} />
+
+                        {contactList.map((user: User) => {
+                            return (
+                                <motion.div
+                                    className={styles["contact"]}
+                                    variants={{
+                                        open: {
+                                            backgroundColor: "#2b2b2b",
+                                        },
+                                        closed: {
+                                            backgroundColor: "#1f1f1f",
+                                        },
+                                    }}
+                                    animate={openChat.userID == user.userID ? "open" : "closed"}
+                                    transition={{
+                                        duration: 0.1,
+                                    }}
+                                    key={user.userID}
+                                    onClick={() => {
+                                        if (user.userID == openChat.userID) return;
+                                        switchChat(user);
+                                    }}
+                                >
+                                    <img
+                                        src={`${props.cdnURI}/avatars/${user.userID}/${user.avatar}.png?q=1`}
+                                        className={styles["avatar"]}
+                                        alt={`${user.username} avatar`}
+                                    />
+
+                                    <div className={styles["contact-information"]}>
+                                        <h5>{user.displayName}</h5>
+                                        {/* <span title={chatMessages[chatMessages.length - 1].content}>
+                                            {chatMessages[chatMessages.length - 1].content.substring(0, 32)}
+                                            {chatMessages[chatMessages.length - 1].content.substring(0, 32) ==
+                                                chatMessages[chatMessages.length - 1].content && "..."}
+                                        </span> */}
+                                        {/* Here will be the last message sent inside a span */}
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {openChat.userID !== undefined && (
+                    <div className={styles["chat"]}>
+                        <div>
+                            <div className={styles["navbar"]}>
+                                <img
+                                    src={`${props.cdnURI}/avatars/${openChat.userID}/${openChat.avatar}.png?q=50`}
+                                    className={styles["avatar"]}
+                                    alt={`${openChat.username} avatar`}
+                                />
+
+                                <div className={styles["contact-information"]}>
+                                    <h5>{openChat.displayName}</h5>
+                                    <h5>{openChat.username}</h5>
+                                </div>
+                            </div>
+
+                            <div
+                                className={styles["messages"]}
+                                onScroll={() => {
+                                    if (isLoadingOlderMessages == true) return;
+                                    const chatTopRect = (document.querySelector("#chat-top") as HTMLDivElement).getBoundingClientRect();
+
+                                    if (chatTopRect.bottom > 0 && chatInfo.wasStartOfChatReached == false) {
+                                        setIsLoadingOlderMessages(true);
+                                    }
+                                }}
+                            >
+                                <div id="chat-top" className={styles["chat-top"]}>
+                                    {chatInfo.wasStartOfChatReached == false && <div>Loading messages...</div>}
+                                    {chatInfo.wasStartOfChatReached == true && <div>This is the start of your chat</div>}
+                                </div>
+
+                                {chatMessages.map((message: PrivateMessage) => {
+                                    return (
+                                        <motion.div key={message.messageID} className={styles["message"]} id={`message-${message.messageID}`}>
+                                            {message.authorID == props.user.userID && (
+                                                <div className={styles["message-menu-sent"]}>
+                                                    <button>
+                                                        <img src="/assets/svg/menu-icon.svg" alt="menu-icon" />
+
+                                                        <div>
+                                                            <button>Reply</button>
+                                                            <br />
+                                                            <button
+                                                                onClick={() => {
+                                                                    copyToClipboard(window, document, message.messageID);
+
+                                                                    alert("Copied to clipboard");
+                                                                }}
+                                                            >
+                                                                Copy message ID
+                                                            </button>
+                                                            <br />
+                                                            <button>Delete</button>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            <div className={message.authorID == props.user.userID ? styles["sent-by-user"] : styles["sent-to-user"]}>
+                                                {message.content}
+                                                <br />
+                                                <div title={new Date(message.createdAt).toLocaleString()} className={styles["timestamp"]}>
+                                                    {new Date(message.createdAt).toLocaleTimeString()}
+                                                </div>
+                                            </div>
+
+                                            {message.authorID !== props.user.userID && (
+                                                <div className={styles["message-menu-received"]}>
+                                                    <button>
+                                                        <img src="/assets/svg/menu-icon.svg" alt="menu-icon" />
+
+                                                        <div>
+                                                            <button>Reply</button>
+                                                            <br />
+                                                            <button
+                                                                onClick={() => {
+                                                                    copyToClipboard(window, document, message.messageID);
+
+                                                                    alert("Copied to clipboard");
+                                                                }}
+                                                            >
+                                                                Copy message ID
+                                                            </button>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    );
+                                })}
+
+                                <div id="chat-bottom"></div>
+                            </div>
+
+                            <div className={styles["message-input"]}>
+                                <button onClick={sendMessage}>
+                                    <img src="/assets/svg/add-attachment-icon.svg" alt="add-attachment-icon" />
+                                </button>
+                                <textarea
+                                    onKeyDown={(event: any) => {
+                                        if (event.target.value.length > 2000) {
+                                            event.target.value = event.target.value.substring(0, 2000);
+                                            return event.preventDefault();
+                                        }
+
+                                        if (event.key == "Enter") {
+                                            if (!openChat.userID || event.shiftKey) return;
+                                            event.preventDefault();
+                                            sendMessage();
+                                        }
+                                    }}
+                                    id="message-input"
+                                    placeholder="Message..."
+                                    onInput={(event: any) => {
+                                        if (event.target.scrollHeight > 70) return;
+                                        event.target.style.height = 60;
+                                        event.target.style.height = event.target.scrollHeight + "px";
+                                    }}
+                                />
+                                <button onClick={sendMessage}>
+                                    <img src="/assets/svg/send-message-icon.svg" alt="send-message-icon" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {openChat.userID == undefined && (
+                    <div className={styles["chat"]}>
+                        <h1>No chat open</h1>
+                    </div>
+                )}
+            </main>
+        </div>
+    );
 };
 
 export default Chat;

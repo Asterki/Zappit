@@ -6,8 +6,8 @@ import mongoStore from 'connect-mongo';
 
 import Users from '../models/user';
 import { app } from '..';
-import type { User } from '../../types';
-import { checkTFA } from '../utils/accounts';
+import type { User } from '../../shared/types/models';
+import { checkTFA } from '../helpers/accounts';
 
 // For authentication on each request
 passport.serializeUser(Users.serializeUser());

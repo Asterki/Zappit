@@ -10,7 +10,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker
 				.register('/serviceWorker.js')
-				.then((reg) => console.log('Registered service worker'))
+				.then(() => console.log('Registered service worker'))
 				.catch((err) => console.log('Failure: ', err));
 		}
 	}, []);

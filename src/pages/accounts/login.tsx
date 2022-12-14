@@ -1,211 +1,220 @@
-/* eslint-disable @next/next/no-img-element */
-import React from 'react';
-import axios from 'axios';
-import { getLangFile } from '../../utils/pages';
+import React from "react";
+import axios from "axios";
+import validator from "validator";
 
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import { Form, Spinner } from "react-bootstrap";
+import Navbar from "../../components/navbar";
+import Head from "next/head";
 
-import { Form, Spinner } from 'react-bootstrap';
-import Navbar from '../../components/navbar';
-import Head from 'next/head';
+import styles from "../../styles/accounts/login.module.scss";
+import { getLangFile } from "../../helpers/pages";
 
-import styles from '../../styles/accounts/login.module.scss';
-import type { NextPage, GetServerSideProps } from 'next';
+import type { NextPage, GetServerSideProps } from "next";
+import type { LoginBody } from "../../../shared/types/api";
+import type LangPack from "../../../shared/types/lang";
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (context.req.isAuthenticated())
-		return {
-			redirect: {
-				destination: '/home',
-				permanent: false,
-			},
-		};
+    if (context.req.isAuthenticated() as any)
+        return {
+            redirect: {
+                destination: "/home",
+                permanent: false,
+            },
+        };
 
-	return {
-		props: {
-			host: process.env.HOST,
-			lang: getLangFile(context.req.headers['accept-language'], 'accounts', 'login'),
-		},
-	};
+    return {
+        props: {
+            host: process.env.HOST,
+            lang: getLangFile(context.req.headers["accept-language"], "accounts", "login"),
+        },
+    };
 };
 
-const Login: NextPage = (props: any): JSX.Element => {
-	const [tab, setTab] = React.useState('main');
-	const [loading, setLoading] = React.useState(false);
+interface PageProps {
+    lang: typeof LangPack.accounts.login;
+    host: string;
+}
 
-	const [mainError, setMainError] = React.useState('');
-	const [tfaError, setTfaError] = React.useState('');
+const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
+    const [tab, setTab] = React.useState("main" as "main" | "tfa");
+    const [loading, setLoading] = React.useState(false as boolean);
 
-	const loginButton = async (event: React.MouseEvent) => {
-		// Restart errors, show spinning wheel
-		event.preventDefault();
-		setMainError('');
-		setTfaError('');
+    const [mainError, setMainError] = React.useState("" as keyof typeof LangPack.accounts.login.errors);
+    const [tfaError, setTfaError] = React.useState("" as keyof typeof LangPack.accounts.login.errors);
 
-		setLoading(true);
+    const clickLoginButton = async (event: React.MouseEvent): Promise<void | string> => {
+        // Restart errors, show spinning wheel
+        event.preventDefault();
+        setMainError("");
+        setTfaError("");
 
-		try {
-			// Get the values
-			const emailOrUsername = (document.querySelector('#email-or-username-input') as HTMLInputElement).value;
-			const password = (document.querySelector('#password-input') as HTMLInputElement).value;
-			const tfaCode = (document.querySelector('#tfa-code-input') as HTMLInputElement).value;
+        setLoading(true);
 
-			if (!emailOrUsername || !password) {
-				setLoading(false);
-				return setMainError('missing-parameters');
-			}
+        try {
+            // Get the values
+            const emailOrUsername: string = (document.querySelector("#email-or-username-input") as HTMLInputElement).value;
+            const password: string = (document.querySelector("#password-input") as HTMLInputElement).value;
+            const tfaCode: string = (document.querySelector("#tfa-code-input") as HTMLInputElement).value;
 
-			// Send the request
-			const response = await axios({
-				method: 'post',
-				url: `${props.host}/api/accounts/login`,
-				data: {
-					email: emailOrUsername,
-					password: password,
-					tfaCode: tab == 'tfa' ? tfaCode : undefined,
-				},
-			});
+            if (validator.isEmpty(emailOrUsername, { ignore_whitespace: true }) || validator.isEmpty(password, { ignore_whitespace: true })) {
+                setLoading(false);
+                return setMainError("missing-parameters");
+            }
 
-			// If successful, redirect to main page
-			if (response.data == 'success') return (window.location.href = '/home');
+            // Send the request
+            const response = await axios({
+                method: "post",
+                url: `${props.host}/api/accounts/login`,
+                data: {
+                    email: emailOrUsername,
+                    password: password,
+                    tfaCode: tab == "tfa" ? tfaCode : undefined,
+                } as LoginBody,
+            });
 
-			// If it requires TFA
-			if (response.data == 'missing-tfa-code') {
-				setLoading(false);
-				return setTab('tfa');
-			}
+            switch (response.data) {
+                case "success":
+                    window.location.href = "/home";
+                    break;
 
-			// An auth error ocurred, show the error to the user
-			if (response.data == 'invalid-tfa-code') {
-				setLoading(false);
-				return setTfaError(response.data);
-			}
+                case "missing-tfa-code":
+                    setLoading(false);
+                    setTab("tfa");
+                    break;
 
-			setMainError(response.data);
-			setTfaError(response.data);
+                case "invalid-tfa-code":
+                    setLoading(false);
+                    setTfaError(response.data);
+                    break;
 
-			setLoading(false);
-		} catch (err: any) {
-			console.log(err);
-			if (err.name == 'AxiosError') return (window.location.href = `/error?code=${err.response.status}`);
-		}
-	};
+                default:
+                    setMainError(response.data);
+                    setTfaError(response.data);
 
-	return (
-		<div className={styles['page']}>
-			<Head>
-				<title>{props.lang.pageTitle}</title>
-				<meta name="title" content={props.lang.pageTitle} />
-				<meta name="description" content={props.lang.pageDescription} />
-			</Head>
+                    setLoading(false);
+            }
+        } catch (err: any) {
+            console.log(err);
+            if (err.name == "AxiosError") return (window.location.href = `/error?code=${err.response.status}`);
+        }
+    };
 
-			<Navbar lang={{ topBar: props.lang.topBar }} />
+    return (
+        <div className={styles["page"]}>
+            <Head>
+                <title>{props.lang.pageTitle}</title>
+                <meta name="title" content={props.lang.pageTitle} />
+                <meta name="description" content={props.lang.pageDescription} />
+            </Head>
 
-			<header>
-				<h1>
-					<a>{props.lang.title.split('&')[0]}</a>
-					{props.lang.title.split('&')[1]}
-				</h1>
-			</header>
+            <Navbar lang={{ topBar: props.lang.topBar }} />
 
-			<main>
-				{/* Normal Form */}
-				<motion.div
-					variants={{
-						shown: {
-							opacity: 1,
-							display: 'block',
-							transition: {
-								duration: 0.3,
-								delay: 0.3,
-							},
-						},
-						hidden: {
-							opacity: 0,
-							transition: {
-								duration: 0.3,
-							},
-							transitionEnd: {
-								display: 'none',
-							},
-						},
-					}}
-					initial="hidden"
-					animate={tab == 'main' ? 'shown' : 'hidden'}
-				>
-					<Form.Group controlId="email-or-username-input">
-						<Form.Label>{props.lang.form.emailOrUsername}</Form.Label>
-						<Form.Control type="text" />
-					</Form.Group>
-					<p className={styles['error']}>{props.lang.errors[mainError]}</p>
+            <header>
+                <h1>
+                    <a>{props.lang.title.split("&")[0]}</a>
+                    {props.lang.title.split("&")[1]}
+                </h1>
+            </header>
 
-					<Form.Group controlId="password-input">
-						<Form.Label>{props.lang.form.password}</Form.Label>
-						<Form.Control type="password" />
-					</Form.Group>
+            <main>
+                {/* Normal Form */}
+                <motion.div
+                    variants={{
+                        shown: {
+                            opacity: 1,
+                            display: "block",
+                            transition: {
+                                duration: 0.3,
+                                delay: 0.3,
+                            },
+                        },
+                        hidden: {
+                            opacity: 0,
+                            transition: {
+                                duration: 0.3,
+                            },
+                            transitionEnd: {
+                                display: "none",
+                            },
+                        },
+                    }}
+                    initial="hidden"
+                    animate={tab == "main" ? "shown" : "hidden"}
+                >
+                    <Form.Group controlId="email-or-username-input">
+                        <Form.Label>{props.lang.form.emailOrUsername}</Form.Label>
+                        <Form.Control type="text" />
+                    </Form.Group>
+                    <p className={styles["error"]}>{props.lang.errors[mainError]}</p>
 
-					<p>
-						{props.lang.forgotPassword.split('&')[0]} <a href="/accounts/reset-password">{props.lang.forgotPassword.split('&')[1]}</a>
-					</p>
+                    <Form.Group controlId="password-input">
+                        <Form.Label>{props.lang.form.password}</Form.Label>
+                        <Form.Control type="password" />
+                    </Form.Group>
 
-					<br />
-					<button onClick={loginButton}>
-						{loading && <Spinner animation={'border'} size="sm" />}
-						{!loading && <div>{props.lang.form.login}</div>}
-					</button>
-				</motion.div>
+                    <p>
+                        {props.lang.forgotPassword.split("&")[0]} <a href="/accounts/reset-password">{props.lang.forgotPassword.split("&")[1]}</a>
+                    </p>
 
-				{/* Two Factor Authentication Form */}
-				<motion.div
-					variants={{
-						shown: {
-							opacity: 1,
-							display: 'block',
-							transition: {
-								duration: 0.3,
-								delay: 0.3,
-							},
-						},
-						hidden: {
-							opacity: 0,
-							transition: {
-								duration: 0.3,
-							},
-							transitionEnd: {
-								display: 'none',
-							},
-						},
-					}}
-					initial="hidden"
-					animate={tab == 'tfa' ? 'shown' : 'hidden'}
-				>
-					<p>{props.lang.tfaForm.title}</p>
-					<Form.Group controlId="tfa-code-input">
-						<Form.Label>{props.lang.tfaForm.tfa}</Form.Label>
-						<Form.Control type="password" />
-					</Form.Group>
+                    <br />
+                    <button onClick={clickLoginButton}>
+                        {loading && <Spinner animation={"border"} size="sm" />}
+                        {!loading && <div>{props.lang.form.login}</div>}
+                    </button>
+                </motion.div>
 
-					<p className={styles['error']}>{props.lang.errors[tfaError]}</p>
-					<button onClick={loginButton}>
-						{loading && <Spinner animation={'border'} size="sm" />}
-						{!loading && <div>{props.lang.tfaForm.submit}</div>}
-					</button>
-					<br />
-					<br />
+                {/* Two Factor Authentication Form */}
+                <motion.div
+                    variants={{
+                        shown: {
+                            opacity: 1,
+                            display: "block",
+                            transition: {
+                                duration: 0.3,
+                                delay: 0.3,
+                            },
+                        },
+                        hidden: {
+                            opacity: 0,
+                            transition: {
+                                duration: 0.3,
+                            },
+                            transitionEnd: {
+                                display: "none",
+                            },
+                        },
+                    }}
+                    initial="hidden"
+                    animate={tab == "tfa" ? "shown" : "hidden"}
+                >
+                    <p>{props.lang.tfaForm.title}</p>
+                    <Form.Group controlId="tfa-code-input">
+                        <Form.Label>{props.lang.tfaForm.tfa}</Form.Label>
+                        <Form.Control type="password" />
+                    </Form.Group>
 
-					<p className={styles['go-back-button']} onClick={() => setTab('main')}>
-						{props.lang.tfaForm.back}
-					</p>
-				</motion.div>
-			</main>
+                    <p className={styles["error"]}>{props.lang.errors[tfaError]}</p>
+                    <button onClick={clickLoginButton}>
+                        {loading && <Spinner animation={"border"} size="sm" />}
+                        {!loading && <div>{props.lang.tfaForm.submit}</div>}
+                    </button>
+                    <br />
+                    <br />
 
-			<footer>
-				<p>
-					{props.lang.register.split('&')[0]} <a href="/register">{props.lang.register.split('&')[1]}</a>
-				</p>
-			</footer>
-		</div>
-	);
+                    <p className={styles["go-back-button"]} onClick={() => setTab("main")}>
+                        {props.lang.tfaForm.back}
+                    </p>
+                </motion.div>
+            </main>
+
+            <footer>
+                <p>
+                    {props.lang.register.split("&")[0]} <a href="/register">{props.lang.register.split("&")[1]}</a>
+                </p>
+            </footer>
+        </div>
+    );
 };
 
 export default Login;

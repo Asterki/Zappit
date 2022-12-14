@@ -2,18 +2,17 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
 
 # testing
 /coverage
+/cypress/screenshots
+/cypress/videos
 
-# next.js
-/.next/
-/out/
 
 # production
 /build
+
+/server/ssl/
 
 # misc
 .DS_Store
@@ -27,12 +26,11 @@ yarn-error.log*
 
 # local env files
 .env*.local
-
-# vercel
-.vercel
+.env
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-data
+# Data
+/data

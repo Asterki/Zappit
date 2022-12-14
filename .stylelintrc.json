@@ -1,0 +1,10 @@
+{
+    "extends": ["stylelint-config-sass-guidelines"],
+    "rules": {
+        "length-zero-no-unit": null,
+        "max-nesting-depth": null,
+        "declaration-property-value-disallowed-list": null,
+        "selector-max-compound-selectors": 100,
+        "indentation": 4
+    }
+}
