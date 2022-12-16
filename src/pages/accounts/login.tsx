@@ -11,7 +11,7 @@ import styles from "../../styles/accounts/login.module.scss";
 import { getLangFile } from "../../helpers/pages";
 
 import type { NextPage, GetServerSideProps } from "next";
-import type { LoginBody } from "../../../shared/types/api";
+import type { LoginRequestBody, LoginResponse } from "../../../shared/types/api";
 import type LangPack from "../../../shared/types/lang";
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -70,10 +70,10 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
                     email: emailOrUsername,
                     password: password,
                     tfaCode: tab == "tfa" ? tfaCode : undefined,
-                } as LoginBody,
+                } as LoginRequestBody,
             });
 
-            switch (response.data) {
+            switch (response.data as LoginResponse) {
                 case "success":
                     window.location.href = "/home";
                     break;

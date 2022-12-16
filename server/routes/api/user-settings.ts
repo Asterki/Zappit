@@ -66,13 +66,15 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.isAuthenticated()) return res.status(403).send("unauthorized")
+		if (!req.isAuthenticated()) return res.status(403).send('unauthorized');
 
-		const bodyScheme = z.object({
-			tfaCode: z.string()
-		}).required()
+		const bodyScheme = z
+			.object({
+				tfaCode: z.string(),
+			})
+			.required();
 
-		const parsedBody = bodyScheme.safeParse(req.body)
+		const parsedBody = bodyScheme.safeParse(req.body);
 		if (!parsedBody.success) return res.status(400).send('invalid-parameters');
 
 		try {
@@ -111,11 +113,13 @@ router.post(
 	async (req: express.Request, res: express.Response) => {
 		if (!req.isAuthenticated() || !req.user) return res.status(403).send('unauthorized');
 
-		const bodyScheme = z.object({
-			tfaCode: z.string()
-		}).required()
+		const bodyScheme = z
+			.object({
+				tfaCode: z.string(),
+			})
+			.required();
 
-		const parsedBody = bodyScheme.safeParse(req.body)
+		const parsedBody = bodyScheme.safeParse(req.body);
 		if (!parsedBody.success) return res.status(400).send('invalid-parameters');
 
 		try {
