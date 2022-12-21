@@ -1,35 +1,40 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: false,
-    swcMinify: true,
+	reactStrictMode: false,
+	swcMinify: true,
 
-    distDir: "build/src",
+	distDir: 'build/src',
 
-    optimizeFonts: true,
+	optimizeFonts: true,
 
-    async rewrites() {
-        return [
-            {
-                source: "/",
-                destination: "/main",
-            },
-            {
-                source: "/home",
-                destination: "/main/home",
-            },
+	i18n: {
+		locales: ['de_DE', 'en_GB', 'pt_BR'],
+		defaultLocale: 'en_GB',
+	},
 
-            {
-                source: "/register",
-                destination: "/accounts/register",
-            },
-            {
-                source: "/login",
-                destination: "/accounts/login",
-            },
-        ];
-    },
+	async rewrites() {
+		return [
+			{
+				source: '/',
+				destination: '/main',
+			},
+			{
+				source: '/home',
+				destination: '/main/home',
+			},
 
-    swcMinify: true,
+			{
+				source: '/register',
+				destination: '/accounts/register',
+			},
+			{
+				source: '/login',
+				destination: '/accounts/login',
+			},
+		];
+	},
+
+	swcMinify: true,
 };
 
 module.exports = nextConfig;
