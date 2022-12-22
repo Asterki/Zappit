@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable react-hooks/exhaustive-deps */
 import Head from 'next/head';
 import * as React from 'react';
 import locale from 'locale';
@@ -5,13 +7,15 @@ import locale from 'locale';
 import { store } from '../store';
 import { Provider } from 'react-redux';
 import { setLanguage } from '../store/pageSlice';
+// import { setSessionID, setUser } from '../store/userSlice';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.scss';
 
-import type { AppProps, AppContext } from 'next/app';
+import type { AppProps } from 'next/app';
+import LangPack from '../../shared/types/lang';
 
-const App = ({ Component, pageProps }: AppProps) => {
+const CustomApp = ({ Component, pageProps }: AppProps) => {
 	React.useEffect(() => {
 		// Start service worker
 		if ('serviceWorker' in navigator) {
@@ -19,6 +23,24 @@ const App = ({ Component, pageProps }: AppProps) => {
 				.register('/serviceWorker.js')
 				.then(() => console.log('Registered service worker'))
 				.catch((err) => console.log('Failure: ', err));
+		}
+
+		if ('language' in navigator) {
+			// Language files
+			const languages = {
+				en: require('../../shared/locales/en').default as typeof LangPack,
+				es: require('../../shared/locales/es').default as typeof LangPack,
+			};
+
+			// Get the supported language files and the languages that the browser supports
+			const supported = new locale.Locales(
+				(process.env.NEXT_PUBLIC_SUPPORTED_LANGUAGES as string).split(',')
+			);
+			const locales = new locale.Locales(navigator.language);
+
+			// Get the language file using the best match, then load it into the state
+			const language: string = locales.best(supported).language;
+			store.dispatch(setLanguage(languages[language as 'en' | 'es']));
 		}
 	}, []);
 
@@ -31,7 +53,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 				{/* <!-- Primary Meta Tags --> */}
 				<title>Zappit</title>
 				<meta name='title' content='Zappit' />
-				<meta name='description' content='Lorem ipsum dolor sit amet consectetur adipisicing elit.' />
+				<meta name='description' content='Placeholder description' />
 				<link rel='manifest' href='manifest.json' />
 
 				{/* <!-- Open Graph / Facebook --> */}
@@ -40,7 +62,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 				<meta property='og:title' content='Zappit' />
 				<meta
 					property='og:description'
-					content='Lorem ipsum dolor sit amet consectetur adipisicing elit.'
+					content='Placeholder description'
 				/>
 				<meta property='og:image' content='/banner.png' />
 
@@ -50,7 +72,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 				<meta property='twitter:title' content='Zappit' />
 				<meta
 					property='twitter:description'
-					content='Lorem ipsum dolor sit amet consectetur adipisicing elit.'
+					content='Placeholder description'
 				/>
 				<meta property='twitter:image' content='/banner.png' />
 			</Head>
@@ -59,22 +81,4 @@ const App = ({ Component, pageProps }: AppProps) => {
 	);
 };
 
-App.getInitialProps = async (appContext: AppContext) => {
-    const supportedLanguages = new locale.Locales(appContext.ctx.locales);
-	const locales = new locale.Locales(appContext.ctx.locale);
-
-	const bestMatchLanguage: string = locales.best(supportedLanguages).language;
-    const languages = {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        en: require('../../shared/locales/en').default as any,
-    };
-    
-    // Set the global redux state
-    store.dispatch(setLanguage(languages[bestMatchLanguage as "en"]))
-
-	return {
-		lang: 'yea',
-	};
-};
-
-export default App;
+export default CustomApp;

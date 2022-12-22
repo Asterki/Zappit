@@ -1,11 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import pageReducer from './pageSlice';
+import userReducer from './userSlice';
 
 export const store = configureStore({
 	reducer: {
 		page: pageReducer,
+        user: userReducer
 	},
+    devTools: true
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

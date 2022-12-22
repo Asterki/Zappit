@@ -8,11 +8,17 @@ import { Form, Spinner, ProgressBar } from 'react-bootstrap';
 import Head from 'next/head';
 import Navbar from '../../components/navbar';
 
-import { getLangFile } from '../../helpers/pages';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/index';
+
 import styles from '../../styles/accounts/register.module.scss';
 
 import type { NextPage, GetServerSideProps } from 'next';
-import type { CheckUseRequestBody, CheckUseResponse, RegisterRequestBody } from '../../../shared/types/api';
+import type {
+	CheckUseRequestBody,
+	CheckUseResponse,
+	RegisterRequestBody,
+} from '../../../shared/types/api';
 import type LangPack from '../../../shared/types/lang';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -25,19 +31,14 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 		};
 
 	return {
-		props: {
-			host: process.env.HOST,
-			lang: getLangFile(context.req.headers['accept-language'], 'accounts', 'register'),
-		},
+		props: {},
 	};
 };
 
-interface PageProps {
-	lang: typeof LangPack.accounts.register;
-	host: string;
-}
+const Register: NextPage = (): JSX.Element => {
+    const appState = useSelector((state: RootState) => state.page);
+	const lang = appState.pageLang.accounts.register;
 
-const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 	const [tab, setTab] = React.useState('email' as 'email' | 'password');
 	const [loading, setLoading] = React.useState(false as boolean);
 
@@ -99,7 +100,7 @@ const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 			// Check if the input values are in use
 			const response: { data: CheckUseResponse } = await axios({
 				method: 'post',
-				url: `${props.host}/api/accounts/check-use`,
+				url: `${appState.hostURL}/api/accounts/check-use`,
 				data: {
 					email: email,
 					username: username,
@@ -201,12 +202,12 @@ const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 		try {
 			const response = await axios({
 				method: 'post',
-				url: `${props.host}/api/accounts/register`,
+				url: `${appState.hostURL}/api/accounts/register`,
 				data: {
 					username: username,
 					email: email,
 					password: password,
-					locale: props.lang.locale,
+					locale: lang.locale,
 				} as RegisterRequestBody,
 			});
 
@@ -255,17 +256,17 @@ const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 	return (
 		<div className={styles['page']}>
 			<Head>
-				<title>{props.lang.pageTitle}</title>
-				<meta name='title' content={props.lang.pageTitle} />
-				<meta name='description' content={props.lang.pageDescription} />
+				<title>{lang.pageTitle}</title>
+				<meta name='title' content={lang.pageTitle} />
+				<meta name='description' content={lang.pageDescription} />
 			</Head>
 
-			<Navbar lang={{ topBar: props.lang.topBar }} />
+			<Navbar lang={{ topBar: lang.topBar }} />
 
 			<header>
 				<h1>
-					<a>{props.lang.title.split('&')[0]}</a>
-					{props.lang.title.split('&')[1]}
+					<a>{lang.title.split('&')[0]}</a>
+					{lang.title.split('&')[1]}
 				</h1>
 			</header>
 
@@ -295,24 +296,24 @@ const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 					animate={tab == 'email' ? 'shown' : 'hidden'}
 				>
 					<Form.Group controlId='username-input'>
-						<Form.Label>{props.lang.emailForm.username}</Form.Label>
+						<Form.Label>{lang.emailForm.username}</Form.Label>
 						<Form.Control type='text' />
-						<Form.Text className='text-muted'>{props.lang.emailForm.usernameDescription}</Form.Text>
+						<Form.Text className='text-muted'>{lang.emailForm.usernameDescription}</Form.Text>
 					</Form.Group>
-					<p className={styles['error']}>{props.lang.errors[emailError]}</p>
+					<p className={styles['error']}>{lang.errors[emailError]}</p>
 
 					<Form.Group controlId='email-input'>
-						<Form.Label>{props.lang.emailForm.email}</Form.Label>
+						<Form.Label>{lang.emailForm.email}</Form.Label>
 						<Form.Control type='email' />
 					</Form.Group>
 					<p className={styles['login']}>
-						{props.lang.register.split('&')[0]} <a href='/login'>{props.lang.register.split('&')[1]}</a>
+						{lang.register.split('&')[0]} <a href='/login'>{lang.register.split('&')[1]}</a>
 					</p>
 					<br />
 
 					<button onClick={checkValues}>
 						{loading && <Spinner animation={'border'} size='sm' />}
-						{!loading && <div>{props.lang.emailForm.next}</div>}
+						{!loading && <div>{lang.emailForm.next}</div>}
 					</button>
 				</motion.div>
 
@@ -341,34 +342,34 @@ const Register: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 					animate={tab == 'password' ? 'shown' : 'hidden'}
 				>
 					<Form.Group controlId='password-input'>
-						<Form.Label>{props.lang.passwordForm.password}</Form.Label>
+						<Form.Label>{lang.passwordForm.password}</Form.Label>
 						<Form.Control type='password' onKeyUp={checkPasswordStrength} />
 						<ProgressBar
 							className={styles['progress-bar']}
 							now={passwordStrength}
 							variant={passwordStrengthVariant}
 						/>
-						<Form.Text className='text-muted'>{props.lang.passwordForm.passwordDescription}</Form.Text>
+						<Form.Text className='text-muted'>{lang.passwordForm.passwordDescription}</Form.Text>
 					</Form.Group>
-					<p className={styles['error']}>{props.lang.errors[passwordError]}</p>
+					<p className={styles['error']}>{lang.errors[passwordError]}</p>
 
 					<Form.Group controlId='confirm-password-input'>
-						<Form.Label>{props.lang.passwordForm.confirmPassword}</Form.Label>
+						<Form.Label>{lang.passwordForm.confirmPassword}</Form.Label>
 						<Form.Control type='password' />
 					</Form.Group>
 					<br />
 
 					<button onClick={register}>
 						{loading && <Spinner animation={'border'} size='sm' />}
-						{!loading && <div>{props.lang.passwordForm.register}</div>}
+						{!loading && <div>{lang.passwordForm.register}</div>}
 					</button>
 				</motion.div>
 			</main>
 
 			<footer>
 				<p>
-					{props.lang.footer.split('&')[0]} <a href='/tos'>{props.lang.footer.split('&')[1]}</a>{' '}
-					{props.lang.footer.split('&')[2]} <a href='/privacy'>{props.lang.footer.split('&')[3]}</a>
+					{lang.footer.split('&')[0]} <a href='/tos'>{lang.footer.split('&')[1]}</a>{' '}
+					{lang.footer.split('&')[2]} <a href='/privacy'>{lang.footer.split('&')[3]}</a>
 				</p>
 			</footer>
 		</div>

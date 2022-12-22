@@ -1,62 +1,38 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { createSlice } from '@reduxjs/toolkit';
 
 import type { PayloadAction } from '@reduxjs/toolkit';
+
 import LangPack from 'shared/types/lang';
+
+const languages = {
+	en: require('../../shared/locales/en').default as typeof LangPack,
+	es: require('../../shared/locales/es').default as typeof LangPack,
+};
 
 interface InitialStateType {
 	hostURL: string;
 	chatServiceURI: string;
 	mediaServiceURI: string;
-	pageLang: typeof LangPack | null;
+	pageLang: typeof LangPack;
 }
 
 const initialState: InitialStateType = {
 	hostURL: process.env.NEXT_PUBLIC_HOST as string,
 	chatServiceURI: process.env.NEXT_PUBLIC_CHAT_SERVICE_URI as string,
 	mediaServiceURI: process.env.NEXT_PUBLIC_MEDIA_SERVICE_URI as string,
-	pageLang: null,
+	pageLang: languages['en'], // TODO: I should add a skeleton language
 };
 
 export const pageSlice = createSlice({
 	name: 'page',
 	initialState,
 	reducers: {
-		setLanguage: (state, value: PayloadAction<any>) => {
-            state.pageLang = value.payload
+		setLanguage: (state, value: PayloadAction<typeof LangPack>) => {
+			state.pageLang = value.payload;
 		},
 	},
 });
 
-export const { setLanguage } = pageSlice.actions;
 export default pageSlice.reducer;
-
-/*
-import React from 'react'
-import type { RootState } from '../../app/store'
-import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment } from './counterSlice'
-
-export function Counter() {
-  const count = useSelector((state: RootState) => state.counter.value)
-  const dispatch = useDispatch()
-
-  return (
-    <div>
-      <div>
-        <button
-          aria-label="Increment value"
-          onClick={() => dispatch(increment())}
-        >
-          Increment
-        </button>
-        <span>{count}</span>
-        <button
-          aria-label="Decrement value"
-          onClick={() => dispatch(decrement())}
-        >
-          Decrement
-        </button>
-      </div>
-    </div>
-  )
-}*/
+export const { setLanguage } = pageSlice.actions;

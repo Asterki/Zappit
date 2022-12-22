@@ -79,7 +79,7 @@ passport.use(
 );
 
 
-export const registerAccount = async (userData: RegisterRequestBody, req: express.Request): Promise<RegisterUserReturnType> => {
+export const registerAccount = async (userData: RegisterRequestBody): Promise<RegisterUserReturnType> => {
 	// Find if the username is already registered
 	const isEmailOrUsernameRegistered = await Users.findOne({
 		$or: [
@@ -115,8 +115,6 @@ export const registerAccount = async (userData: RegisterRequestBody, req: expres
 
 	// Save the user to the database
 	const userSavedResult = await user.save()
-
-	loginUser(user, req)
 
 	return { error: null, user: userSavedResult }
 }

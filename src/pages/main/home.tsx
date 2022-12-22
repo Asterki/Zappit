@@ -1,51 +1,53 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
+import React from 'react';
 // import axios from 'axios';
-import { getLangFile } from "../../helpers/pages";
 
-import Navbar from "../../components/navbar";
-import MobileFooter from "../../components/mobile-footer";
+import Navbar from '../../components/navbar';
+import MobileFooter from '../../components/mobile-footer';
 
-import styles from "../../styles/accounts/login.module.scss";
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
-import type { NextPage, GetServerSideProps } from "next";
-import type LangPack from "../../../shared/types/lang";
-import type { User } from "../../../shared/types/models";
+import styles from '../../styles/accounts/login.module.scss';
 
-export const getServerSideProps: GetServerSideProps = async (context: any) => {
-    if (!context.req.isAuthenticated())
-        return {
-            redirect: {
-                destination: "/login",
-                permanent: false,
-            },
-        };
+import type { NextPage } from 'next';
 
-    return {
-        props: {
-            host: process.env.HOST,
-            cdnURI: process.env.CDN_URI,
-            lang: getLangFile(context.req.headers["accept-language"], "main", "home"),
-            user: JSON.parse(JSON.stringify(context.req.user)),
-        },
-    };
-};
+const Home: NextPage = (): JSX.Element => {
+	const pageState = useSelector((state: RootState) => state.page);
+	const userState = useSelector((state: RootState) => state.user);
 
-interface PageProps {
-    host: string;
-    cdnURI: string;
-    lang: typeof LangPack.main.home;
-    user: User;
-}
+	const lang = pageState.pageLang.main.home;
 
-const Home: NextPage<PageProps> = (props: PageProps): JSX.Element => {
-    return (
-        <div className={styles["page"]}>
-            <Navbar className={styles["navbar"]} lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
+	React.useEffect(() => {
+		(async () => {
+			if (userState.user == null) return (window.location.href = '/login');
+		})();
+	}, []);
 
-            <MobileFooter className={styles["mobile-footer"]} lang={props.lang} user={props.user} cdnURI={props.cdnURI} />
-        </div>
-    );
+	return (
+		<div className={styles['page']}>
+			{userState.user !== null && (
+				<div>
+					<Navbar
+						className={styles['navbar']}
+						lang={lang}
+						user={userState.user}
+						mediaServiceURI={pageState.mediaServiceURI}
+					/>
+
+					<MobileFooter
+						className={styles['mobile-footer']}
+						lang={lang}
+						user={userState.user}
+						mediaServiceURI={pageState.mediaServiceURI}
+					/>
+				</div>
+			)}
+
+			{userState.user == null && <>Loading...</>}
+		</div>
+	);
 };
 
 export default Home;

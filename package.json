@@ -25,6 +25,7 @@
         "production:build": "npm run build",
         "production:copy-files": "cp -r ./public ./build/ && cp -r ./shared ./build/",
         "production:run-server": "node ./build/server/index.js --dev false",
+        "test": "echo No tests for now",
         "test:e2e": "cypress run",
         "test:e2e:gui": "cypress open",
         "prepare": "husky install"
@@ -75,6 +76,7 @@
         "zod": "^3.19.1"
     },
     "devDependencies": {
+        "@redux-devtools/core": "^3.13.1",
         "@types/bcrypt": "^5.0.0",
         "@types/compression": "^1.7.2",
         "@types/cookie-parser": "^1.4.3",

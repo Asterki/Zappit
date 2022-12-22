@@ -11,14 +11,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store/index';
 
 import styles from '../../styles/accounts/login.module.scss';
-import { getLangFile } from '../../helpers/pages';
 
 import type { NextPage, GetServerSideProps } from 'next';
 import type { LoginRequestBody, LoginResponse } from '../../../shared/types/api';
 import type LangPack from '../../../shared/types/lang';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (context.req.isAuthenticated() as any)
+	if (context.req.isAuthenticated() as boolean)
 		return {
 			redirect: {
 				destination: '/home',
@@ -27,18 +26,13 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 		};
 
 	return {
-		props: {
-			lang: getLangFile(context.req.headers['accept-language'], 'accounts', 'login'),
-		},
+		props: {},
 	};
 };
 
-interface PageProps {
-	lang: typeof LangPack.accounts.login;
-}
-
-const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
+const Login: NextPage = (): JSX.Element => {
 	const appState = useSelector((state: RootState) => state.page);
+	const lang = appState.pageLang.accounts.login;
 
 	const [tab, setTab] = React.useState('main' as 'main' | 'tfa');
 	const [loading, setLoading] = React.useState(false as boolean);
@@ -49,10 +43,8 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 	const [tfaError, setTfaError] = React.useState('' as keyof typeof LangPack.accounts.login.errors);
 
 	const clickLoginButton = async (event: React.MouseEvent): Promise<void | string> => {
-        console.log(appState);
 		// Restart errors, show spinning wheel
 		event.preventDefault();
-
 		setMainError('');
 		setTfaError('');
 
@@ -77,7 +69,7 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 			// Send the request
 			const response = await axios({
 				method: 'post',
-				url: `${appState.hostURL}/api/accounts/login`,
+				url: `/api/accounts/login`,
 				data: {
 					email: emailOrUsername,
 					password: password,
@@ -116,17 +108,17 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 	return (
 		<div className={styles['page']}>
 			<Head>
-				<title>{props.lang.pageTitle}</title>
-				<meta name='title' content={props.lang.pageTitle} />
-				<meta name='description' content={props.lang.pageDescription} />
+				<title>{lang.pageTitle}</title>
+				<meta name='title' content={lang.pageTitle} />
+				<meta name='description' content={lang.pageDescription} />
 			</Head>
 
-			<Navbar lang={{ topBar: props.lang.topBar }} />
+			<Navbar lang={{ topBar: lang.topBar }} />
 
 			<header>
 				<h1>
-					<a>{props.lang.title.split('&')[0]}</a>
-					{props.lang.title.split('&')[1]}
+					<a>{lang.title.split('&')[0]}</a>
+					{lang.title.split('&')[1]}
 				</h1>
 			</header>
 
@@ -156,25 +148,25 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 					animate={tab == 'main' ? 'shown' : 'hidden'}
 				>
 					<Form.Group controlId='email-or-username-input'>
-						<Form.Label>{props.lang.form.emailOrUsername}</Form.Label>
+						<Form.Label>{lang.form.emailOrUsername}</Form.Label>
 						<Form.Control type='text' />
 					</Form.Group>
-					<p className={styles['error']}>{props.lang.errors[mainError]}</p>
+					<p className={styles['error']}>{lang.errors[mainError]}</p>
 
 					<Form.Group controlId='password-input'>
-						<Form.Label>{props.lang.form.password}</Form.Label>
+						<Form.Label>{lang.form.password}</Form.Label>
 						<Form.Control type='password' />
 					</Form.Group>
 
 					<p>
-						{props.lang.forgotPassword.split('&')[0]}{' '}
-						<a href='/accounts/reset-password'>{props.lang.forgotPassword.split('&')[1]}</a>
+						{lang.forgotPassword.split('&')[0]}{' '}
+						<a href='/accounts/reset-password'>{lang.forgotPassword.split('&')[1]}</a>
 					</p>
 
 					<br />
 					<button onClick={clickLoginButton}>
 						{loading && <Spinner animation={'border'} size='sm' />}
-						{!loading && <div>{props.lang.form.login}</div>}
+						{!loading && <div>{lang.form.login}</div>}
 					</button>
 				</motion.div>
 
@@ -202,29 +194,29 @@ const Login: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 					initial='hidden'
 					animate={tab == 'tfa' ? 'shown' : 'hidden'}
 				>
-					<p>{props.lang.tfaForm.title}</p>
+					<p>{lang.tfaForm.title}</p>
 					<Form.Group controlId='tfa-code-input'>
-						<Form.Label>{props.lang.tfaForm.tfa}</Form.Label>
+						<Form.Label>{lang.tfaForm.tfa}</Form.Label>
 						<Form.Control type='password' />
 					</Form.Group>
 
-					<p className={styles['error']}>{props.lang.errors[tfaError]}</p>
+					<p className={styles['error']}>{lang.errors[tfaError]}</p>
 					<button onClick={clickLoginButton}>
 						{loading && <Spinner animation={'border'} size='sm' />}
-						{!loading && <div>{props.lang.tfaForm.submit}</div>}
+						{!loading && <div>{lang.tfaForm.submit}</div>}
 					</button>
 					<br />
 					<br />
 
 					<p className={styles['go-back-button']} onClick={() => setTab('main')}>
-						{props.lang.tfaForm.back}
+						{lang.tfaForm.back}
 					</p>
 				</motion.div>
 			</main>
 
 			<footer>
 				<p>
-					{props.lang.register.split('&')[0]} <a href='/register'>{props.lang.register.split('&')[1]}</a>
+					{lang.register.split('&')[0]} <a href='/register'>{lang.register.split('&')[1]}</a>
 				</p>
 			</footer>
 		</div>

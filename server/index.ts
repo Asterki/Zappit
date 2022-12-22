@@ -42,9 +42,9 @@ nextApp.prepare().then(() => {
 
 	// Services
 	require("./services/auth")
-	require("./services/databases")
 	require("./services/controllers")
-
+	require("./services/databases")
+    
 	// Routes
 	require("./routes/index")
 

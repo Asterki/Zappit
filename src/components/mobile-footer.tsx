@@ -19,7 +19,7 @@ const MobileFooter = (props: any): JSX.Element => {
 				<img src="/assets/svg/chat-icon.svg" alt="explore-icon" />
 			</button>
 			<button className={styles["profile-button"]}>
-				<img src={`${props.cdnURI}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`} alt="avatar" />
+				<img src={`${props.mediaServiceURI}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`} alt="avatar" />
 			</button>
 		</div>
 	);

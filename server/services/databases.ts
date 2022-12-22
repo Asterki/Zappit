@@ -7,9 +7,9 @@ const redisClient = redis.createClient({
 	url: process.env.REDIS_URI as string,
 });
 
-(async () => {
+setTimeout(async () => {
 	await redisClient.connect();
-})();
+}, 300);
 
 // Events for the redis client
 redisClient.on('ready', () => {
@@ -22,7 +22,10 @@ redisClient.on('error', (error: Error) => {
 });
 
 // Connect to mongodb
-mongoose.connect(process.env.MONGODB_URI as string, { useUnifiedTopology: true, useNewUrlParser: true } as mongoose.ConnectOptions);
+mongoose.connect(
+	process.env.MONGODB_URI as string,
+	{ useUnifiedTopology: true, useNewUrlParser: true } as mongoose.ConnectOptions
+);
 const mongooseClient = mongoose.connection;
 
 // Events for the mongoose client

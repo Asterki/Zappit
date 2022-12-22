@@ -26,7 +26,7 @@ router.post(
 	'/register',
 	rateLimit({
 		windowMs: ms('12h'),
-		max: 1,
+		max: 3,
 		statusCode: 200,
 		skipFailedRequests: true,
 		skipSuccessfulRequests: false,
@@ -54,12 +54,14 @@ router.post(
 
 		try {
 			// Register the account
-			const result = await accountsService.registerAccount(parsedBody.data, req);
+			const result = await accountsService.registerAccount(parsedBody.data);
 			if (!result.user) return res.send(400).send(result.error);
 
-			// Login the user
-			accountsService.loginUser(result.user, req);
-			return res.status(200).send('success' as RegisterResponse);
+            // Login the user
+			req.logIn(result.user, (err) => {
+				if (err) throw err;
+				return res.status(200).send('success' as RegisterResponse);
+			});
 		} catch (err) {
 			loggerService.ApiError(req, res, err);
 			res.status(500).send('server-error' as RegisterResponse);

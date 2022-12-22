@@ -21,7 +21,7 @@
         transform: translate(-50%, 0%);
 
         a {
-            color: #a157ff !important;
+            color: #c59dff !important;
         }
     }
 
@@ -36,7 +36,7 @@
         }
 
         .go-back-button {
-            color: #a157ff;
+            color: #c59dff;
 
             cursor: pointer;
 
@@ -47,7 +47,7 @@
 
         button {
 
-            background: #a157ff;
+            background: #c59dff;
             border: none;
 
             border-radius: 12.3px;
@@ -58,13 +58,12 @@
         }
 
         a {
-            color: #a157ff;
+            color: #c59dff;
             text-decoration: none;
         }
 
         input {
-
-            background-color: #131417 !important;
+            background-color: #191821 !important;
             border: 2px solid #212129;
             border-radius: 10px;
             box-shadow: none !important;
@@ -74,7 +73,7 @@
             transition: all 0.1s ease-in-out;
 
             &:focus {
-                border: 2px solid #8d78fb;
+                border: 2px solid #c59dff;
             }
         }
 
@@ -89,7 +88,7 @@
         text-align: center;
 
         a {
-            color: #a157ff;
+            color: #c59dff;
             text-decoration: none;
         }
     }
