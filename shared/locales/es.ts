@@ -1,4 +1,6 @@
-const es = {
+import LangPack from 'shared/types/lang';
+
+const es: typeof LangPack = {
 	accounts: {
 		login: {
 			pageTitle: 'Zappit | Ingresar',
@@ -11,25 +13,28 @@ const es = {
 				emailOrUsername: 'Email O Nombre de Usuario',
 				password: 'Contraseña',
 				login: 'Ingresar',
-				register: "Todavía no tienes una cuenta? & Regístrate",
+				register: 'Todavía no tienes una cuenta? & Regístrate',
 			},
 
 			tfaForm: {
-				title: 'Por favor, ingresa el código de autenticación de dos factores proveído por tu aplicación de verificación',
-				tfa: 'Código De Autenticación de Dos Factores', 
+				title:
+					'Por favor, ingresa el código de autenticación de dos factores proveído por tu aplicación de verificación',
+				tfa: 'Código De Autenticación de Dos Factores',
 				submit: 'Enviar',
 				back: 'Ir Atrás',
 			},
 
-			register: "Todavía no tienes una cuenta? & Regístrate",
+			register: 'Todavía no tienes una cuenta? & Regístrate',
 			forgotPassword: 'Olvidaste tu contraseña? & Reinicie su contraseña ahora',
 
 			errors: {
 				'invalid-credentials': 'Nombre de usuario o contraseña incorrectas',
 				'missing-parameters': 'Por favor, llena todos los espacios',
+				'missing-tfa-code': 'Por favor, llena todos los espacioss',
 				'rate-limit': 'Has intentado ingresar muchas veces, por favor, intenta después',
 				'invalid-tfa-code': 'Código de autenticación de dos factores inválido',
-				'disabled': "Esta cuenta ha sido deshabilitada por romper nuestros Términos de Uso"
+				disabled: 'Esta cuenta ha sido deshabilitada por romper nuestros Términos de Uso',
+				'': '',
 			},
 		},
 		register: {
@@ -65,7 +70,8 @@ const es = {
 				'invalid-username': 'Usernames can only contain letters, bottom dashes (_) and dots (.)',
 
 				'invalid-username-length': 'Your username must be between 3 and 16 characters',
-				'invalid-password-length': "The password can't be shorter than 6 characters or longer than 256 characters",
+				'invalid-password-length':
+					"The password can't be shorter than 6 characters or longer than 256 characters",
 
 				'email-in-use': 'The email you entered is already in use',
 				'username-in-use': 'The username you entered is already in use',
@@ -73,6 +79,7 @@ const es = {
 
 				'rate-limit': "You've already created an account recently, please try again later",
 				'password-strength': 'Your password is too weak',
+				'': '',
 			},
 		},
 	},
@@ -81,7 +88,6 @@ const es = {
 			title: 'This is the home page',
 
 			topBar: 'Zappit',
-
 		},
 	},
 	profile: {

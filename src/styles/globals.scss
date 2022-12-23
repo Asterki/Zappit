@@ -1,36 +1,13 @@
-@font-face {
-    font-family: 'Baloo 2';
-    src: url('/assets/fonts/Baloo2-VariableFont_wght.ttf');
-}
-
-@font-face {
-    font-family: 'Fredoka';
-    src: url('/assets/fonts/Fredoka-VariableFont.ttf');
-}
-
-@font-face {
-    font-family: 'Comfortaa';
-    src: url('/assets/fonts/Comfortaa-VariableFont_wght.ttf');
-}
-
-@font-face {
-    font-family: 'Open-Sans';
-    src: url('/assets/fonts/OpenSans-Variable.ttf');
-}
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&family=Open+Sans&display=swap');
 
 html,
 body {
     // 1f1f29
     background-color: #1f1f29;
     color: #ebebeb;
-    font-family: 'Open-Sans';
+    font-family: 'Open Sans';
     margin: 0 !important;
     padding: 0 !important;
-}
-
-.particles {
-    position: fixed;
-    z-index: 0;
 }
 
 .text-muted {

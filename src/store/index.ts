@@ -1,17 +1,29 @@
 import { configureStore } from '@reduxjs/toolkit';
+// import storage from 'redux-persist/lib/storage';
+// import { combineReducers } from 'redux';
+// import { persistReducer } from 'redux-persist';
+import thunk from 'redux-thunk';
 
 import pageReducer from './pageSlice';
-import userReducer from './userSlice';
+
+// const reducers = combineReducers({
+// 	page: pageReducer,
+// });
+
+// const persistConfig = {
+// 	key: 'root',
+// 	storage,
+// };
+
+// const persistedReducer = persistReducer(persistConfig, reducers);
 
 export const store = configureStore({
 	reducer: {
 		page: pageReducer,
-        user: userReducer
 	},
-    devTools: true
+	devTools: process.env.NODE_ENV == 'development' ? true : false,
+	middleware: [thunk],
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;

@@ -58,6 +58,7 @@ const Login: NextPage = (): JSX.Element => {
 			const password: string = (document.querySelector('#password-input') as HTMLInputElement).value;
 			const tfaCode: string = (document.querySelector('#tfa-code-input') as HTMLInputElement).value;
 
+			// Check the input values
 			if (
 				validator.isEmpty(emailOrUsername, { ignore_whitespace: true }) ||
 				validator.isEmpty(password, { ignore_whitespace: true })
@@ -66,8 +67,16 @@ const Login: NextPage = (): JSX.Element => {
 				return setMainError('missing-parameters');
 			}
 
+			// If the open tab is the tfa one, it will also check the tfa input
+			if (tab == 'tfa') {
+				if (validator.isEmpty(tfaCode, { ignore_whitespace: true })) {
+					setLoading(false);
+					return setTfaError('missing-tfa-code');
+				}
+			}
+
 			// Send the request
-			const response = await axios({
+			const response = await axios<LoginResponse>({
 				method: 'post',
 				url: `/api/accounts/login`,
 				data: {
@@ -77,26 +86,19 @@ const Login: NextPage = (): JSX.Element => {
 				} as LoginRequestBody,
 			});
 
-			switch (response.data as LoginResponse) {
-				case 'success':
-					window.location.href = '/home';
-					break;
-
-				case 'missing-tfa-code':
-					setLoading(false);
+			if (response.data !== 'success') {
+				// Some sort of error/the account requires extra verification
+				if (response.data == 'missing-tfa-code') {
 					setTab('tfa');
-					break;
+				}
 
-				case 'invalid-tfa-code':
-					setLoading(false);
-					setTfaError(response.data);
-					break;
+				setMainError(response.data);
+				setTfaError(response.data);
 
-				default:
-					setMainError(response.data);
-					setTfaError(response.data);
-
-					setLoading(false);
+				setLoading(false);
+			} else {
+				// Login successful
+				window.location.href = '/home';
 			}
 		} catch (err: any) {
 			console.log(err);

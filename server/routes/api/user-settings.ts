@@ -27,10 +27,10 @@ router.post(
 		message: 'rate-limit',
 	}),
 	async (req: express.Request, res: express.Response) => {
-		if (!req.isAuthenticated() || !req.user) return res.status(400).send('unauthorized');
+		if (!req.isAuthenticated() || !req.user) return res.status(400)
 
 		try {
-			if (req.user.tfa.secret !== '') return res.status(400).send('already-activated');
+			if (req.user.tfa.secret !== '') return res.status(400)
 
 			const secret: any = speakeasy.generateSecret({
 				length: 20,

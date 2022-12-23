@@ -1,5 +1,4 @@
-import { User } from './models';
-
+// accounts/login
 export interface LoginRequestBody {
 	email: string;
 	password: string;
@@ -7,15 +6,15 @@ export interface LoginRequestBody {
 }
 
 export type LoginResponse =
+	| 'success'
 	| 'invalid-credentials'
 	| 'disabled'
 	| 'missing-tfa-code'
 	| 'invalid-tfa-code'
 	| 'invalid-tfa-code'
-	| 'invalid-parameters'
-	| 'success'
-	| 'server-error';
+	| 'rate-limit';
 
+// accounts/register
 export interface RegisterRequestBody {
 	username: string;
 	email: string;
@@ -23,13 +22,9 @@ export interface RegisterRequestBody {
 	locale: 'en' | 'es' | 'fr' | 'de';
 }
 
-type RegisterResponse =
-	| 'err-username-or-email-taken'
-	| 'success'
-	| 'invalid-parameters'
-	| 'server-error'
-	| User;
+export type RegisterResponse = 'rate-limit' | 'success';
 
+// accounts/check-use
 export interface CheckUseRequestBody {
 	email: string;
 	username: string;

@@ -18,6 +18,7 @@ import type {
 	CheckUseRequestBody,
 	CheckUseResponse,
 	RegisterRequestBody,
+	RegisterResponse,
 } from '../../../shared/types/api';
 import type LangPack from '../../../shared/types/lang';
 
@@ -36,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 };
 
 const Register: NextPage = (): JSX.Element => {
-    const appState = useSelector((state: RootState) => state.page);
+	const appState = useSelector((state: RootState) => state.page);
 	const lang = appState.pageLang.accounts.register;
 
 	const [tab, setTab] = React.useState('email' as 'email' | 'password');
@@ -200,7 +201,8 @@ const Register: NextPage = (): JSX.Element => {
 		}
 
 		try {
-			const response = await axios({
+			// Send the request
+			const response = await axios<RegisterResponse>({
 				method: 'post',
 				url: `${appState.hostURL}/api/accounts/register`,
 				data: {
@@ -211,8 +213,9 @@ const Register: NextPage = (): JSX.Element => {
 				} as RegisterRequestBody,
 			});
 
-			if (response.data == 'success') return (location.href = '/home');
-			setPasswordError(response.data);
+			// All other errors are status-code related, catch "handles" them
+			if (response.data == 'rate-limit') return setPasswordError('rate-limit');
+			else if (response.data == 'success') return (location.href = '/home');
 		} catch (err: any) {
 			if (err.name == 'AxiosError')
 				return (window.location.href = `/error?code=${err.response.status}`);

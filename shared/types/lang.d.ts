@@ -22,6 +22,7 @@ declare const LangPack: {
             errors: {
                 'invalid-credentials': string;
                 'missing-parameters': string;
+                'missing-tfa-code': string;
                 'rate-limit': string;
                 'invalid-tfa-code': string;
                 disabled: string;

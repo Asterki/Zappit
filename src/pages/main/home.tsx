@@ -11,41 +11,54 @@ import { RootState } from '../../store';
 
 import styles from '../../styles/accounts/login.module.scss';
 
-import type { NextPage } from 'next';
+import { User } from 'shared/types/models';
+import type { NextPage, GetServerSideProps } from 'next';
 
-const Home: NextPage = (): JSX.Element => {
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+	if (!context.req.isAuthenticated())
+		return {
+			redirect: {
+				destination: '/login',
+				permanent: false,
+			},
+		};
+
+	return {
+		props: {
+			user: JSON.parse(JSON.stringify(context.req.user)),
+			sessionID: context.req.sessionID,
+		},
+	};
+};
+
+interface PageProps {
+	user: User;
+	sessionID: string;
+}
+
+const Home: NextPage<PageProps> = (props: PageProps): JSX.Element => {
 	const pageState = useSelector((state: RootState) => state.page);
-	const userState = useSelector((state: RootState) => state.user);
-
 	const lang = pageState.pageLang.main.home;
-
-	React.useEffect(() => {
-		(async () => {
-			if (userState.user == null) return (window.location.href = '/login');
-		})();
-	}, []);
 
 	return (
 		<div className={styles['page']}>
-			{userState.user !== null && (
-				<div>
-					<Navbar
-						className={styles['navbar']}
-						lang={lang}
-						user={userState.user}
-						mediaServiceURI={pageState.mediaServiceURI}
-					/>
+			<div>
+				<Navbar
+					className={styles['navbar']}
+					lang={lang}
+					user={props.user}
+					mediaServiceURI={pageState.mediaServiceURI}
+				/>
 
-					<MobileFooter
-						className={styles['mobile-footer']}
-						lang={lang}
-						user={userState.user}
-						mediaServiceURI={pageState.mediaServiceURI}
-					/>
-				</div>
-			)}
+                ewqe
 
-			{userState.user == null && <>Loading...</>}
+				<MobileFooter
+					className={styles['mobile-footer']}
+					lang={lang}
+					user={props.user}
+					mediaServiceURI={pageState.mediaServiceURI}
+				/>
+			</div>
 		</div>
 	);
 };

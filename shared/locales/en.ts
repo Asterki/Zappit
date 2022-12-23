@@ -1,4 +1,6 @@
-const en = {
+import LangPack from 'shared/types/lang';
+
+const en: typeof LangPack = {
 	accounts: {
 		login: {
 			pageTitle: 'Zappit | Login',
@@ -27,9 +29,11 @@ const en = {
 			errors: {
 				'invalid-credentials': 'Incorrect username or password',
 				'missing-parameters': 'Please fill all spaces',
+				'missing-tfa-code': 'Please fill all spaces',
 				'rate-limit': 'You have tried logging in too many times, please try again later',
 				'invalid-tfa-code': 'Invalid two factor authentication code',
-				'disabled': "This account has been disabled for violations of our TOS"
+				disabled: 'This account has been disabled for violations of our TOS',
+				'': '',
 			},
 		},
 		register: {
@@ -65,7 +69,8 @@ const en = {
 				'invalid-username': 'Usernames can only contain letters, bottom dashes (_) and dots (.)',
 
 				'invalid-username-length': 'Your username must be between 3 and 16 characters',
-				'invalid-password-length': "The password can't be shorter than 6 characters or longer than 256 characters",
+				'invalid-password-length':
+					"The password can't be shorter than 6 characters or longer than 256 characters",
 
 				'email-in-use': 'The email you entered is already in use',
 				'username-in-use': 'The username you entered is already in use',
@@ -73,6 +78,7 @@ const en = {
 
 				'rate-limit': "You've already created an account recently, please try again later",
 				'password-strength': 'Your password is too weak',
+				'': '',
 			},
 		},
 	},
@@ -81,7 +87,6 @@ const en = {
 			title: 'This is the home page',
 
 			topBar: 'Zappit',
-
 		},
 	},
 	profile: {

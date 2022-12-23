@@ -50,21 +50,21 @@ router.post(
 			.required()
 			.safeParse(req.body);
 
-		if (!parsedBody.success) return res.status(400).send('invalid-parameters' as RegisterResponse);
+		if (!parsedBody.success) return res.status(400);
 
 		try {
 			// Register the account
 			const result = await accountsService.registerAccount(parsedBody.data);
-			if (!result.user) return res.send(400).send(result.error);
+			if (!result.user) return res.send(400);
 
-            // Login the user
+			// Login the user
 			req.logIn(result.user, (err) => {
 				if (err) throw err;
 				return res.status(200).send('success' as RegisterResponse);
 			});
 		} catch (err) {
 			loggerService.ApiError(req, res, err);
-			res.status(500).send('server-error' as RegisterResponse);
+			res.status(500);
 		}
 	}
 );
@@ -134,12 +134,12 @@ router.post(
 			.required()
 			.safeParse(req.body);
 
-		if (!parsedBody.success) return res.status(400).send('invalid-parameters' as LoginResponse);
+		if (!parsedBody.success) return res.status(400);
 
 		try {
 			passport.authenticate('local', (err: Error | null, user: User, result: string) => {
 				if (err) throw err;
-				if (!user) return res.status(200).send(result);
+				if (!user) return res.status(200).send(result as LoginResponse);
 
 				// Login the user
 				req.logIn(user, (err) => {
@@ -149,11 +149,12 @@ router.post(
 			})(req, res, next);
 		} catch (err) {
 			loggerService.ApiError(req, res, err);
-			res.status(500).send('server-error' as LoginResponse);
+			res.status(500);
 		}
 	}
 );
 
+// TODO: Convert to post (harder than it seems) 
 router.get('/logout', (req: express.Request, res: express.Response) => {
 	if (!req.isAuthenticated()) return res.redirect('/');
 

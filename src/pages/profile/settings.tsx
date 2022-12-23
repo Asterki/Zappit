@@ -3,15 +3,17 @@ import React from 'react';
 import axios from 'axios';
 import QRCode from 'qrcode';
 
-import { getLangFile } from '../../helpers/pages';
-
 import { motion } from 'framer-motion';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 import styles from '../../styles/settings/index.module.scss';
 import type { NextPage, GetServerSideProps } from 'next';
+import { User } from 'shared/types/models';
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
-	if (context.req.user == undefined)
+	if (!context.req.isAuthenticated())
 		return {
 			redirect: {
 				destination: '/login',
@@ -21,22 +23,28 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 
 	return {
 		props: {
-			host: process.env.HOST,
-			cdnURI: process.env.CDN_URI,
-			lang: getLangFile(context.req.headers['accept-language'], 'settings', 'index'),
 			user: JSON.parse(JSON.stringify(context.req.user)),
+			sessionID: context.req.sessionID,
 		},
 	};
 };
 
-const Profile: NextPage = (props: any): JSX.Element => {
+interface PageProps {
+	user: User;
+	sessionID: string;
+}
+
+const Profile: NextPage<PageProps> = (props: PageProps): JSX.Element => {
+	const pageState = useSelector((state: RootState) => state.page);
+	const lang = pageState.pageLang.profile.index;
+
 	const [activeTab, setActiveTab] = React.useState('accounts');
 	const [tfaCodeImage, setTfaCodeImage] = React.useState('');
 
 	const activateTfa = async () => {
 		const response = await axios({
 			method: 'post',
-			url: `${props.host}/api/user-settings/activate-tfa`,
+			url: `${pageState.hostURL}/api/user-settings/activate-tfa`,
 		});
 
 		console.log(response.data.code);
@@ -49,7 +57,7 @@ const Profile: NextPage = (props: any): JSX.Element => {
 	const getBackupCodes = async () => {
 		const response = await axios({
 			method: 'post',
-			url: `${props.host}/api/user-settings/get-backup-tfa-codes`,
+			url: `${pageState.hostURL}/api/user-settings/get-backup-tfa-codes`,
 			data: {
 				tfaCode: (document.querySelector('#backup-tfa-code-input') as HTMLInputElement).value,
 			},
@@ -61,7 +69,7 @@ const Profile: NextPage = (props: any): JSX.Element => {
 	const deactivateTfa = async () => {
 		const response = await axios({
 			method: 'post',
-			url: `${props.host}/api/user-settings/deactivate-tfa`,
+			url: `${pageState.hostURL}/api/user-settings/deactivate-tfa`,
 			data: {
 				tfaCode: (document.querySelector('#deactivate-tfa-code-input') as HTMLInputElement).value,
 			},
@@ -134,11 +142,14 @@ const Profile: NextPage = (props: any): JSX.Element => {
 					animate={activeTab == 'accounts' ? 'showing' : 'hidden'}
 					initial={'hidden'}
 				>
-					<img src={`${props.cdnURI}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`} alt="avatar" />
+					<img
+						src={`${pageState.mediaServiceURI}/avatars/${props.user.userID}/${props.user.avatar}.png?q=1`}
+						alt='avatar'
+					/>
 
-					<form action="/api/user-settings/upload-avatar" encType="multipart/form-data" method="post">
-						<input type="file" name="avatar" id="yes" accept="image/*" />
-						<input type="submit" value="Yes" />
+					<form action='/api/user-settings/upload-avatar' encType='multipart/form-data' method='post'>
+						<input type='file' name='avatar' id='yes' accept='image/*' />
+						<input type='submit' value='Yes' />
 					</form>
 				</motion.div>
 
@@ -195,19 +206,19 @@ const Profile: NextPage = (props: any): JSX.Element => {
 					animate={activeTab == 'security' ? 'showing' : 'hidden'}
 					initial={'hidden'}
 				>
-					<h1>{props.lang.title}</h1>
+					<h1>{lang.title}</h1>
 					<button onClick={activateTfa}>Activate TFA</button>
-					<img src={tfaCodeImage} alt="qrcodeImage" />
+					<img src={tfaCodeImage} alt='qrcodeImage' />
 
 					<br />
 					<br />
 
-					<input type="text" id="backup-tfa-code-input" />
+					<input type='text' id='backup-tfa-code-input' />
 					<button onClick={getBackupCodes}>Get backup codes</button>
 
 					<br />
 					<br />
-					<input type="text" id="deactivate-tfa-code-input" />
+					<input type='text' id='deactivate-tfa-code-input' />
 					<button onClick={deactivateTfa}>Deactivate tfa</button>
 				</motion.div>
 			</div>

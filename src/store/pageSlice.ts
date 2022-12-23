@@ -8,6 +8,7 @@ import LangPack from 'shared/types/lang';
 const languages = {
 	en: require('../../shared/locales/en').default as typeof LangPack,
 	es: require('../../shared/locales/es').default as typeof LangPack,
+    initial: require("../../shared/locales/placeholder").default as typeof LangPack
 };
 
 interface InitialStateType {
@@ -21,7 +22,7 @@ const initialState: InitialStateType = {
 	hostURL: process.env.NEXT_PUBLIC_HOST as string,
 	chatServiceURI: process.env.NEXT_PUBLIC_CHAT_SERVICE_URI as string,
 	mediaServiceURI: process.env.NEXT_PUBLIC_MEDIA_SERVICE_URI as string,
-	pageLang: languages['en'], // TODO: I should add a skeleton language
+	pageLang: languages['initial'], // TODO: I should add a skeleton language
 };
 
 export const pageSlice = createSlice({

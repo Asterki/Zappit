@@ -7,6 +7,8 @@ import locale from 'locale';
 import { store } from '../store';
 import { Provider } from 'react-redux';
 import { setLanguage } from '../store/pageSlice';
+// import { PersistGate } from 'redux-persist/integration/react';
+// import { persistStore } from 'redux-persist';
 // import { setSessionID, setUser } from '../store/userSlice';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,6 +16,8 @@ import '../styles/globals.scss';
 
 import type { AppProps } from 'next/app';
 import LangPack from '../../shared/types/lang';
+
+// const persistor = persistStore(store);
 
 const CustomApp = ({ Component, pageProps }: AppProps) => {
 	React.useEffect(() => {
@@ -46,37 +50,33 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
 
 	return (
 		<Provider store={store}>
-			<Head>
-				<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=1' />
-				<meta name='theme-color' content='#6770EF' />
+			{/* <PersistGate loading={null} persistor={persistor}> */}
+				<Head>
+					<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=1' />
+					<meta name='theme-color' content='#6770EF' />
 
-				{/* <!-- Primary Meta Tags --> */}
-				<title>Zappit</title>
-				<meta name='title' content='Zappit' />
-				<meta name='description' content='Placeholder description' />
-				<link rel='manifest' href='manifest.json' />
+					{/* <!-- Primary Meta Tags --> */}
+					<title>Zappit</title>
+					<meta name='title' content='Zappit' />
+					<meta name='description' content='Placeholder description' />
+					<link rel='manifest' href='manifest.json' />
 
-				{/* <!-- Open Graph / Facebook --> */}
-				<meta property='og:type' content='website' />
-				<meta property='og:url' content='https://zappitapp.xyz/' />
-				<meta property='og:title' content='Zappit' />
-				<meta
-					property='og:description'
-					content='Placeholder description'
-				/>
-				<meta property='og:image' content='/banner.png' />
+					{/* <!-- Open Graph / Facebook --> */}
+					<meta property='og:type' content='website' />
+					<meta property='og:url' content='https://zappitapp.xyz/' />
+					<meta property='og:title' content='Zappit' />
+					<meta property='og:description' content='Placeholder description' />
+					<meta property='og:image' content='/banner.png' />
 
-				{/* <!-- Twitter --> */}
-				<meta property='twitter:card' content='summary_large_image' />
-				<meta property='twitter:url' content='https://zappitapp.xyz/' />
-				<meta property='twitter:title' content='Zappit' />
-				<meta
-					property='twitter:description'
-					content='Placeholder description'
-				/>
-				<meta property='twitter:image' content='/banner.png' />
-			</Head>
-			<Component {...pageProps} />
+					{/* <!-- Twitter --> */}
+					<meta property='twitter:card' content='summary_large_image' />
+					<meta property='twitter:url' content='https://zappitapp.xyz/' />
+					<meta property='twitter:title' content='Zappit' />
+					<meta property='twitter:description' content='Placeholder description' />
+					<meta property='twitter:image' content='/banner.png' />
+				</Head>
+				<Component {...pageProps} />
+			{/* </PersistGate> */}
 		</Provider>
 	);
 };
