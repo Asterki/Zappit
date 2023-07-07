@@ -106,7 +106,7 @@
         "eslint": "8.24.0",
         "eslint-config-next": "12.3.1",
         "husky": "^8.0.2",
-        "stylelint": "^14.16.0",
+        "stylelint": "^15.10.1",
         "stylelint-config-idiomatic-order": "^9.0.0",
         "stylelint-config-sass-guidelines": "^9.0.1",
         "stylelint-config-standard": "^29.0.0",
